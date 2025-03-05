@@ -1,10 +1,10 @@
 import {   Text, View, TouchableOpacity,Modal,TextInput,Alert} from 'react-native'
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from './styles/Portfolio';
 import { useNavigation } from '@react-navigation/native';
-const Portfolio = () => {
+const Portfolio = ({userRole,userId,email}) => {
   const [portfolioData, setPortfolioData] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [editPortfolioModalVisible, setEditPortfolioModalVisible] = useState(false);
@@ -16,18 +16,46 @@ const Portfolio = () => {
     experience: '',
     skills: '',
   });
+  const[editExpertProfileModal,setEditExpertProfileModal]=useState(false);
+  const[expertProfileData,setExpertProfileData]=useState( {
+    category:'',
+    charges:'',
+    isVerified:'',
+    ratings:'',
+    totalDeals:''
+  });
+  const[showExpertProfileModal,setShowExpertProfileModal] = useState(false);
   const [submitted, setSubmitted] =useState(false);
   const navigation = useNavigation(); 
 
-  // Fetch expert portfolio details
-  const getPortfolio = async () => {
+  const getPortfolio = async (navigation) => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      const email = await AsyncStorage.getItem('email');
-
-      if (!userId) return;
-
-      const response = await axios.get(`http://10.0.2.2:3000/expert/portfolio/${userId}`);
+  
+      if (!userId) {
+        Alert.alert('User ID not found');
+        return;
+      }
+  
+      // Handle errors inside 'then' instead of 'catch'
+      const response = await axios.get(`http://10.0.2.2:3000/expert/portfolio/${userId}`)
+        .catch(error => {
+          if (error.response && error.response.status === 404) {
+            Alert.alert(
+              'Portfolio Not Found',
+              'You have not created a portfolio. Would you like to create one now?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Create Now', onPress: () => navigation.navigate('PortfolioForm',{userId:userId,email:email})}
+              ]
+            );
+            return null; 
+          } else {
+            throw error; 
+          }
+        });
+  
+      if (!response || !response.data || !response.data.user) return;
+  
       setPortfolioData(response.data.user);
       setPortfolioFormData({
         fullName: response.data.user.fullName || '',
@@ -35,14 +63,21 @@ const Portfolio = () => {
         currentPost: response.data.user.currentPost || '',
         url: response.data.user.url || '',
         experience: response.data.user.experience || '',
-        skills: response.data.user.skills || '',
+        skills: Array.isArray(response.data.user.skills) ? response.data.user.skills.join(", ") : '',
       });
+      
+  
       setModalVisible(true);
     } catch (error) {
-      console.error('Error fetching portfolio:', error);
+      console.warn('Error fetching portfolio:', error);
+      Alert.alert('Something went wrong, try again later');
     }
   };
-
+  
+  
+  const handleGetPortfolio = () => {
+    getPortfolio(navigation);
+  };
   const handleLogout = async () => {
     try {
       await AsyncStorage.clear();
@@ -57,24 +92,21 @@ const Portfolio = () => {
 
 
   const handleEditPortfolio = async () => {
-    if (
-      !portfolioFormData.fullName.trim() ||
-      !portfolioFormData.email.trim() ||
-      !portfolioFormData.currentPost.trim() ||
-      !portfolioFormData.experience.trim()
-    ) {
+    if (!portfolioFormData.fullName.trim() || !portfolioFormData.currentPost.trim() || !portfolioFormData.experience.trim()) {
       Alert.alert("Validation Error", "Please fill in all required fields for your portfolio.");
       return;
     }
-
+  
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      const expertFormSubmitted = await AsyncStorage.getItem('expertFormSubmitted');
-      setSubmitted(expertFormSubmitted);
-      if (!userId) return;
-
-      const response = await axios.patch(`http://10.0.2.2:3000/expert/editPortfolio/${userId}`, portfolioFormData);
+      const updatedData = {
+        ...portfolioFormData,
+        skills: portfolioFormData.skills.split(',').map(skill => skill.trim()), // Convert string back to array
+      };
+      
+  
+      const response = await axios.patch(`http://10.0.2.2:3000/expert/editPortfolio/${userId}`, updatedData);
       setPortfolioData(response.data.user);
+
       setEditPortfolioModalVisible(false);
       Alert.alert("Success", "Portfolio updated successfully!");
     } catch (error) {
@@ -82,7 +114,153 @@ const Portfolio = () => {
       Alert.alert("Error", "There was an error updating your portfolio. Please try again.");
     }
   };
- 
+  
+  const isExpertProfileCreated=async ()=>{
+    if(userRole === 'user'){
+      return;
+  }
+    try {
+      console.warn("UserID from AsyncStorage:", userId); 
+  
+      if (!userId) {
+        Alert.alert("Error", "User ID not found.");
+        return;
+      }
+  
+      const response = await axios.get(`http://10.0.2.2:3000/profile/getExpertProfile/${userId}`);
+      
+      console.log("API Response:", response.data);
+       
+      if (response.status === 200) {
+       setSubmitted(true);
+      } 
+    } catch (error) {
+      console.error(" Error fetching profile:", error.response?.data || error.message);
+      Alert.alert("Error", "Tnnnng your profile.");
+    }
+  }
+const getExpertProfile = async()=>{
+  try {
+    const response = await axios.get(`http://10.0.2.2:3000/profile/getExpertProfile/${userId}`);
+    
+    console.warn("API Response:", response.data);
+     
+    if (response.status === 200) {
+      setExpertProfileData( {
+        category:response.data.data.category,
+        charges:response.data.data.charges,
+        isVerified:response.data.data.isVerified,
+        ratings:response.data.data.ratings,
+        totalDeals:response.data.data.totalDeals
+      });
+      console.warn(expertProfileData);
+      setShowExpertProfileModal(true);
+    } 
+  } catch (error) {
+    console.error("Error fetching profile:", error.response?.data || error.message);
+    Alert.alert("Error", "Tnnnng your profile.");
+  }
+
+
+}
+const [newCategory, setNewCategory] = useState('');
+const [newCharge, setNewCharge] = useState('');
+
+const handleEditExpertProfileData = async () => {
+  try {
+    // Validate inputs
+    if (expertProfileData.category.length === 0) {
+      Alert.alert("Validation Error", "Please add at least one category.");
+      return;
+    }
+
+    if (expertProfileData.charges.length === 0) {
+      Alert.alert("Validation Error", "Please add charges for services.");
+      return;
+    }
+
+    const updatedData = {
+      category: expertProfileData.category.split(',').map(cat => cat.trim()),
+      charges: expertProfileData.charges.split(',').map(charge => parseFloat(charge.trim())),
+      bio: expertProfileData.bio || '' 
+    };
+
+    const response = await axios.patch(
+      `http://10.0.2.2:3000/profile/editExpertProfile/${userId}`, 
+      updatedData
+    );
+
+    if (response.data && response.data.data) {
+      // Update local state with the response data
+      setExpertProfileData({
+        category: response.data.data.category.join(', '),
+        charges: response.data.data.charges.join(', '),
+        bio: response.data.data.bio || '',
+        isVerified: response.data.data.isVerified,
+        ratings: response.data.data.ratings,
+        totalDeals: response.data.data.totalDeals
+      });
+
+      setEditExpertProfileModal(false);
+      Alert.alert("Success", "Expert Profile updated successfully!");
+    } else {
+      throw new Error("Invalid response from server");
+    }
+  } catch (error) {
+    console.error('Error updating expert profile:', error);
+    Alert.alert(
+      "Error", 
+      error.response?.data?.message || "There was an error updating your profile. Please try again."
+    );
+  }
+};
+
+const addCategory = () => {
+  if (!newCategory.trim()) {
+    Alert.alert("Error", "Category cannot be empty");
+    return;
+  }
+
+  const updatedCategories = expertProfileData.category 
+    ? `${expertProfileData.category}, ${newCategory.trim()}` 
+    : newCategory.trim();
+
+  setExpertProfileData(prev => ({
+    ...prev,
+    category: updatedCategories
+  }));
+  setNewCategory(''); // Clear the input
+};
+
+const addCharge = () => {
+  if (!newCharge.trim()) {
+    Alert.alert("Error", "Charge cannot be empty");
+    return;
+  }
+
+  const updatedCharges = expertProfileData.charges
+    ? `${expertProfileData.charges}, ${newCharge.trim()}`
+    : newCharge.trim();
+
+  setExpertProfileData(prev => ({
+    ...prev,
+    charges: updatedCharges
+  }));
+  setNewCharge(''); // Clear the input
+};
+
+
+    useEffect(() => {
+      const fetch = async () => {
+        try {
+          await isExpertProfileCreated();
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+    
+      fetch();
+    }, []);
   return (
     <View>
       <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
@@ -107,8 +285,11 @@ const Portfolio = () => {
                   Experience: <Text style={styles.value}>{portfolioData.experience || "N/A"}</Text>
                 </Text>
                 <Text style={styles.label}>
-                  Skills: <Text style={styles.value}>{portfolioData.skills || "N/A"}</Text>
-                </Text>
+  Skills: <Text style={styles.value}>
+    {Array.isArray(portfolioData.skills) ? portfolioData.skills.join(", ") : "N/A"}
+  </Text>
+</Text>
+
               </>
             ) : (
               <Text style={styles.placeholderText}>No portfolio data available.</Text>
@@ -121,14 +302,96 @@ const Portfolio = () => {
         </View>
       </Modal>
        {
-        submitted ?(null):(
-          <TouchableOpacity style={styles.closeButton} onPress={()=>navigation.navigate('Expert') }>
-          <Text style={styles.buttonText}>Create Expert profile</Text>
-        </TouchableOpacity>
+       !submitted &&  userRole==='expert' ?(<TouchableOpacity style={styles.closeButton} onPress={()=>navigation.navigate('Expert',{isExpertsubmitted:submitted}) }>
+        <Text style={styles.buttonText}>Create Expert profile</Text>
+      </TouchableOpacity>):(
+          userRole === 'expert' ? (<TouchableOpacity style={styles.closeButton} onPress={()=>setEditExpertProfileModal(true)}>
+          <Text style={styles.buttonText}>Edit Expert profile</Text>
+        </TouchableOpacity>):(null)
         )
-
        }
-    
+       {
+        submitted ? (<TouchableOpacity style={styles.closeButton} onPress={getExpertProfile}>
+        <Text style={styles.buttonText}>Show Expert profile</Text>
+      </TouchableOpacity>):(null)
+       }
+      
+      <Modal 
+    animationType="fade" 
+    transparent 
+    visible={editExpertProfileModal} 
+    onRequestClose={() => setEditExpertProfileModal(false)}
+  >
+    <View style={styles.modalBackground}>
+      <View style={styles.modalContainer}>
+        <Text style={styles.sectionTitle}>Edit Expert Profile</Text>
+        
+        <View style={styles.rowInput}>
+          <TextInput
+            style={[styles.input, { flex: 1 }]}
+            placeholder="Add Category"
+            value={newCategory}
+            onChangeText={setNewCategory}
+          />
+          <TouchableOpacity style={styles.addButton} onPress={addCategory}>
+            <Text style={styles.buttonText}>Add</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <TextInput
+          style={styles.input}
+          placeholder="Current Categories"
+          value={expertProfileData.category}
+          editable={false}
+        />
+        
+        <View style={styles.rowInput}>
+          <TextInput
+            style={[styles.input, { flex: 1 }]}
+            placeholder="Add Charge"
+            value={newCharge}
+            onChangeText={setNewCharge}
+            keyboardType="numeric"
+          />
+          <TouchableOpacity style={styles.addButton} onPress={addCharge}>
+            <Text style={styles.buttonText}>Add</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <TextInput
+          style={styles.input}
+          placeholder="Current Charges"
+          value={expertProfileData.charges}
+          editable={false}
+        />
+        
+        <TextInput
+          style={[styles.input, { height: 100 }]}
+          placeholder="Bio"
+          value={expertProfileData.bio}
+          onChangeText={(text) => setExpertProfileData({ 
+            ...expertProfileData, 
+            bio: text 
+          })}
+          multiline
+        />
+      
+        <TouchableOpacity 
+          style={styles.saveButton} 
+          onPress={handleEditExpertProfileData}
+        >
+          <Text style={styles.buttonText}>Save Changes</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.closeButton} 
+          onPress={() => setEditExpertProfileModal(false)}
+        >
+          <Text style={styles.buttonText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </Modal>
     
      <Modal animationType="fade" transparent visible={editPortfolioModalVisible} onRequestClose={() => setEditPortfolioModalVisible(false)}>
             <View style={styles.modalBackground}>
@@ -149,14 +412,16 @@ const Portfolio = () => {
                 <TextInput
                   style={styles.input}
                   placeholder="experience"
-                  value={portfolioFormData.category}
+                  value={portfolioFormData.experience}
                   onChangeText={(text) => setPortfolioFormData({ ...portfolioFormData, experience: text })}
                 />
-                <TextInput
+               <TextInput
                   style={[styles.input, { height: 80 }]}
-                  placeholder="skills"
-                  value={portfolioFormData.bio}
-                  onChangeText={(text) => setPortfolioFormData({ ...portfolioFormData, skills: text })}
+                  placeholder="Skills (comma separated)"
+                  value={portfolioFormData.skills}
+                  onChangeText={(text) =>
+                    setPortfolioFormData({ ...portfolioFormData, skills: text })
+                  }
                   multiline
                 />
                 <TextInput
@@ -175,17 +440,49 @@ const Portfolio = () => {
             </View>
           </Modal>
 
-           <View style={styles.bottomButtons}>
-                  <TouchableOpacity style={styles.button} onPress={getPortfolio}>
+        {  userRole === 'expert'  ? (<View style={styles.bottomButtons}>
+                  <TouchableOpacity style={styles.button} onPress={handleGetPortfolio}>
                     <Text style={styles.buttonText}>View Portfolio</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.button} onPress={()=>setEditPortfolioModalVisible(true)}>
                     <Text style={styles.buttonText}>Edit Portfolio</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                
+                </View>):(null) }
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                     <Text style={styles.buttonText}>Logout</Text>
                   </TouchableOpacity>
-                </View>
+
+
+
+
+                  <Modal animationType="slide" transparent visible={showExpertProfileModal} onRequestClose={() => setShowExpertProfileModal(false)}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.sectionTitle}>Expert Profile</Text>
+              <>
+                <Text style={styles.label}>
+                  Your categories: <Text style={styles.value}>{ expertProfileData.category || "N/A"}</Text>
+                </Text> 
+                 <Text style={styles.label}>
+                  Your charges : <Text style={styles.value}>{expertProfileData.charges|| "N/A"}</Text>
+                </Text>
+                <Text style={styles.label}>
+                  Total Deals: <Text style={styles.value}>{expertProfileData.totalDeals === 0 ? ("No Deals Yet"):(expertProfileData.totalDeals) }</Text>
+                </Text>
+                <Text style={styles.label}>
+                  Ratings: <Text style={styles.value}>{expertProfileData.ratings === 0 ?("You have not rated by anyone"):(expertProfileData.ratings)}</Text>
+                </Text>
+                <Text style={styles.label}>
+                  Verified: <Text style={styles.value}>{ expertProfileData.isVerified === false ? ("You are not verified"): ("Yes")}</Text>
+                </Text>
+              </>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setShowExpertProfileModal(false)}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
         </View>
   )
 }

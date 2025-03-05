@@ -49,8 +49,8 @@ const LoginScreen = ({ navigation }) => {
                     setRoleModalVisible(true);
                 } else {
                     await AsyncStorage.setItem('userRole',userRole)
-
-                    navigation.navigate("Home"); 
+                    
+                    navigation.replace("MainTabs"); 
                 }
             } else {
                 Alert.alert("Error", "Wrong email or password");
@@ -237,10 +237,10 @@ const LoginScreen = ({ navigation }) => {
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>Select Your Role</Text>
                         <TouchableOpacity style={styles.roleButton} onPress={() => selectUserRole("user")}>
-                            <Text style={styles.buttonText}>I am a Normal User</Text>
+                            <Text style={styles.buttonText}>Normal User</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.roleButton} onPress={() => selectUserRole("expert")}>
-                            <Text style={styles.buttonText}>I am an Expert</Text>
+                            <Text style={styles.buttonText}>Expert</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

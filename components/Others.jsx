@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const ExpertActivity = () => {
+const Others = () => {
   return (
     <View>
-      <Text>ExpertActivity</Text>
+      <Text>Others</Text>
     </View>
   )
 }
 
-export default ExpertActivity
+export default Others
 
 const styles = StyleSheet.create({})

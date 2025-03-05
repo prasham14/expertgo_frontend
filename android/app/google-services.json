@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "79789709678",
+    "project_id": "expertgo-e4dc3",
+    "storage_bucket": "expertgo-e4dc3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:79789709678:android:24b73d385c1827029d897f",
+        "android_client_info": {
+          "package_name": "com.projecttk1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtyL1Yg-rjKGxOJvMnB28xJ-BHCpnjN10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

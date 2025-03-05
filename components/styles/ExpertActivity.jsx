@@ -3,132 +3,125 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
     padding: 20,
+    backgroundColor: '#f5f5f5',
   },
-
-  // 🌟 Header & Titles
   header: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#2C3E50', // Darker shade for professionalism
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
+    color: '#333',
   },
-
-  subHeader: {
-    fontSize: 17,
-    color: '#7F8C8D', // Muted gray for subtle contrast
-    textAlign: 'center',
-    marginBottom: 18,
-  },
-
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#34495E',
-    marginBottom: 6,
-  },
-
-  sectionContent: {
-    fontSize: 15,
+    marginBottom: 5,
     color: '#555',
-    lineHeight: 22,
-    marginBottom: 12,
   },
-
-  // 🧑‍💼 Expert Section
+  noMeetings: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#777',
+  },
   expertSection: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
-    marginVertical: 12,
-  },
-
-  expertInfo: {
-    backgroundColor: '#E3F2FD',
-    padding: 16,
+    backgroundColor: '#fff',
+    padding: 15,
     borderRadius: 10,
-    marginTop: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-
-  // 👤 User Section (For Normal Users)
   userSection: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 12,
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
-    marginVertical: 12,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-
-  // ⭐ Famous Expert Cards
-  expertCard: {
-    backgroundColor: '#FFF',
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 10,
+  meetingCard: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 8,
     shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
-    width: 220, // Slightly larger for better readability
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-
+  meetingText: {
+    fontSize: 16,
+    color: '#444',
+    marginBottom: 5,
+  },
+  cancelButton: {
+    marginTop: 10,
+    backgroundColor: '#e63946',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  expertCard: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    margin: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
   expertName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2C3E50',
-    marginBottom: 6,
+    color: '#333',
   },
-
   expertField: {
-    fontSize: 15,
-    color: '#7F8C8D',
-    marginBottom: 6,
+    fontSize: 14,
+    color: '#666',
   },
-
-  listContent: {
-    paddingVertical: 12,
-    paddingLeft: 12,
-  },
-
-  // 🎯 Buttons
-  button: {
-    backgroundColor: '#007BFF',
-    paddingVertical: 14,
-    paddingHorizontal: 24,
+  meetingCard: {
+    backgroundColor: '#ffffff',
+    padding: 15,
     borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 12,
+    marginVertical: 8,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+    borderLeftWidth: 5,
+    borderLeftColor: '#007bff', // Blue accent line
+  },
+  meetingType: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  meetingDetails: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 2,
+  },
+  meetingEmail: {
+    fontSize: 14,
+    color: '#777',
   },
 
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
 });
 
 export default styles;

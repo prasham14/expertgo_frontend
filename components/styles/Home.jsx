@@ -1,213 +1,163 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
+const cardWidth = width * 0.9;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EEF1F6', // Soft modern background
+    backgroundColor: '#fff',
   },
-
   scrollContainer: {
-    paddingHorizontal: 16,
+    paddingBottom: 100,
   },
-
-  // 🔹 Top Navigation Bar
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#ffffff',
+    padding: 15,
+    backgroundColor: '#f8f9fa',
     borderBottomWidth: 1,
-    borderBottomColor: '#CBD5E1',
-    elevation: 4,
+    borderBottomColor: '#ddd',
   },
-
   topBarTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1E293B',
+    color: '#000',
   },
-
-  // 🔎 Search Bar
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 24,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginVertical: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
-  },
-
-  searchIcon: {
-    marginRight: 12,
-  },
-
-  searchInput: {
-    flex: 1,
+  subHeader: {
     fontSize: 16,
-    color: '#374151',
+    fontWeight: '600',
+    textAlign: 'center',
+    marginVertical: 10,
+    color: '#333',
   },
-
-  resultsContainer: {
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 12,
-    marginVertical: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
+  portfolioContainer: {
+    padding: 20,
+    backgroundColor: '#f1f1f1',
+    borderRadius: 10,
+    marginHorizontal: 15,
+    marginVertical: 10,
   },
-
-  recommendationsContainer: {
-    padding: 12,
-    marginTop: 12,
+  button: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
   },
-
-  recommendationTitle: {
+  buttonText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 6,
-    color: '#1E293B',
   },
-
-  recommendationList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-
-  recommendationChip: {
-    backgroundColor: '#2563EB',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    marginRight: 10,
-    marginBottom: 8,
-  },
-
-  recommendationText: {
-    color: '#ffffff',
-    fontSize: 14,
-  },
-
-  backButton: {
-    marginTop: 20,
-    padding: 12,
-    backgroundColor: '#DC2626',
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-
-  backButtonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1E293B',
-    marginBottom: 12,
+    marginBottom: 5,
+    color: '#555',
   },
-
-  expertCard: {
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 14,
+  noMeetings: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: '#777',
+  },
+  expertSection: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.1,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-
-  expertInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-
-  expertTextContainer: {
-    marginLeft: 12,
-  },
-
-  expertName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1E293B',
-  },
-
-  expertCategory: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
-
-  expertDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-
-  noResultsText: {
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#6B7280',
-    marginVertical: 20,
-  },
-
-  expertCharges: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#2563EB',
-    textAlign: 'right',
-  },
-
-  expertRatings: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  expertRating: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginLeft: 4,
-  },
-
-  expertBio: {
-    fontSize: 14,
-    color: '#374151',
-    marginTop: 6,
-  },
-
-  viewPortfolioButton: {
-    backgroundColor: '#1E293B',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 12,
+  userSection: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
     shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-
-  viewPortfolioText: {
-    color: '#ffffff',
+  meetingCard: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  meetingText: {
+    fontSize: 16,
+    color: '#444',
+    marginBottom: 5,
+  },
+  cancelButton: {
+    marginTop: 10,
+    backgroundColor: '#e63946',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  expertCard: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    margin: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  expertName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  expertField: {
+    fontSize: 14,
+    color: '#666',
+  },
+  meetingCard: {
+    backgroundColor: '#ffffff',
+    padding: 15,
+    borderRadius: 10,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+    borderLeftWidth: 5,
+    borderLeftColor: '#007bff', // Blue accent line
+  },
+  meetingType: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  meetingDetails: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 2,
+  },
+  meetingEmail: {
+    fontSize: 14,
+    color: '#777',
   },
 });
 

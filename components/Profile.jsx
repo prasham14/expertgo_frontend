@@ -22,13 +22,14 @@ import Portfolio from './Portfolio';
 
 const Profile = () => {
   const route = useRoute();
-
+   const userId = route.params.userId;
+   const userRole = route.params.userRole;
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(true);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editUserNameModalVisible, setEditUserNameModalVisible] = useState(false);
   const [usernameInput, setUsernameInput] = useState('');
-  const [bio, setBio] = useState('');
+  const [bio, setBio] = useState(null);
   const[categories,setCategories] = useState([]);
   const[charges,setCharges] = useState([]);
   const [editBioModal, setEditBioModal] = useState(false);
@@ -50,23 +51,20 @@ const Profile = () => {
       setChargeInput('');
     }
   };
-  const fadeAnim = useState(new Animated.Value(0))[0];
 
-  // Fetch user profile details
-  const getProfile = async () => {
+  const getNameandEmail = async () => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      if (!userId) return;
+      console.warn(userRole);
 
-      const response = await axios.get(`http://10.0.2.2:3000/profile/profile/${userId}`);
-      setUserData(response.data.user);
+      if (!userId) return;
+      const response = await axios.get(`http://10.0.2.2:3000/profile/getnameandemail/${userId}`);
+      setUserData(response.data);
       setFormData({
-        name: response.data.user.name || '',
-        email: response.data.user.email || '',
+        name: response.data.name || '',
+        email: response.data.email || '',
       });
       // Set initial username and bio values
-      setUsernameInput(response.data.user.name || '');
-      setBio(response.data.user.bio || '');
+      setUsernameInput(response.data.name || '');
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -74,28 +72,9 @@ const Profile = () => {
     }
   };
 
-
-
-  const handleEditProfile = async () => {
-    try {
-      const userId = await AsyncStorage.getItem('userId');
-      if (!userId) return;
-
-      const response = await axios.patch(`http://10.0.2.2:3000/profile/editProfile/${userId}`, formData);
-      setUserData(response.data.user);
-      setEditModalVisible(false);
-      Alert.alert("Success", "Profile updated successfully.");
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      Alert.alert("Error", "There was an error updating your profile.");
-    }
-  };
-
-
   // Update username by calling the backend route
   const handleEditUserName = async () => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
       if (!userId) return;
 
       // Call the backend route for editing username
@@ -112,131 +91,111 @@ const Profile = () => {
     }
   };
 
-  // Update bio by calling the backend route
-  const handleBio = async () => {
+
+  const getExpertProfile = async () => {
+    
     try {
-      const userId = await AsyncStorage.getItem('userId');
+      if(userRole === 'user'){
+          return;
+      }
+      console.warn("UserID from AsyncStorage:", userId); 
+  
       if (!userId) {
         Alert.alert("Error", "User ID not found.");
         return;
       }
   
-      // Use the latest state by accessing them inside the setState callback
-      setCategories(prevCategories => {
-        setCharges(prevCharges => {
-          axios.post(`http://10.0.2.2:3000/user/editExpertData/${userId}`, {
-            bio,
-            charges: prevCharges,  // Ensure the latest charges are sent
-            categories: prevCategories, // Ensure the latest categories are sent
-          })
-          .then(response => {
-            if (response.data) {
-              setUserData(prevData => ({
-                ...prevData,
-                bio: response.data.bio,
-                charges: response.data.charges,
-                categories: response.data.categories,
-              }));
+      const response = await axios.get(`http://10.0.2.2:3000/profile/getExpertProfile/${userId}`);
+      
+      console.log("API Response:", response.data);
   
-              setEditBioModal(false);
-              Alert.alert("Success", "Profile updated successfully.");
-            } else {
-              Alert.alert("Error", "Unexpected response from server.");
-            }
-          })
-          .catch(error => {
-            console.error("Error updating bio:", error);
-            Alert.alert("Error", "There was an error updating your profile.");
-          });
-  
-          return prevCharges;
-        });
-  
-        return prevCategories;
-      });
-    } catch (error) {
-      console.error("Error updating bio:", error);
-      Alert.alert("Error", "There was an error updating your profile.");
-    }
-  };
-  
-  
-
-  // Function to open the image library and choose an image
-  const handleChooseImage = () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 0.8,
-    };
-
-    launchImageLibrary(options, async (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-        Alert.alert("Error", "There was an error selecting the image.");
-      } else if (response.assets && response.assets.length > 0) {
-        // Use the first selected asset
-        const asset = response.assets[0];
-        const { uri, fileName, type } = asset;
-        await uploadProfileImage(uri, fileName, type);
+      if (response.status === 200) {
+        setBio(response.data.data.bio); 
+        console.warn("bio" , bio);
       } else {
-        Alert.alert("Error", "No image selected.");
+        throw new Error("Failed to fetch expert profile.");
       }
-    });
-  };
-
-  // Function to upload the selected image to the server
-  const uploadProfileImage = async (uri, fileName, type) => {
-    try {
-      const userId = await AsyncStorage.getItem('userId');
-      if (!userId) return;
-  
-      // Create FormData and append the image file
-      const formData = new FormData();
-      formData.append('profileImage', {
-        uri,
-        name: fileName || `profile_${Date.now()}.jpg`,
-        type: type || 'image/jpeg',
-      });
-      console.warn(formData);
-  
-      // Post to the Express endpoint. Remove explicit 'Content-Type' header.
-      const response = await axios.post(
-        `http://10.0.2.2:3000/profile/upload/profile-image/${userId}`,
-        formData,
-        {
-          headers: {
-            Accept: 'application/json',
-          },
-        }
-      );
-  
-      console.warn("Response data:", response.data);
-      setUserData(prevData => ({
-        ...(prevData || {}),
-        profileImage: response.data.profileImage,
-      }));
-  
-      Alert.alert("Success", "Profile image updated successfully.");
     } catch (error) {
-      console.warn('Error uploading profile image:', error);
-      Alert.alert("Error", "There was an error uploading the image. Please try again.");
+      console.error("Error fetching profile:", error.response?.data || error.message);
+    }
+  };
+  
+
+
+const [uploadResponse, setUploadResponse] = useState(null);
+const [imageUrl, setImageUrl] = useState(null);
+
+useEffect(() => {
+  const fetchImage = async () => {
+    try {
+      const response = await axios.get(`http://10.0.2.2:3000/profile/images/${userId}`);
+      setImageUrl(response.data.url); 
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      setLoading(false);
     }
   };
 
-  const fadeIn = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  };
+  fetchImage();
+}, [userId]);
+const chooseImage = () => {
+  launchImageLibrary({ mediaType: 'photo' }, (response) => {
+    if (response.assets) {
+      const selectedImage = response.assets[0];
+      uploadImage(selectedImage);
+    }
+  });
+};
+
+// Upload image to the server
+const uploadImage = async (image) => {
+  setLoading(true);
+  const formData = new FormData();
+  formData.append('image', {
+    uri: image.uri,
+    type: image.type,
+    name: image.fileName,
+  });
+
+  try {
+    const response = await axios.post(`http://10.0.2.2:3000/profile/upload/profile-image/${userId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    setUserData({ ...userData, profileImage: response.data.image.url });
+    setUploadResponse(response.data);
+    setLoading(false);
+    Alert.alert('Image uploaded successfully!');
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    setLoading(false);
+    Alert.alert('Error uploading image');
+  }
+};
+
+
+
+
+
+
 
   useEffect(() => {
-    getProfile();
-  }, []);
-
+    const fetchData = async () => {
+      try {
+        // First function runs regardless of userRole
+        await getNameandEmail();
+        await getExpertProfile();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
+  }, []); 
+  
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -253,18 +212,25 @@ const Profile = () => {
       {userData && (
         <View style={styles.profileSection}>
           {/* Profile Image Container with Plus Icon Overlay */}
-          <View style={styles.profileImageContainer}>
-            <Image
-              style={styles.profileImage}
-              source={{ uri: userData.profileImage || 'https://via.placeholder.com/150' }}
-            />
-            <TouchableOpacity style={styles.imageOverlay} onPress={handleChooseImage}>
-              <Ionicons name="add-circle" size={30} color="#fff" />
-            </TouchableOpacity>
-          </View>
+          <View style={styles.profileContainer}>
+          {imageUrl ? (
+        <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+      ) : (
+        <Text>No image found</Text>
+      )}
+        <TouchableOpacity style={styles.imageOverlay} onPress={chooseImage}>
+          <Ionicons name="add-circle" size={30} color="#fff" />
+        </TouchableOpacity>
+      </View>
+      {loading && <Text style={styles.loadingText}>Uploading...</Text>}
+      {uploadResponse && (
+        <View style={styles.responseContainer}>
+          <Text>Uploaded Image URL: {uploadResponse.image.url}</Text>
+        </View>
+      )}
           {/* Username Row with edit icon */}
           <View style={styles.usernameRow}>
-            <Text style={styles.username}>{userData.username || userData.name || "N/A"}</Text>
+            <Text style={styles.username}>{  userData.name || "N/A"}</Text>
             <TouchableOpacity 
               onPress={() => {
                 setUsernameInput(userData.username || userData.name || "");
@@ -295,37 +261,11 @@ const Profile = () => {
                 }}>
                 </TouchableOpacity>
               </View>
-              <Text style={styles.bioValue}>{userData.bio || "No bio available."}</Text>
+              <Text style={styles.bioValue}>{bio || "No bio available."}</Text>
             </View>
           )}
         </View>
       )}
-      
-
-    
-      {/* Edit Profile Modal (for email) */}
-      <Modal animationType="slide" transparent visible={editModalVisible} onRequestClose={() => setEditModalVisible(false)}>
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.sectionTitle}>Edit Profile</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
-            />
-            <TouchableOpacity style={styles.saveButton} onPress={handleEditProfile}>
-              <Text style={styles.buttonText}>Save Changes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setEditModalVisible(false)}>
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-   
-
       {/* Edit Username Modal */}
       <Modal animationType="slide" transparent visible={editUserNameModalVisible} onRequestClose={() => setEditUserNameModalVisible(false)}>
         <View style={styles.modalBackground}>
@@ -359,7 +299,7 @@ const Profile = () => {
               onChangeText={setBio}
               multiline
             />
-            <TouchableOpacity style={styles.saveButton} onPress={handleBio}>
+            <TouchableOpacity style={styles.saveButton} >
               <Text style={styles.buttonText}>Save Changes</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.closeButton} onPress={() => setEditBioModal(false)}>
@@ -420,7 +360,7 @@ const Profile = () => {
           />
 
           {/* Action Buttons */}
-          <TouchableOpacity style={styles.saveButton} onPress={handleBio}>
+          <TouchableOpacity style={styles.saveButton} >
             <Text style={styles.buttonText}>Save</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cancelButton} onPress={() => setExpertProfileModal(false)}>
@@ -430,7 +370,7 @@ const Profile = () => {
       </View>
     </Modal>
 
-      <Portfolio/>
+      <Portfolio style={styles.Portfolio} userRole={ route.params.userRole} userId={userId} email ={formData.email}/>
     </ScrollView>
   );
 };

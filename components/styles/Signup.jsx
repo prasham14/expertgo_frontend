@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     width: "100%",
-    backgroundColor: "#B0B0B0",
+    backgroundColor: "#1e3a5f",
     paddingVertical: 20,
     paddingHorizontal: 15,
     borderBottomLeftRadius: 15,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   signupButton: {
-    backgroundColor: "#F2994A", 
+    backgroundColor: "#1e3a5f", 
     paddingVertical: 14,
     borderRadius: 10,
     width: "90%",
@@ -208,12 +208,12 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 16,
-    color: "#4A4A4A",
+    color: "#1e3a5f",
     marginTop: 10,
     textAlign: "center",
   },
   loginLink: {
-    color: "#F2994A",
+    color: "#1e3a5f",
     textDecorationLine: "underline",
     fontWeight: "bold",
   },
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   verifyButton: {
-    backgroundColor: "#F2994A",
+    backgroundColor: "#1e3a5f",
     paddingVertical: 10,
     borderRadius: 10,
     width: "70%",

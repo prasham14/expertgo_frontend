@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,createContext,useContext } from 'react';
 import {
   View,
   Text,
@@ -16,22 +16,39 @@ import Recomendations from './Recomendations';
 import Footer from './Footer';
 import ExpertActivity from './ExpertActivity';
 import AskAnExpert from './AskAnExpert';
+import Search from './Search';
 const Home = () => {
   const [userRole, setUserRole] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchedExperts, setSearchedExperts] = useState([]);
-  const [isSearchFocused, setIsSearchFocused] = useState(false); // New State
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const[email,setEmail] = useState('');
+  const[userId,setUserId] = useState(null);
+  
+  // New State
   const navigation = useNavigation();
 
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const role = await AsyncStorage.getItem('userRole');
-        setUserRole(role);
+        const role = await AsyncStorage.getItem("userRole");
+        const userId = await AsyncStorage.getItem("userId");
+        const email = await AsyncStorage.getItem("email");
+        setEmail(email);
+        console.warn(role);
+        console.warn(userId);
+        console.warn(email);
+        setUserId(userId);
+        if (role !== null) {
+          setUserRole(role);
+        } else {
+          console.warn("User role not found in AsyncStorage");
+        }
       } catch (error) {
-        console.error('Error fetching user role:', error);
+        console.error("Error fetching user role:", error);
       }
     };
+    
 
     fetchUserRole();
   }, []);
@@ -46,123 +63,118 @@ const Home = () => {
       if (response.data.success) {
         setSearchedExperts(response.data.experts);
       }
+      console.warn(response)
     } catch (error) {
       console.error('Error fetching experts:', error);
     }
   };
   useEffect(() => {
-    if (searchQuery) {
+    if (searchQuery.trim() !== '') {
+      console.warn("click called");
       handleSearch();
     }
-  }, [searchQuery]); 
+  }, [searchQuery]);
+  
+  const [portfolio, setPortfolio] = useState(false);
+
+  useEffect(()=>{
+    const getPortfolio = async () => {
+      try {
+    
+        if (!userId) {
+          Alert.alert('User ID not found');
+          return;
+        }
+        const response = await axios.get(`http://10.0.2.2:3000/expert/portfolio/${userId}`)
+        if (response.data.user)
+         {setPortfolio(true);}   
+    
+      } catch (error) {
+        console.warn('Error fetching portfolio:', error);
+        Alert.alert('Something went wrong, try again later');
+      }
+    };
+    getPortfolio();
+  });
+  const [experts, setExperts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!email || !userRole) return; 
+    
+    const fetchExperts = async () => {
+      try {
+        const response = await axios.get('http://10.0.2.2:3000/expert/getExperts');
+        if (response.data.success) {
+          setExperts(response.data.famousExperts);
+        }
+        console.log("Experts Data:", response.data);
+      } catch (error) {
+        console.error('Error fetching experts:', error);
+      }
+    };
+  
+    setLoading(false);
+  }, []); 
+  
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* 🔹 Top Navigation Bar */}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Top Navigation Bar */}
         <View style={styles.topBar}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Notifications', { userId, email, userRole })}>
             <Ionicons name="notifications-outline" size={30} color="#000" />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>Home</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile', { userRole })}>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile', { userRole, userId })}>
             <Ionicons name="person-circle-outline" size={30} color="#000" />
           </TouchableOpacity>
         </View>
 
-        {/* 🔎 Search Bar */}
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#000" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search experts by category..."
-            placeholderTextColor="#888"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setIsSearchFocused(false)}
-            onSubmitEditing={handleSearch}
+        {userRole === "expert" ? (
+        <View style={styles.expertSection}>
+          <Text style={styles.header}>Welcome, Expert!</Text>
+        </View>
+      ) : (
+        <View style={styles.userSection}>
+          <Text style={styles.header}>Famous Experts</Text>
+          <FlatList
+            data={experts}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <View style={styles.expertCard}>
+                <Text style={styles.expertName}>{item.email}</Text>
+                <Text style={styles.expertField}>Bio: {item.bio}</Text>
+                <Text style={styles.expertField}>Verified: {item.isVerified ? 'Yes' : 'No'}</Text>
+              </View>
+            )}
           />
         </View>
+      )}
+        {/* Expert Recommendations */}
+        {userRole === 'expert' && <Recomendations />}
 
-        {/* 🔹 Category Recommendations (Show only when search is focused) */}
-       {/* 🔹 Category Recommendations (Show only when search is focused) */}
-{isSearchFocused && searchedExperts.length === 0 && (
-  <View style={styles.recommendationsContainer}>
-    <Text style={styles.recommendationTitle}>Popular Categories:</Text>
-    <View style={styles.recommendationList}>
-      {['Law', 'CA', 'Web Developer', 'Designer', 'Marketing', 'skk'].map((category) => (
-        <TouchableOpacity
-          key={category}
-          style={styles.recommendationChip}
-          onPress={() => {
-            setSearchQuery(category); 
-            handleSearch();
-            setIsSearchFocused(false); 
-          }}
-        >
-          <Text style={styles.recommendationText}>{category}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  </View>
-)}
-
-        {/* 📌 Search Results */}
-        {searchedExperts.length > 0 ? (
-          <View style={styles.resultsContainer}>
-            <Text style={styles.sectionTitle}>Search Results</Text>
-            <FlatList
-              data={searchedExperts}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.expertCard}>
-                  {/* Expert Info Section */}
-                  <View style={styles.expertInfo}>
-                    <Ionicons name="person-circle-outline" size={50} color="#007bff" />
-                    <View style={styles.expertTextContainer}>
-                      <Text style={styles.expertName}>{item.email}</Text>
-                      <Text style={styles.expertCategory}>{item.category.join(', ')}</Text>
-                    </View>
-                  </View>
-
-                  {/* Ratings & Bio */}
-                  <View style={styles.expertDetails}>
-                    <View style={styles.expertRatings}>
-                      <Ionicons name="star" size={16} color="#FFD700" />
-                      <Text style={styles.expertRating}> {item.ratings} ⭐</Text>
-                    </View>
-                    <Text style={styles.expertBio}>{item.bio}</Text>
-
-                    {/* Charges on the right */}
-                    <Text style={styles.expertCharges}>{item.charges.join(', ')}</Text>
-                  </View>
-
-                  {/* View Portfolio Button */}
-                  <TouchableOpacity
-                    style={styles.viewPortfolioButton}
-                    onPress={() => navigation.navigate('PortfolioScreen', { userId: item.userId })}
-                  >
-                    <Text style={styles.viewPortfolioText}>View Portfolio</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
-            {/* 🔙 Back Button */}
-            <TouchableOpacity style={styles.backButton} onPress={() => setSearchedExperts([])}>
-              <Text style={styles.backButtonText}>Back</Text>
+        {/* Portfolio Section */}
+        {!portfolio && userRole === 'expert' && (
+          <View style={styles.portfolioContainer}>
+            <Text style={styles.subHeader}>Manage your portfolio and showcase your expertise.</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('PortfolioForm', { userRole, userId, email })}
+            >
+              <Text style={styles.buttonText}>Create Your Portfolio</Text>
             </TouchableOpacity>
           </View>
-        ) : (
-
-          <>
-            <Recomendations />
-            <ExpertActivity userRole={userRole} />
-            <AskAnExpert/>
-
-          </>
         )}
+
+
+        {/* Ask an Expert (for Users) */}
+        {userRole === 'user' && <AskAnExpert />}
       </ScrollView>
+      
+      {/* Footer Component */}
       <Footer />
     </View>
   );

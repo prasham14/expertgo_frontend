@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { ActivityIndicator, View, StyleSheet } from "react-native";
+import { ActivityIndicator, View, StyleSheet, PermissionsAndroid, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-
-import SignUp from "./components/SignUp"; 
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import notifee from "@notifee/react-native";
+import messaging from "@react-native-firebase/messaging";
+import { UserProvider } from "./components/Context";
+import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Home from "./components/Home";
 import ChangePassword from "./components/ChangePassword";
@@ -14,20 +17,117 @@ import User from "./components/User";
 import Profile from "./components/Profile";
 import TandC from "./components/TandC";
 import Portfolio from "./components/Portfolio";
-import PortfolioScreen from './components/ShowPortfolio'
+import PortfolioScreen from "./components/ShowPortfolio";
+import PortfolioForm from "./components/CreatePortfolio";
+import VideoCall from "./components/VideoCall";
+import VoiceCall from "./components/VoiceCall";
+import SendMessage from "./components/SendMessage";
+import { firebase } from "@react-native-firebase/app";
+import Notifications from "./components/Notifications";
+import Payment from "./components/Payment";
+import Meetings from "./components/Meetings";
+import Transactions from "./components/Transactions";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Others from "./components/Others";
+import Search from "./components/Search";
+import AgoraVideoCall from "./components/VC";
+
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// Bottom Tab Navigator including Home so that the bottom tabs show on your Home page
+
+const MainTabs = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+
+          if (route.name === "Home") {
+            iconName = "home-outline";
+          } else if (route.name === "Search") {
+            iconName = "search-outline";
+          }
+          else if (route.name === "Meetings") {
+            iconName = "calendar-outline";
+          } else if (route.name === "Transactions") {
+            iconName = "cash-outline";
+          } 
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: "blue",
+        tabBarInactiveTintColor: "gray",
+        tabBarShowLabel: true,
+        headerShown: false,
+      })}
+    >
+      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="Search" component={Search} />
+
+      <Tab.Screen name="Meetings" component={Meetings} />
+      <Tab.Screen name="Transactions" component={Transactions} />
+    </Tab.Navigator>
+  );
+};
+
+
 
 const App = () => {
   const [initialRoute, setInitialRoute] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Request Android notification permission
   useEffect(() => {
-    // Check if a user ID exists in AsyncStorage
+    requestPermissionAndroid();
+  }, []);
+
+  const requestPermissionAndroid = async () => {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+    );
+
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      getToken();
+    } else {
+      Alert.alert("Permission denied");
+    }
+  };
+
+  // Listen for foreground messages
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      onDisplayNotification(remoteMessage);
+    });
+    return unsubscribe;
+  }, []);
+
+  const onDisplayNotification = async (remoteMessage) => {
+    const channelId = await notifee.createChannel({
+      id: "default",
+      name: "Default Channel",
+    });
+
+    await notifee.displayNotification({
+      title: remoteMessage.notification.title,
+      body: remoteMessage.notification.body,
+      android: {
+        channelId,
+        smallIcon: "ic_launcher",
+        pressAction: { id: "default" },
+      },
+    });
+  };
+
+  // Check if a user ID exists in AsyncStorage and set the initial route accordingly
+  useEffect(() => {
     const checkLoginStatus = async () => {
       try {
         const userId = await AsyncStorage.getItem("userId");
+        // If the user is logged in, navigate to the bottom tabs which include the Home page
         if (userId) {
-          setInitialRoute("Signup");
+          setInitialRoute("MainTabs");
         } else {
           setInitialRoute("Signup");
         }
@@ -38,9 +138,13 @@ const App = () => {
         setLoading(false);
       }
     };
-
     checkLoginStatus();
   }, []);
+
+  const getToken = async () => {
+    const token = await messaging().getToken();
+    console.warn("token", token);
+  };
 
   if (loading) {
     return (
@@ -51,22 +155,36 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName={initialRoute}>
-        <Stack.Screen name="Signup" component={SignUp} options={{ headerShown: false }} />
-        <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-        <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
-        <Stack.Screen name="UserRole" component={UserRole} options={{ headerShown: false }} />
-        <Stack.Screen name="Expert" component={Expert} options={{ headerShown: false }} />
-        <Stack.Screen name="User" component={User} options={{ headerShown: false }} />
-        <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-        <Stack.Screen name="TnC" component={TandC} options={{ headerShown: false }} />
-        <Stack.Screen name="Portfolio" component={Portfolio} options={{ headerShown: false }} />
-        <Stack.Screen name="PortfolioScreen" component={PortfolioScreen} options={{ headerShown: false }} />
+    <UserProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName={initialRoute}>
+          {/* Authentication Stack */}
+          <Stack.Screen name="Signup" component={SignUp} options={{ headerShown: false }} />
+          <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
 
-      </Stack.Navigator>PortfolioScreen
-    </NavigationContainer>
+          {/* Main app with bottom tabs (Home is now a tab) */}
+          <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+          <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+          <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
+
+          {/* Additional screens */}
+          <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
+          <Stack.Screen name="UserRole" component={UserRole} options={{ headerShown: false }} />
+          <Stack.Screen name="Expert" component={Expert} options={{ headerShown: false }} />
+          <Stack.Screen name="User" component={User} options={{ headerShown: false }} />
+          <Stack.Screen name="TnC" component={TandC} options={{ headerShown: false }} />
+          <Stack.Screen name="Portfolio" component={Portfolio} options={{ headerShown: false }} />
+          <Stack.Screen name="PortfolioScreen" component={PortfolioScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="PortfolioForm" component={PortfolioForm} options={{ headerShown: false }} />
+          <Stack.Screen name="VideoCall" component={VideoCall} options={{ headerShown: false }} />
+          <Stack.Screen name="VoiceCall" component={VoiceCall} options={{ headerShown: false }} />
+          <Stack.Screen name="SendMessage" component={SendMessage} options={{ headerShown: false }} />
+          <Stack.Screen name="Payment" component={Payment} options={{ headerShown: false }} />
+          <Stack.Screen name="AgoraVideoCall" component={AgoraVideoCall} />
+
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UserProvider>
   );
 };
 

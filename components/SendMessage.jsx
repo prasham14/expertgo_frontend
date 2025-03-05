@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const ExpertActivity = () => {
+const SendMessage = () => {
   return (
     <View>
-      <Text>ExpertActivity</Text>
+      <Text>SendMessage</Text>
     </View>
   )
 }
 
-export default ExpertActivity
+export default SendMessage
 
 const styles = StyleSheet.create({})

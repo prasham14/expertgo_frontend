@@ -6,26 +6,16 @@ const Footer = () => {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.footer}>
-      {/* Home Button */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
-        <Text style={styles.buttonText}>Home</Text>
-      </TouchableOpacity>
+    <View >
+{/*    
 
-      {/* Search Button */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Search')}>
         <Text style={styles.buttonText}>Search</Text>
       </TouchableOpacity>
 
-      {/* Profile Button */}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Profile')}>
-        <Text style={styles.buttonText}>Profile</Text>
-      </TouchableOpacity>
-
-      {/* Settings Button */}
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Settings')}>
         <Text style={styles.buttonText}>Settings</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };

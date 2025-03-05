@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
       width: "100%",
       paddingVertical: 12,
       marginVertical: 10,
-      backgroundColor: "#007bff", // Blue color for buttons
+      backgroundColor: "#1e3a5f", // Blue color for buttons
       borderRadius: 8,
       alignItems: "center",
   },

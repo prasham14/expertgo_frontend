@@ -13,6 +13,7 @@ import axios from "axios";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import img from './images/logo.jpeg'
 import styles from "./styles/Signup";
+import messaging from '@react-native-firebase/messaging';
 const SignupScreen = ({ navigation }) => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -74,11 +75,12 @@ const SignupScreen = ({ navigation }) => {
             return;
         }
         try {
+            const fcm =await getToken();
             const response = await axios.post("http://10.0.2.2:3000/user/verify-otp", { email, otp });
             if (response.data.success) {
                 setOtpModalVisible(false);
 
-                await axios.post("http://10.0.2.2:3000/user/signup", { name, email, password });
+                await axios.post("http://10.0.2.2:3000/user/signup", { name, email, password ,fcm});
                 Alert.alert("Success", "Account Created Successfully!");
                 setOtpModalVisible(false);
                 navigation.navigate("Login");
@@ -89,6 +91,42 @@ const SignupScreen = ({ navigation }) => {
             Alert.alert("Error", "Verification failed. Try again.");
         }
     };
+
+
+    const getToken = async () => {
+        try {
+          const fcmToken = await messaging().getToken();
+          console.warn("FCM Token of Expert:", fcmToken);
+          return fcmToken;
+        } catch (error) {
+          console.error("Error fetching FCM Token:", error);
+          return null;
+        }
+      };
+      
+    //   const saveFCMToken = async (fcmToken, userId) => {
+    //     try {
+    //       if (!userId) {
+    //         console.warn("User ID not found.");
+    //         return;
+    //       }
+      
+    //       const response = await axios.post(`http://10.0.2.2:3000/user/saveToken/${userId}`, {
+    //         token: fcmToken,
+    //       });
+      
+    //       if (response.data.success) {
+    //         console.log("FCM Token saved successfully:", response.data.message);
+    //       } else {
+    //         console.warn("Failed to save FCM Token:", response.data.message);
+    //       }
+    //     } catch (error) {
+    //       console.error("Error saving FCM Token:", error);
+    //     }
+    //   };
+
+
+
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
