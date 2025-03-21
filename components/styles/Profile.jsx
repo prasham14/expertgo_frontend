@@ -1,370 +1,157 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#f8f9fa',
-    marginBottom: 70,
+    backgroundColor: '#f5f5f5'
+  },
+  scrollView: {
+    flex: 1
   },
   header: {
-    fontSize: 28,
-    fontWeight: '800',
-    textAlign: 'center',
-    marginBottom: 24,
-    color: '#2c3e50',
-    letterSpacing: 0.5,
-  },
-  profileSection: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-  },
-  profileContainer: {
+    backgroundColor: '#3498db',
+    padding: 20,
     alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    paddingVertical: 10,
+    justifyContent: 'center'
   },
-  profileImageContainer: {
-    alignSelf: 'center',
-    position: 'relative',
-    marginBottom: 8,
-  },
-  profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    borderWidth: 3,
-    borderColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  imageOverlay: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-    backgroundColor: '#007bff',
-    borderRadius: 24,
-    padding: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  usernameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 16,
-  },
-  username: {
+  headerText: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#2c3e50',
-    marginRight: 8,
+    color: '#fff'
   },
-  editIcon: {
-    marginLeft: 8,
-    backgroundColor: '#f0f2f5',
-    borderRadius: 20,
-    padding: 6,
+  formContainer: {
+    padding: 20
   },
-  tickIcon: {
-    color: '#28a745',
-    marginLeft: 5,
-    fontSize: 18,
+  fieldContainer: {
+    marginBottom: 20
   },
-  sectionDivider: {
-    height: 1,
-    backgroundColor: '#e9ecef',
-    marginVertical: 16,
-    width: '100%',
-  },
-  emailSection: {
-    marginTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
-    paddingTop: 16,
-  },
-  row: {
+  labelContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10
   },
-  emailLabel: {
+  label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#6c757d',
-  },
-  editIconText: {
-    fontSize: 16,
-    color: '#007bff',
-    fontWeight: '500',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-  },
-  emailValue: {
-    fontSize: 16,
-    color: '#2c3e50',
-    marginTop: 6,
-  },
-  bioSection: {
-    marginTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
-    paddingTop: 16,
-  },
-  bioLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6c757d',
-  },
-  bioValue: {
-    fontSize: 16,
-    color: '#2c3e50',
-    marginTop: 6,
-    lineHeight: 22,
-  },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    width: '90%',
-    backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 16,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    maxWidth: 500,
-  },
-  sectionTitle: {
-    fontSize: 22,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-    color: '#2c3e50',
+    marginBottom: 8,
+    color: '#333'
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 14,
-    fontSize: 16,
-    backgroundColor: '#f8f9fa',
-  },
-  buttonContainer: {
-    marginTop: 20,
-  },
-  button: {
-    width: '100%',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 6,
-  },
-  saveButton: {
-    backgroundColor: '#007bff',
-    borderWidth: 0,
-  },
-  closeButton: {
-    backgroundColor: '#f8f9fa',
-    borderWidth: 1,
-    borderColor: '#ced4da',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  saveButtonText: {
-    color: '#fff',
-  },
-  closeButtonText: {
-    color: '#6c757d',
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalBox: {
-    width: '90%',
     backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 16,
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    maxWidth: 500,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-    color: '#2c3e50',
+    borderRadius: 8,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    fontSize: 16
   },
   textArea: {
-    height: 100,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
     borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 16,
+    borderColor: '#ddd',
     fontSize: 16,
-    backgroundColor: '#f8f9fa',
-    textAlignVertical: 'top',
+    minHeight: 120,
+    textAlignVertical: 'top'
   },
-  inputGroup: {
+  dynamicInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 10
   },
-  categoryInput: {
+  dynamicInput: {
     flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
     borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 16,
-    backgroundColor: '#f8f9fa',
+    borderColor: '#ddd',
+    fontSize: 16
   },
   addButton: {
-    backgroundColor: '#28a745',
-    padding: 12,
-    borderRadius: 10,
-    marginLeft: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   addButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 16,
+    marginLeft: 8,
+    color: '#4CAF50',
+    fontWeight: 'bold'
   },
-  categoriesList: {
-    marginVertical: 10,
-    backgroundColor: '#f8f9fa',
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ced4da',
-    maxHeight: 150,
+  removeButton: {
+    marginLeft: 10
   },
-  listItem: {
-    fontSize: 16,
-    color: '#2c3e50',
-    marginBottom: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    backgroundColor: '#e9ecef',
-    borderRadius: 6,
-  },
-  actionsContainer: {
+  chargesContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
+    justifyContent: 'space-between'
   },
-  actionButton: {
+  chargeInputContainer: {
     flex: 1,
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginRight: 10
   },
-  cancelButton: {
-    backgroundColor: '#f8f9fa',
-    marginRight: 8,
+  chargeLabel: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 5
+  },
+  chargeInput: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
     borderWidth: 1,
-    borderColor: '#ced4da',
+    borderColor: '#ddd',
+    fontSize: 16
+  },
+  experienceContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start'
+  },
+  experienceButton: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginRight: 10,
+    marginBottom: 10
+  },
+  experienceButtonSelected: {
+    backgroundColor: '#3498db',
+    borderColor: '#3498db'
+  },
+  experienceButtonText: {
+    color: '#333',
+    fontSize: 14
+  },
+  experienceButtonTextSelected: {
+    color: '#fff'
   },
   submitButton: {
-    backgroundColor: '#007bff',
-    marginLeft: 8,
-  },
-  cancelButtonText: {
-    color: '#6c757d',
-    fontSize: 16,
-    fontWeight: '600',
+    backgroundColor: '#3498db',
+    borderRadius: 8,
+    padding: 15,
+    alignItems: 'center',
+    marginTop: 20
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: 'bold'
   },
-  Portfolio: {
-    marginBottom: 50,
+  cancelButton: {
+    backgroundColor: '#e0e0e0',
+    borderRadius: 8,
+    padding: 15,
+    alignItems: 'center',
+    marginTop: 10
   },
-  portfolioCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 6,
-    marginBottom: 16,
-  },
-  portfolioHeader: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#2c3e50',
-    marginBottom: 12,
-  },
-  portfolioContent: {
-    fontSize: 16,
-    color: '#4a5568',
-    lineHeight: 22,
-  },
-  badge: {
-    backgroundColor: '#e9f0ff',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  badgeText: {
-    color: '#3182ce',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  badgeContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 10,
-  },
+  cancelButtonText: {
+    color: '#333',
+    fontSize: 18,
+    fontWeight: 'bold'
+  }
 });
 
 export default styles;

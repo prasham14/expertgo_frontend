@@ -1,4 +1,5 @@
-// Profile.js (React Native Component)
+// Profile.js (Refactored with Redux)
+import React, { useEffect, useState } from 'react';
 import { 
   Text, 
   View, 
@@ -6,197 +7,213 @@ import {
   Image, 
   ScrollView, 
   Modal, 
-  Animated, 
   TextInput, 
-  Alert ,
-  FlatList
+  Alert,
+  ActivityIndicator
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './styles/Profile';
-import { useRoute } from '@react-navigation/native';
-import Portfolio from './Portfolio';
+
+// Import Redux actions
+import {
+  fetchUserProfile,
+  fetchExpertProfile,
+  fetchProfileImage,
+  uploadProfileImage,
+  updateUsername,
+  updateBio,
+  toggleExpertAvailability,
+  sendVerificationOTP,
+  verifyOTP,
+  updateEmail,
+  becomeExpert,
+  setEmailVerificationState,
+  resetEmailVerificationState,
+} from '../store/slices/profileSlice';
 
 const Profile = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
   const route = useRoute();
-   const userId = route.params.userId;
-   const userRole = route.params.userRole;
-  const [userData, setUserData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [editModalVisible, setEditModalVisible] = useState(false);
+  
+  // Extract route params
+  const { userId, userRole } = route.params;
+  
+  // Local UI state
   const [editUserNameModalVisible, setEditUserNameModalVisible] = useState(false);
   const [usernameInput, setUsernameInput] = useState('');
-  const [bio, setBio] = useState(null);
-  const[categories,setCategories] = useState([]);
-  const[charges,setCharges] = useState([]);
-  const [editBioModal, setEditBioModal] = useState(false);
-  const[expertProfileModal,setExpertProfileModal]= useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '' });
-  const [categoryInput, setCategoryInput] = useState('');
-  const [chargeInput, setChargeInput] = useState('');
-
-  const addCategory = () => {
-    if (categoryInput.trim() !== '') {
-      setCategories([...categories, categoryInput.trim()]);
-      setCategoryInput('');
-    }
-  };
-
-  const addCharge = () => {
-    if (chargeInput.trim() !== '') {
-      setCharges([...charges, chargeInput.trim()]);
-      setChargeInput('');
-    }
-  };
-
-  const getNameandEmail = async () => {
-    try {
-      console.warn(userRole);
-
-      if (!userId) return;
-      const response = await axios.get(`http://10.0.2.2:3000/profile/getnameandemail/${userId}`);
-      setUserData(response.data);
-      setFormData({
-        name: response.data.name || '',
-        email: response.data.email || '',
-      });
-      // Set initial username and bio values
-      setUsernameInput(response.data.name || '');
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Update username by calling the backend route
-  const handleEditUserName = async () => {
-    try {
-      if (!userId) return;
-
-      // Call the backend route for editing username
-      const response = await axios.patch(`http://10.0.2.2:3000/profile/editUserName/${userId}`, { username: usernameInput });
-      setUserData(prevData => ({
-        ...prevData,
-        name: response.data.user.name,
-      }));
-      setEditUserNameModalVisible(false);
-      Alert.alert("Success", "Username updated successfully.");
-    } catch (error) {
-      console.error("Error updating username:", error);
-      Alert.alert("Error", "There was an error updating your username.");
-    }
-  };
-
-
-  const getExpertProfile = async () => {
-    
-    try {
-      if(userRole === 'user'){
-          return;
-      }
-      console.warn("UserID from AsyncStorage:", userId); 
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempBio, setTempBio] = useState('');
+  const [editEmailModal, setEditEmailModal] = useState(false);
+  const [otp, setOtp] = useState('');
   
-      if (!userId) {
-        Alert.alert("Error", "User ID not found.");
-        return;
-      }
+  // Get state from Redux store
+  const {
+    userData,
+    expertData,
+    imageUrl,
+    loading,
+    error,
+    emailVerification
+  } = useSelector(state => state.profile);
   
-      const response = await axios.get(`http://10.0.2.2:3000/profile/getExpertProfile/${userId}`);
-      
-      console.log("API Response:", response.data);
+  // Destructure expert data
+  const { bio, isAvailable, isVerified } = expertData;
   
-      if (response.status === 200) {
-        setBio(response.data.data.bio); 
-        console.warn("bio" , bio);
-      } else {
-        throw new Error("Failed to fetch expert profile.");
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error.response?.data || error.message);
-    }
-  };
-  
-
-
-const [uploadResponse, setUploadResponse] = useState(null);
-const [imageUrl, setImageUrl] = useState(null);
-
-useEffect(() => {
-  const fetchImage = async () => {
-    try {
-      const response = await axios.get(`http://10.0.2.2:3000/profile/images/${userId}`);
-      setImageUrl(response.data.url); 
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching image:', error);
-      setLoading(false);
-    }
-  };
-
-  fetchImage();
-}, [userId]);
-const chooseImage = () => {
-  launchImageLibrary({ mediaType: 'photo' }, (response) => {
-    if (response.assets) {
-      const selectedImage = response.assets[0];
-      uploadImage(selectedImage);
-    }
-  });
-};
-
-// Upload image to the server
-const uploadImage = async (image) => {
-  setLoading(true);
-  const formData = new FormData();
-  formData.append('image', {
-    uri: image.uri,
-    type: image.type,
-    name: image.fileName,
-  });
-
-  try {
-    const response = await axios.post(`http://10.0.2.2:3000/profile/upload/profile-image/${userId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    setUserData({ ...userData, profileImage: response.data.image.url });
-    setUploadResponse(response.data);
-    setLoading(false);
-    Alert.alert('Image uploaded successfully!');
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    setLoading(false);
-    Alert.alert('Error uploading image');
-  }
-};
-
-
-
-
-
-
-
+  // Load initial data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // First function runs regardless of userRole
-        await getNameandEmail();
-        await getExpertProfile();
-      } catch (error) {
-        console.error("Error fetching data:", error);
+    // Fetch user profile data (works for all users)
+    dispatch(fetchUserProfile(userId))
+      .unwrap()
+      .then(data => {
+        setUsernameInput(data.name || '');
+      });
+    
+    // Fetch profile image
+    dispatch(fetchProfileImage(userId));
+    
+    // If user is an expert, fetch expert profile data
+    if (userRole === 'expert') {
+      dispatch(fetchExpertProfile(userId));
+    }
+  }, [dispatch, userId, userRole]);
+  
+  // Choose and upload image
+  const chooseImage = () => {
+    launchImageLibrary({ mediaType: 'photo' }, (response) => {
+      if (response.assets) {
+        const selectedImage = response.assets[0];
+        dispatch(uploadProfileImage({ userId, image: selectedImage }))
+          .unwrap()
+          .then(() => {
+            Alert.alert('Success', 'Image uploaded successfully!');
+          })
+          .catch(err => {
+            Alert.alert('Error', 'Failed to upload image');
+          });
       }
-    };
+    });
+  };
   
-    fetchData();
-  }, []); 
+  // Update username
+  const handleEditUserName = () => {
+    dispatch(updateUsername({ userId, username: usernameInput }))
+      .unwrap()
+      .then(() => {
+        setEditUserNameModalVisible(false);
+        Alert.alert('Success', 'Username updated successfully.');
+      })
+      .catch(err => {
+        Alert.alert('Error', 'There was an error updating your username.');
+      });
+  };
   
-  if (loading) {
+  // Bio editing
+  const handleEditBio = () => {
+    setTempBio(bio);
+    setIsEditing(true);
+  };
+  
+  const saveBio = () => {
+    if (!tempBio || tempBio === bio) {
+      setIsEditing(false);
+      return;
+    }
+    
+    dispatch(updateBio({ userId, bio: tempBio }))
+      .unwrap()
+      .then(() => {
+        setIsEditing(false);
+      })
+      .catch(err => {
+        Alert.alert('Error', 'Failed to update bio');
+      });
+  };
+  
+  // Toggle availability
+  const toggleAvailability = () => {
+    const newStatus = !isAvailable;
+    dispatch(toggleExpertAvailability({ userId, isAvailable: newStatus }))
+      .unwrap()
+      .then(() => {
+        Alert.alert('Success', `You are now ${newStatus ? 'Available' : 'Unavailable'}`);
+      })
+      .catch(err => {
+        Alert.alert('Error', 'Could not update availability.');
+      });
+  };
+  
+  // Email verification
+  const handleSendOTP = () => {
+    const newEmail = emailVerification.newEmail;
+    
+    if (!newEmail) {
+      Alert.alert('Error', 'Please enter an email address');
+      return;
+    }
+    
+    dispatch(sendVerificationOTP({ email: newEmail }))
+      .unwrap()
+      .then(() => {
+        Alert.alert('Success', 'OTP sent to your email. Please check and enter below.');
+      })
+      .catch(err => {
+        Alert.alert('Error', err || 'Error sending OTP');
+      });
+  };
+  
+  const verifyOtpAndUpdateEmail = () => {
+    if (!otp) {
+      Alert.alert('Error', 'Please enter the OTP');
+      return;
+    }
+    
+    dispatch(verifyOTP({ email: emailVerification.newEmail, otp }))
+      .unwrap()
+      .then(() => {
+        // If OTP verification is successful, update email
+        dispatch(updateEmail({ userId, newEmail: emailVerification.newEmail }))
+          .unwrap()
+          .then(() => {
+            resetEmailModal();
+            Alert.alert('Success', 'Email updated successfully!');
+          });
+      })
+      .catch(err => {
+        Alert.alert('Error', err || 'Invalid OTP. Please try again.');
+      });
+  };
+  
+  const resetEmailModal = () => {
+    setEditEmailModal(false);
+    setOtp('');
+    dispatch(resetEmailVerificationState());
+  };
+  
+  // Become an expert
+  const becomeAnExpert = () => {
+    dispatch(becomeExpert(userId))
+      .unwrap()
+      .then(() => {
+        navigation.replace('Login');
+      })
+      .catch(err => {
+        Alert.alert('Error', 'Could not update.');
+      });
+  };
+  
+  // Logout
+  const handleLogout = async () => {
+    await AsyncStorage.clear();
+    navigation.navigate('Login');
+  };
+
+  // If data is loading, show loading indicator
+  if (loading && !userData.name) {
     return (
       <View style={styles.loadingContainer}>
         <Text style={styles.loadingText}>Loading...</Text>
@@ -205,172 +222,311 @@ const uploadImage = async (image) => {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>User Profile</Text>
-
-      {/* New Profile Section */}
-      {userData && (
-        <View style={styles.profileSection}>
-          {/* Profile Image Container with Plus Icon Overlay */}
-          <View style={styles.profileContainer}>
-          {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.profileImage} />
-      ) : (
-        <Text>No image found</Text>
-      )}
-        <TouchableOpacity style={styles.imageOverlay} onPress={chooseImage}>
-          <Ionicons name="add-circle" size={30} color="#fff" />
-        </TouchableOpacity>
-      </View>
-      {loading && <Text style={styles.loadingText}>Uploading...</Text>}
-      {uploadResponse && (
-        <View style={styles.responseContainer}>
-          <Text>Uploaded Image URL: {uploadResponse.image.url}</Text>
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        {/* Header Banner */}
+        <View style={styles.headerBanner}>
+          <Text style={styles.pageTitle}>User Profile</Text>
         </View>
-      )}
-          {/* Username Row with edit icon */}
-          <View style={styles.usernameRow}>
-            <Text style={styles.username}>{  userData.name || "N/A"}</Text>
-            <TouchableOpacity 
-              onPress={() => {
-                setUsernameInput(userData.username || userData.name || "");
-                setEditUserNameModalVisible(true);
-              }}
-            >
-              <Ionicons name="create-outline" size={20} color="#000" style={styles.editIcon} />
-            </TouchableOpacity>
-            <Text style={styles.tickIcon}>✔</Text>
-          </View>
-          {/* Email Section */}
-          <View style={styles.emailSection}>
-            <View style={styles.row}>
-              <Text style={styles.emailLabel}>Email</Text>
-              <TouchableOpacity onPress={() => setEditModalVisible(true)}>
-                <Text style={styles.editIconText}>✎</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.emailValue}>{userData.email || "N/A"}</Text>
-          </View>
-          {/* Bio Section with Edit Icon (shown only for experts) */}
-          {route.params.userRole === 'expert' && (
-            <View style={styles.bioSection}>
-              <View style={styles.row}>
-                <Text style={styles.bioLabel}>Bio</Text>
-                <TouchableOpacity onPress={() => {
-                  setBio(userData.bio || "");
-                }}>
+        
+        {userData && (
+          <View style={styles.profileCard}>
+            {/* Profile Image Section */}
+            <View style={styles.profileImageSection}>
+              <View style={styles.imageWrapper}>
+                {imageUrl ? (
+                  <Image source={{ uri: imageUrl }} style={styles.profileImage} />
+                ) : (
+                  <View style={styles.placeholderImage}>
+                    <Text style={styles.placeholderText}>
+                      {userData.name ? userData.name.charAt(0).toUpperCase() : "?"}
+                    </Text>
+                  </View>
+                )}
+                <TouchableOpacity style={styles.imageEditButton} onPress={chooseImage}>
+                  <Ionicons name="camera" size={20} color="#fff" />
                 </TouchableOpacity>
               </View>
-              <Text style={styles.bioValue}>{bio || "No bio available."}</Text>
+              {loading && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator color="#4A80F0" size="small" />
+                  <Text style={styles.loadingText}>Uploading...</Text>
+                </View>
+              )}
             </View>
-          )}
-        </View>
-      )}
-      {/* Edit Username Modal */}
-      <Modal animationType="slide" transparent visible={editUserNameModalVisible} onRequestClose={() => setEditUserNameModalVisible(false)}>
+            
+            {/* User Info Container */}
+            <View style={styles.userInfoContainer}>
+              {/* Username Section */}
+              <View style={styles.nameContainer}>
+                <Text style={styles.userName}>{userData.name || "N/A"}</Text>
+                <View style={styles.nameActions}>
+                  <TouchableOpacity 
+                    style={styles.editNameButton}
+                    onPress={() => {
+                      setUsernameInput(userData.name || "");
+                      setEditUserNameModalVisible(true);
+                    }}
+                  >
+                    <Ionicons name="create-outline" size={18} color="#4A80F0" />
+                  </TouchableOpacity>
+                  {isVerified ? (
+                    <View style={styles.verifiedBadgeContainer}>
+                      <Ionicons name="shield-checkmark" size={16} color="#4A80F0" />
+                      <Text style={styles.verifiedText}>Verified</Text>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+              
+              {/* Email Section */}
+              <View style={styles.infoSection}>
+                <View style={styles.infoHeader}>
+                  <Ionicons name="mail-outline" size={18} color="#555" />
+                  <Text style={styles.infoLabel}>Email</Text>
+                  <TouchableOpacity 
+                    style={styles.editButton} 
+                    onPress={() => setEditEmailModal(true)}
+                  >
+                    <Ionicons name="pencil-outline" size={16} color="#4A80F0" />
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.infoValue}>{userData.email || "N/A"}</Text>
+              </View>
+              
+              {/* Expert Specific Sections */}
+              {userRole === 'expert' && (
+                <>
+                  {/* Bio Section */}
+                  <View style={styles.bioSection}>
+                    <View style={styles.infoHeader}>
+                      <Ionicons name="document-text-outline" size={18} color="#555" />
+                      <Text style={styles.infoLabel}>Bio</Text>
+                      {!isEditing ? (
+                        <TouchableOpacity 
+                          style={styles.editButton} 
+                          onPress={handleEditBio}
+                        >
+                          <Ionicons name="pencil-outline" size={16} color="#4A80F0" />
+                        </TouchableOpacity>
+                      ) : null}
+                    </View>
+    
+                    {!isEditing ? (
+                      <Text style={styles.bioText} numberOfLines={3}>{bio || "Add your professional bio here..."}</Text>
+                    ) : (
+                      <View style={styles.bioEditContainer}>
+                        <TextInput
+                          style={styles.bioInput}
+                          value={tempBio}
+                          onChangeText={setTempBio}
+                          placeholder="Write a short bio about yourself..."
+                          multiline
+                          autoFocus
+                        />
+                        <View style={styles.buttonContainer}>
+                          <TouchableOpacity onPress={saveBio} style={styles.saveButton}>
+                            <Ionicons name="checkmark" size={18} color="#fff" />
+                            <Text style={styles.buttonText}>Save</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => setIsEditing(false)} style={styles.cancelButton}>
+                            <Ionicons name="close" size={18} color="#fff" />
+                            <Text style={styles.buttonText}>Cancel</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                  
+                  {/* Availability Section */}
+                  <View style={styles.availabilitySection}>
+                    <View style={styles.availabilityHeader}>
+                      <Ionicons name="time-outline" size={18} color="#555" />
+                      <Text style={styles.availabilityLabel}>Availability</Text>
+                    </View>
+                    <View style={styles.availabilityControls}>
+                      <TouchableOpacity 
+                        style={[
+                          styles.availabilityButton,
+                          { backgroundColor: isAvailable ? '#E0F7E0' : '#F7E0E0' }
+                        ]} 
+                        onPress={toggleAvailability}
+                      >
+                        <Ionicons 
+                          name={isAvailable ? "checkmark-circle" : "close-circle"} 
+                          size={24} 
+                          color={isAvailable ? "#28A745" : "#DC3545"} 
+                        />
+                        <Text style={[
+                          styles.availabilityButtonText, 
+                          { color: isAvailable ? "#28A745" : "#DC3545" }
+                        ]}>
+                          {isAvailable ? "Available" : "Unavailable"}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </>
+              )}
+            </View>
+          </View>
+        )}
+        
+        {/* Become Expert Button */}
+        {userRole === 'user' && (
+          <TouchableOpacity style={styles.becomeExpertButton} onPress={becomeAnExpert}>
+            <Ionicons name="star" size={20} color="#FFF" />
+            <Text style={styles.becomeExpertText}>Become an Expert</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      
+      {/* Edit username modal */}
+      <Modal 
+        animationType="slide" 
+        transparent 
+        visible={editUserNameModalVisible} 
+        onRequestClose={() => setEditUserNameModalVisible(false)}
+      >
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
-            <Text style={styles.sectionTitle}>Edit Username</Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Username</Text>
+              <TouchableOpacity onPress={() => setEditUserNameModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#555" />
+              </TouchableOpacity>
+            </View>
             <TextInput
-              style={styles.input}
+              style={styles.modalInput}
               placeholder="Enter new username"
               value={usernameInput}
               onChangeText={setUsernameInput}
             />
-            <TouchableOpacity style={styles.saveButton} onPress={handleEditUserName}>
-              <Text style={styles.buttonText}>Save Changes</Text>
+            <TouchableOpacity style={styles.modalPrimaryButton} onPress={handleEditUserName}>
+              <Text style={styles.modalButtonText}>Save Changes</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setEditUserNameModalVisible(false)}>
-              <Text style={styles.buttonText}>Cancel</Text>
+            <TouchableOpacity 
+              style={styles.modalSecondaryButton} 
+              onPress={() => setEditUserNameModalVisible(false)}
+            >
+              <Text style={styles.modalSecondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
-      {/* Edit Bio Modal */}
-      <Modal animationType="slide" transparent visible={editBioModal} onRequestClose={() => setEditBioModal(false)}>
+      
+      {/* Email Edit Modal with OTP Verification */}
+      <Modal 
+        animationType="slide" 
+        transparent 
+        visible={editEmailModal} 
+        onRequestClose={resetEmailModal}
+      >
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
-            <Text style={styles.sectionTitle}>Edit Bio</Text>
-            <TextInput
-              style={[styles.input, { height: 80 }]}
-              placeholder="Enter your new bio"
-              value={bio}
-              onChangeText={setBio}
-              multiline
-            />
-            <TouchableOpacity style={styles.saveButton} >
-              <Text style={styles.buttonText}>Save Changes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setEditBioModal(false)}>
-              <Text style={styles.buttonText}>Cancel</Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edit Email</Text>
+              <TouchableOpacity onPress={resetEmailModal}>
+                <Ionicons name="close" size={24} color="#555" />
+              </TouchableOpacity>
+            </View>
+            
+            {!emailVerification.showOtpInput ? (
+              // Step 1: Enter new email and send OTP
+              <>
+                <View style={styles.modalInputContainer}>
+                  <Ionicons name="mail-outline" size={20} color="#555" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="Enter your new email"
+                    value={emailVerification.newEmail}
+                    onChangeText={(text) => dispatch(setEmailVerificationState({ newEmail: text }))}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+                <TouchableOpacity 
+                  style={styles.modalPrimaryButton} 
+                  onPress={handleSendOTP}
+                  disabled={emailVerification.loading}
+                >
+                  <Ionicons name="send-outline" size={18} color="#FFF" />
+                  <Text style={styles.modalButtonText}>
+                    {emailVerification.loading ? "Sending..." : "Send OTP"}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              // Step 2: Enter OTP for verification
+              <>
+                <View style={styles.otpContainer}>
+                  <Ionicons name="lock-closed-outline" size={28} color="#4A80F0" />
+                  <Text style={styles.infoText}>Enter the OTP sent to {emailVerification.newEmail}</Text>
+                  <TextInput
+                    style={styles.otpInput}
+                    placeholder="Enter OTP"
+                    keyboardType="numeric"
+                    value={otp}
+                    onChangeText={setOtp}
+                    maxLength={4}
+                  />
+                </View>
+                <TouchableOpacity 
+                  style={styles.modalPrimaryButton} 
+                  onPress={verifyOtpAndUpdateEmail}
+                  disabled={emailVerification.loading}
+                >
+                  <Ionicons name="shield-checkmark-outline" size={18} color="#FFF" />
+                  <Text style={styles.modalButtonText}>
+                    {emailVerification.loading ? "Verifying..." : "Verify OTP"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.textButton} 
+                  onPress={handleSendOTP}
+                  disabled={emailVerification.loading}
+                >
+                  <Ionicons name="refresh-outline" size={16} color="#4A80F0" />
+                  <Text style={styles.linkText}>Resend OTP</Text>
+                </TouchableOpacity>
+              </>
+            )}
+            
+            {emailVerification.error ? (
+              <View style={styles.errorContainer}>
+                <Ionicons name="alert-circle" size={16} color="#DC3545" />
+                <Text style={styles.errorText}>{emailVerification.error}</Text>
+              </View>
+            ) : null}
+            
+            <TouchableOpacity 
+              style={styles.modalSecondaryButton} 
+              onPress={resetEmailModal}
+            >
+              <Text style={styles.modalSecondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-      <Modal animationType="slide" transparent visible={expertProfileModal} onRequestClose={() => setExpertProfileModal(false)}>
-      <View style={styles.overlay}>
-        <View style={styles.modalBox}>
-          <Text style={styles.title}>Enter Details</Text>
-
-          {/* Bio Input */}
-          <TextInput
-            style={styles.textArea}
-            placeholder="Enter your bio (Max 100 words)"
-            value={bio}
-            onChangeText={setBio}
-            multiline
-          />
-
-          {/* Category Input */}
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter a category and press Add"
-              value={categoryInput}
-              onChangeText={setCategoryInput}
-            />
-            <TouchableOpacity style={styles.addButton} onPress={addCategory}>
-              <Text style={styles.addButtonText}>Add</Text>
-            </TouchableOpacity>
-          </View>
-          <FlatList
-            data={categories}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <Text style={styles.listItem}>{item}</Text>}
-          />
-
-          {/* Charges Input */}
-          <View style={styles.inputGroup}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter charges per hour and press Add"
-              value={chargeInput}
-              onChangeText={setChargeInput}
-              keyboardType="numeric"
-            />
-            <TouchableOpacity style={styles.addButton} onPress={addCharge}>
-              <Text style={styles.addButtonText}>Add</Text>
-            </TouchableOpacity>
-          </View>
-          <FlatList
-            data={charges}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <Text style={styles.listItem}>{item} INR/hr</Text>}
-          />
-
-          {/* Action Buttons */}
-          <TouchableOpacity style={styles.saveButton} >
-            <Text style={styles.buttonText}>Save</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={() => setExpertProfileModal(false)}>
-            <Text style={styles.buttonText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-
-      <Portfolio style={styles.Portfolio} userRole={ route.params.userRole} userId={userId} email ={formData.email}/>
+      
+      {/* Expert Profile Edit Button */}
+      {userRole === 'expert' && (
+        <TouchableOpacity 
+          style={styles.editExpertProfileButton}
+          onPress={() => navigation.navigate('EditPortfolio')}
+        >
+          <Ionicons name="construct-outline" size={20} color="#FFF" />
+          <Text style={styles.editExpertProfileText}>Edit My Expert Profile</Text>
+        </TouchableOpacity>
+      )}
+      
+      {/* Logout Button */}
+      <TouchableOpacity 
+        style={styles.editExpertProfileButton}
+        onPress={handleLogout}
+      >
+        <Text style={styles.editExpertProfileText}>Logout</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };

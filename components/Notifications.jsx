@@ -1,37 +1,40 @@
 import React, {useEffect, useState} from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   TouchableOpacity,
   Alert,
-  ScrollView,
+  FlatList,
 } from 'react-native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
+import styles from './styles/Notifications';
+import { formatDistanceToNow, parseISO, format } from 'date-fns';
+
 const Notifications = ({route}) => {
   const {email, userRole} = route.params;
   const [expertNotifications, setExpertNotifications] = useState([]);
   const navigation = useNavigation();
+  
   const fetchExpertNotifications = async () => {
-    console.warn("I am called",email)
+    console.warn("I am called", email);
     try {
       const response = await axios.get(
-        `http://10.0.2.2:3000/noti/get-Requests/${email}`,
+        `http://10.0.2.2:3000/noti/get-Requests/${email}`
       );
 
       if (response.status === 200) {
         const allNotifications = response.data.data;
-
         const filteredNotifications =
           userRole === 'user'
             ? allNotifications.filter(
-                notification => notification.isRead === true && notification.isPaid === false,
+                notification => notification.isRead === true && notification.isPaid === false
               ) 
             : allNotifications.filter(
-              notification => notification.isRead === false ); 
-      console.log("fitlered",filteredNotifications)
+                notification => notification.isRead === false
+              );
+        console.log("Filtered", filteredNotifications);
         setExpertNotifications(filteredNotifications);
       }
     } catch (error) {
@@ -44,14 +47,11 @@ const Notifications = ({route}) => {
     fetchExpertNotifications();
   }, []);
 
-  const handleAccept = async (from,notiId,time,type,amount) => {
+  const handleAccept = async (from, notiId, time, type, amount) => {
     try {
       console.warn('From:', from);
-      const email = from;
-      console.warn('Email:', email);
-
       const response = await axios.get(
-        `http://10.0.2.2:3000/noti/get-user-fcm/${email}`,
+        `http://10.0.2.2:3000/noti/get-user-fcm/${from}`
       );
       console.warn(response);
       const fcmToken = response.data.fcm;
@@ -64,12 +64,15 @@ const Notifications = ({route}) => {
 
       await axios.post(
         'http://10.0.2.2:3000/noti/send-notification',
-        notificationData,
+        notificationData
       );
       await axios.patch(
-        `http://10.0.2.2:3000/noti/accepted/${notiId}`);
+        `http://10.0.2.2:3000/noti/accepted/${notiId}`
+      );
+      fetchExpertNotifications();
+
       Alert.alert(
-        'Your response has been sent to the user. If payment succeeds, the meeting will be scheduled.',
+        'Your response has been sent to the user. If payment succeeds, the meeting will be scheduled.'
       );
     } catch (error) {
       console.warn('Error', error);
@@ -80,12 +83,8 @@ const Notifications = ({route}) => {
   const handleReject = async (from, notiId) => {
     try {
       console.warn('From:', from);
-      const email = from;
-      console.warn('Email:', email);
-      console.warn('Id', notiId);
-
       const response = await axios.get(
-        `http://10.0.2.2:3000/noti/get-user-fcm/${email}`,
+        `http://10.0.2.2:3000/noti/get-user-fcm/${from}`
       );
       console.warn(response);
       const fcmToken = response.data.fcm;
@@ -98,7 +97,7 @@ const Notifications = ({route}) => {
 
       await axios.post(
         'http://10.0.2.2:3000/noti/send-notification',
-        notificationData,
+        notificationData
       );
       await axios.delete(`http://10.0.2.2:3000/noti/remove-noti/${notiId}`);
       Alert.alert('Your response has been sent to the user.');
@@ -107,6 +106,7 @@ const Notifications = ({route}) => {
       Alert.alert('Something went wrong, try again later.');
     }
   };
+
   const handlePayment = (notification) => {
     console.warn("Navigating to Payment with:", notification);
     navigation.navigate('Payment', { 
@@ -115,197 +115,132 @@ const Notifications = ({route}) => {
       amount: notification.amount, 
       type: notification.type,
       time: notification.time,
-      preferredTime:notification.preferredTime,
-      notiId:notification._id
+      preferredTime: notification.preferredTime,
+      notiId: notification._id
     });
   };
-  
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Notifications</Text>
 
-      {/* Notifications Header */}
-      <Text style={styles.subHeader}>
-        {userRole === 'expert' ? 'Requests for You' : 'Your Notifications'}
-      </Text>
+  // Helper function to format time string
+  const formatMeetingTime = (timeString) => {
+    try {
+      // Check if the timeString is a valid date string
+      if (!timeString) return "N/A";
+      
+      // Try to parse as ISO date
+      const date = new Date(timeString);
+      
+      // Check if valid date was created
+      if (isNaN(date.getTime())) {
+        // If not a valid ISO date, it might be already in a custom format
+        return timeString;
+      }
+      
+      // Format the date and time as requested
+      const formattedDate = format(date, "dd/MM/yy");
+      const formattedTime = format(date, "HH:mm");
+      
+      return `${formattedDate} at ${formattedTime}`;
+    } catch (error) {
+      console.warn('Time formatting error:', error, timeString);
+      return timeString || "N/A"; // Return original string or N/A as fallback
+    }
+  };
 
-      {expertNotifications.length === 0 ? (
-        <Text style={styles.noNotifications}>No new notifications.</Text>
-      ) : (
-        expertNotifications.map(notification => (
-          <View key={notification._id} style={styles.card}>
-            {/* Show all details for experts */}
-            {userRole === 'expert' ? (
-              <>
-                <Text style={styles.label}>📅 Duration:</Text>
-                <Text style={styles.value}>{notification.time}</Text>
+  const renderNotification = ({ item }) => {
+    // Fix: Safely parse the date with error handling
+    let timeAgo;
+    try {
+      // Try to parse the date string to a Date object first
+      const date = parseISO(item.preferredTime);
+      timeAgo = formatDistanceToNow(date, { addSuffix: true });
+    } catch (error) {
+      console.warn('Date parsing error:', error, item.createdAt);
+      timeAgo = 'recently'; // Fallback value
+    }
+    
+    // Format the preferred time or time in the required format
+    const formattedTime = formatMeetingTime(item.preferredTime || item.time);
+    
+    let icon;
+    switch (item.type) {
+      case 'Video Call':
+        icon = 'videocam';
+        break;
+      case 'Voice Call':
+        icon = 'call';
+        break;
+      case 'Message':
+        icon = 'chatbubble';
+        break;
+      default:
+        icon = 'notifications';
+    }
 
-                <Text style={styles.label}>📞 Type:</Text>
-                <Text style={styles.value}>{notification.type}</Text>
-
-                <Text style={styles.label}>📝 Comment:</Text>
-                <Text style={styles.value}>
-                  {notification.comment || 'No additional comments.'}
-                </Text>
-              </>
-            ) : (
-              <View>
-                <Text style={styles.label}>
-                  The expert is available to you ,Pay now to schedule to
-                  service:
-                </Text>
-                <TouchableOpacity
-                  style={styles.btn}
-                  onPress={() => handlePayment(notification)}>
-                  <Text style={styles.label}>Pay</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-            
-            <Text style={styles.label}>From:</Text>
-            <Text style={styles.value}>{notification.from}</Text>
-            <Text style={styles.label}>💰 Amount:</Text>
-            <Text style={styles.value}>{notification.amount}</Text>
-            {/* Show accept/reject buttons only for experts */}
-            {userRole === 'expert' && (
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={styles.acceptButton}
-                  onPress={() =>
-                    handleAccept(
-                      notification.from,
-                      notification._id,
-                      notification.time,
-                      notification.type,
-                      notification.amount,
-
-                    )
-                  }>
-                  <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.rejectButton}
-                  onPress={() =>
-                    handleReject(notification.from, notification._id)
-                  }>
-                  <Ionicons name="close-circle" size={22} color="#fff" />
-                </TouchableOpacity>
-              </View>
-            )}
+    return (
+      <View style={styles.notificationItem}>
+        <View style={styles.iconContainer}>
+          <Ionicons name={icon} size={24} color="#4a90e2" />
+        </View>
+        
+        <View style={styles.contentContainer}>
+          <View style={styles.headerRow}>
+            <Text style={styles.name}>{item.from}</Text>
+            <Text style={styles.time}>{timeAgo}</Text>
           </View>
-        ))
-      )}
-    </ScrollView>
+          
+          <Text style={styles.description}>
+            {item.type} • {formattedTime}
+          </Text>
+          
+          {item.amount && (
+            <Text style={styles.amount}>💰 ₹{item.amount}</Text>
+          )}
+          
+          {userRole === 'expert' ? (
+            <View style={styles.actionButtons}>
+              <TouchableOpacity 
+                style={styles.acceptButton}
+                onPress={() => handleAccept(item.from, item._id, item.time, item.type, item.amount)}
+              >
+                <Ionicons name="checkmark" size={16} color="#fff" />
+                <Text style={styles.buttonText}>Accept</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.rejectButton}
+                onPress={() => handleReject(item.from, item._id)}
+              >
+                <Ionicons name="close" size={16} color="#fff" />
+                <Text style={styles.buttonText}>Decline</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity 
+              style={styles.payButton}
+              onPress={() => handlePayment(item)}
+            >
+              <Ionicons name="card" size={16} color="#fff" />
+              <Text style={styles.buttonText}>Pay Now</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>
+        {userRole === 'expert' ? 'Requests' : 'Notifications'}
+      </Text>
+      <FlatList
+        data={expertNotifications}
+        renderItem={renderNotification}
+        keyExtractor={item => item._id}
+        contentContainerStyle={styles.listContainer}
+      />
+    </View>
   );
 };
 
 export default Notifications;
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#f5f5f5', // Lighter background for better contrast
-  },
-  header: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#333',
-    marginBottom: 20,
-    paddingVertical: 10, // Add some vertical padding
-  },
-  subHeader: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#444',
-    marginTop: 15,
-    marginBottom: 12,
-  },
-  noNotifications: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: '#888',
-    marginTop: 30,
-    marginBottom: 30,
-    fontStyle: 'italic', // Make it more distinctive
-  },
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1, // Reduced shadow opacity for subtlety
-    shadowRadius: 8, // Increased for a softer shadow
-    elevation: 3,
-    marginBottom: 12,
-    borderLeftWidth: 4, // Add an accent border
-    borderLeftColor: '#4CAF50', // Default color, can be dynamic based on notification type
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 4,
-    textTransform: 'uppercase', // Makes labels stand out
-    letterSpacing: 0.5,
-  },
-  value: {
-    fontSize: 16,
-    color: '#222',
-    marginBottom: 12,
-    lineHeight: 22, // Improved readability
-  },
-  timestamp: {
-    // New style for timestamps
-    fontSize: 12,
-    color: '#999',
-    marginTop: 5,
-    alignSelf: 'flex-end',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end', // Right-aligned buttons
-    marginTop: 12,
-    gap: 8, // Space between buttons
-  },
-  acceptButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    minWidth: 90, // Ensure consistent button width
-  },
-  rejectButton: {
-    backgroundColor: '#F44336',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    minWidth: 90,
-  },
-  buttonText: {
-    // New style for button text
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  unreadIndicator: {
-    // New style for unread notifications
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#2196F3',
-    position: 'absolute',
-    top: 12,
-    right: 12,
-  },
-  // Fixed the inconsistent btn style
-  btn: {
-    backgroundColor: '#007BFF', // Changed from black for better usability
-    padding: 12, // Reduced from 40 which seemed excessive
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-});

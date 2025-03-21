@@ -65,6 +65,7 @@ const Payment= ({route}) => {
                   to : from ,
                   type:type,
                   time:time,
+                  preferredTime:preferredTime,
                   notiId
                 },
               );

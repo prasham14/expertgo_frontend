@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity,ActivityIndicator, Alert, StyleSheet, Image, Modal, StatusBar } from "react-native";
+import { View, Text, TextInput, TouchableOpacity,ActivityIndicator, Alert, Image, Modal, StatusBar } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import img from './images/logo.jpeg';
 import styles from "./styles/Login";
@@ -126,8 +126,7 @@ const LoginScreen = ({ navigation }) => {
           const data = await response.json();
           if (response.ok) {
             await AsyncStorage.setItem("userRole", role);
-            Alert.alert("Success", `You are ${role}`);
-            navigation.navigate("Home");
+            navigation.navigate("MainTabs");
           } else {
             Alert.alert("Error", data.message || "Failed to update role");
           }
@@ -183,9 +182,6 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.forgotPassword}>Forgot Password?</Text>
     )}
 </TouchableOpacity>
-            {/* <TouchableOpacity onPress={handleForgotPassword}>
-                <Text style={styles.forgotPassword}>Forgot Password?</Text>
-            </TouchableOpacity> */}
 
             <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <Text style={styles.buttonText}>Login</Text>
@@ -193,16 +189,10 @@ const LoginScreen = ({ navigation }) => {
 
             <Text style={styles.signupText}>
                 Don't have an account?{" "}
-                <Text style={styles.signupLink} onPress={() => navigation.navigate("Signup")}>
+                <Text style={styles.signupLink} onPress={() => navigation.replace("Signup")}>
                     Sign Up
                 </Text>
             </Text>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-                <Text style={styles.footerText}>© 2025 MyApp. All rights reserved.</Text>
-                <Text style={styles.termsText}>By signing up, you agree to our <Text style={styles.tnc} onPress={() => navigation.navigate("TnC")}>Terms & Conditions.</Text></Text>
-            </View>
 
             {/* OTP Modal */}
             <Modal visible={otpModalVisible} animationType="slide" transparent>
@@ -235,12 +225,12 @@ const LoginScreen = ({ navigation }) => {
             <Modal visible={roleModalVisible} animationType="fade" transparent>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Select Your Role</Text>
+                        <Text style={styles.modalTitle}>Why ExpertGo?</Text>
                         <TouchableOpacity style={styles.roleButton} onPress={() => selectUserRole("user")}>
-                            <Text style={styles.buttonText}>Normal User</Text>
+                            <Text style={styles.buttonText}>To Seek Help</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.roleButton} onPress={() => selectUserRole("expert")}>
-                            <Text style={styles.buttonText}>Expert</Text>
+                            <Text style={styles.buttonText}>To Help & Earn</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

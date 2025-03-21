@@ -43,8 +43,7 @@ const Transactions = () => {
     fetchTransactions();
   }, [email, userRole]);
 
-  // if (loading) return <Text>Loading...</Text>;
-  // if (userRole !== 'user') return <Text>Access Denied</Text>;
+  if (loading) return <Text>Loading...</Text>;
 
   return (
     <View style={styles.container}>
@@ -57,8 +56,8 @@ const Transactions = () => {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <View style={styles.transactionCard}>
-              <Text style={styles.transactionText}>💰 Amount: ${item.amount}</Text>
-              <Text style={styles.transactionText}>📅 Date: {item.date}</Text>
+              <Text style={styles.transactionText}> Amount: ${item.amount}</Text>
+              <Text style={styles.transactionText}>Date: {item.date}</Text>
               <Text style={styles.transactionText}>To: {item.to}</Text>
 
             </View>
@@ -72,9 +71,46 @@ const Transactions = () => {
 export default Transactions;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  header: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-  noTransactions: { fontSize: 14, color: 'gray' },
-  transactionCard: { padding: 15, backgroundColor: '#f0f0f0', marginBottom: 10, borderRadius: 5 },
-  transactionText: { fontSize: 14 }
+  container: { 
+    flex: 1, 
+    backgroundColor: '#F8FAFC', 
+    paddingHorizontal: 16, 
+    paddingTop: 20 
+  },
+
+  header: { 
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    color: '#1E293B', 
+    marginBottom: 16, 
+    textAlign: 'center' 
+  },
+
+  noTransactions: { 
+    fontSize: 16, 
+    color: '#64748B', 
+    textAlign: 'center', 
+    marginTop: 20 
+  },
+
+  transactionCard: { 
+    backgroundColor: '#FFFFFF', 
+    padding: 16, 
+    marginBottom: 12, 
+    borderRadius: 10, 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 3 }, 
+    shadowOpacity: 0.1, 
+    shadowRadius: 4, 
+    elevation: 4, 
+    borderWidth: 1, 
+    borderColor: '#E2E8F0' 
+  },
+
+  transactionText: { 
+    fontSize: 16, 
+    color: '#334155', 
+    marginBottom: 6, 
+    fontWeight: '500' 
+  }
 });

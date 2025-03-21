@@ -103,43 +103,16 @@ const SignupScreen = ({ navigation }) => {
           return null;
         }
       };
-      
-    //   const saveFCMToken = async (fcmToken, userId) => {
-    //     try {
-    //       if (!userId) {
-    //         console.warn("User ID not found.");
-    //         return;
-    //       }
-      
-    //       const response = await axios.post(`http://10.0.2.2:3000/user/saveToken/${userId}`, {
-    //         token: fcmToken,
-    //       });
-      
-    //       if (response.data.success) {
-    //         console.log("FCM Token saved successfully:", response.data.message);
-    //       } else {
-    //         console.warn("Failed to save FCM Token:", response.data.message);
-    //       }
-    //     } catch (error) {
-    //       console.error("Error saving FCM Token:", error);
-    //     }
-    //   };
-
-
-
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            {/* StatusBar */}
             <StatusBar backgroundColor="#fff" barStyle="dark-content" />
 
-            {/* Top Banner Section */}
             <View style={styles.topBanner}>
                 <Text style={styles.topBannerText}>Welcome to Expertgo!</Text>
                 <Text style={styles.topBannerSubText}>Start your journey with us today.</Text>
             </View>
 
-            {/* Logo Section */}
             <View style={styles.logoContainer}>
                 <Image 
                   source={img}
@@ -147,14 +120,7 @@ const SignupScreen = ({ navigation }) => {
                   resizeMode="contain"
                 />
             </View>
-
-            {/* Tagline Section */}
-            <View style={styles.taglineContainer}>
-                <Text style={styles.taglineText}>Create your account by entering following details.</Text>
-            </View>
-
-            {/* Form Section */}
-            <View style={styles.formContainer}>
+       <View style={styles.formContainer}>
                 <TextInput 
                   style={styles.input} 
                   placeholder="Full Name" 
@@ -163,12 +129,11 @@ const SignupScreen = ({ navigation }) => {
                 />
                 <TextInput 
                   style={styles.input} 
-                  placeholder="Email Address (e.g., example@gmail.com)" 
+                  placeholder="Email Address" 
                   value={email} 
                   onChangeText={setEmail} 
                   keyboardType="email-address" 
                 />
-                {/* Password Field with Eye Icon */}
                 <View style={styles.passwordContainer}>
             <TextInput
                 style={styles.passinput}
@@ -183,7 +148,6 @@ const SignupScreen = ({ navigation }) => {
             </View>
             </View>
 
-            {/* Button Section */}
             <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.signupButton} onPress={sendOtp} disabled={loading}>
     {loading ? (
@@ -193,15 +157,12 @@ const SignupScreen = ({ navigation }) => {
     )}
 </TouchableOpacity>
 
-                
-                {/* OR Divider */}
                 <View style={styles.orContainer}>
                     <View style={styles.orLine} />
                     <Text style={styles.orText}>OR</Text>
                     <View style={styles.orLine} />
                 </View>
 
-                {/* Google Sign Up Button */}
                 <TouchableOpacity 
                   style={styles.googleButton} 
                   onPress={() => Alert.alert("Google Sign Up", "Google sign up not implemented yet!")}
@@ -213,16 +174,10 @@ const SignupScreen = ({ navigation }) => {
             {/* Login Link */}
             <Text style={styles.loginText}>
                 Already have an account?{" "}
-                <Text style={styles.loginLink} onPress={() => navigation.navigate("Login")}>
+                <Text style={styles.loginLink} onPress={() => navigation.replace("Login")}>
                     Login here
                 </Text>
             </Text>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-                <Text style={styles.footerText}>© 2025 MyApp. All rights reserved.</Text>
-                <Text style={styles.termsText}>By signing up, you agree to our <Text style={styles.tnc} onPress={()=>navigation.navigate("TnC")}>Terms & Conditions.</Text></Text>
-            </View>
 
             {/* OTP Modal */}
             <Modal visible={otpModalVisible} animationType="slide" transparent>

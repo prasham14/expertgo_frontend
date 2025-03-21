@@ -50,22 +50,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    borderWidth: 2,
-    borderColor: "#1e3a5f", // Matching the banner color
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        shadowOffset: { width: 0, height: 3 },
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    width: 120,
+    height: 120,
+    borderRadius: 60,
   },
   input: {
     width: "90%",

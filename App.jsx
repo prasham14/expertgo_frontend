@@ -6,37 +6,35 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import notifee from "@notifee/react-native";
 import messaging from "@react-native-firebase/messaging";
-import { UserProvider } from "./components/Context";
+import { Provider } from 'react-redux'; // Import Redux Provider
+import {store} from "./store/index";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Home from "./components/Home";
 import ChangePassword from "./components/ChangePassword";
-import UserRole from "./components/UserRole";
 import Expert from "./components/Expert";
-import User from "./components/User";
 import Profile from "./components/Profile";
 import TandC from "./components/TandC";
 import Portfolio from "./components/Portfolio";
 import PortfolioScreen from "./components/ShowPortfolio";
-import PortfolioForm from "./components/CreatePortfolio";
-import VideoCall from "./components/VideoCall";
-import VoiceCall from "./components/VoiceCall";
-import SendMessage from "./components/SendMessage";
-import { firebase } from "@react-native-firebase/app";
+import VideoCall from "./components/Booking";
 import Notifications from "./components/Notifications";
 import Payment from "./components/Payment";
 import Meetings from "./components/Meetings";
 import Transactions from "./components/Transactions";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import Others from "./components/Others";
 import Search from "./components/Search";
-import AgoraVideoCall from "./components/VC";
+import VC from "./components/VC";
+import Chat from './components/Chat';
+import { UserProvider } from "./components/Context";
+import AskAnExpert from "./components/AskAnExpert";
+import EditPortfolio from "./components/EditPortfolio";
 
+// Create navigation objects
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Bottom Tab Navigator including Home so that the bottom tabs show on your Home page
-
+// Define MainTabs component
 const MainTabs = () => {
   return (
     <Tab.Navigator
@@ -46,8 +44,8 @@ const MainTabs = () => {
 
           if (route.name === "Home") {
             iconName = "home-outline";
-          } else if (route.name === "Search") {
-            iconName = "search-outline";
+          } else if (route.name === "Ask") {
+            iconName = "question-outline";
           }
           else if (route.name === "Meetings") {
             iconName = "calendar-outline";
@@ -64,21 +62,18 @@ const MainTabs = () => {
       })}
     >
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Search" component={Search} />
-
       <Tab.Screen name="Meetings" component={Meetings} />
       <Tab.Screen name="Transactions" component={Transactions} />
+      <Tab.Screen name="Ask" component={AskAnExpert} />
     </Tab.Navigator>
   );
 };
 
-
-
+// The main App component
 const App = () => {
   const [initialRoute, setInitialRoute] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Request Android notification permission
   useEffect(() => {
     requestPermissionAndroid();
   }, []);
@@ -95,7 +90,6 @@ const App = () => {
     }
   };
 
-  // Listen for foreground messages
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
       onDisplayNotification(remoteMessage);
@@ -120,12 +114,10 @@ const App = () => {
     });
   };
 
-  // Check if a user ID exists in AsyncStorage and set the initial route accordingly
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
         const userId = await AsyncStorage.getItem("userId");
-        // If the user is logged in, navigate to the bottom tabs which include the Home page
         if (userId) {
           setInitialRoute("MainTabs");
         } else {
@@ -155,36 +147,30 @@ const App = () => {
   }
 
   return (
-    <UserProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName={initialRoute}>
-          {/* Authentication Stack */}
-          <Stack.Screen name="Signup" component={SignUp} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-
-          {/* Main app with bottom tabs (Home is now a tab) */}
-          <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-          <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-          <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
-
-          {/* Additional screens */}
-          <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
-          <Stack.Screen name="UserRole" component={UserRole} options={{ headerShown: false }} />
-          <Stack.Screen name="Expert" component={Expert} options={{ headerShown: false }} />
-          <Stack.Screen name="User" component={User} options={{ headerShown: false }} />
-          <Stack.Screen name="TnC" component={TandC} options={{ headerShown: false }} />
-          <Stack.Screen name="Portfolio" component={Portfolio} options={{ headerShown: false }} />
-          <Stack.Screen name="PortfolioScreen" component={PortfolioScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="PortfolioForm" component={PortfolioForm} options={{ headerShown: false }} />
-          <Stack.Screen name="VideoCall" component={VideoCall} options={{ headerShown: false }} />
-          <Stack.Screen name="VoiceCall" component={VoiceCall} options={{ headerShown: false }} />
-          <Stack.Screen name="SendMessage" component={SendMessage} options={{ headerShown: false }} />
-          <Stack.Screen name="Payment" component={Payment} options={{ headerShown: false }} />
-          <Stack.Screen name="AgoraVideoCall" component={AgoraVideoCall} />
-
-        </Stack.Navigator>
-      </NavigationContainer>
-    </UserProvider>
+    <Provider store={store}>
+      <UserProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName={initialRoute}>
+            <Stack.Screen name="Signup" component={SignUp} options={{ headerShown: false }} />
+            <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+            <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+            <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
+            <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
+            <Stack.Screen name="Search" component={Search} options={{ headerShown: false }} />
+            <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
+            <Stack.Screen name="Expert" component={Expert} options={{ headerShown: false }} />
+            <Stack.Screen name="TnC" component={TandC} options={{ headerShown: false }} />
+            <Stack.Screen name="Portfolio" component={Portfolio} options={{ headerShown: false }} />
+            <Stack.Screen name="PortfolioScreen" component={PortfolioScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="VideoCall" component={VideoCall} options={{ headerShown: false }} />
+            <Stack.Screen name="Payment" component={Payment} options={{ headerShown: false }} />
+            <Stack.Screen name="Video" component={VC} options={{ headerShown: false }} />
+            <Stack.Screen name="Chat" component={Chat} />
+            <Stack.Screen name="EditPortfolio" component={EditPortfolio} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </UserProvider>
+    </Provider>
   );
 };
 
