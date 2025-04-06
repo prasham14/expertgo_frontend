@@ -12,7 +12,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from './styles/AskAnExpert';
+import styles from '../components/styles/AskAnExpert';
 const AskAnExpert = ({navigation }) => {
   const [question, setQuestion] = useState('');
   const [category, setCategory] = useState('');
@@ -80,36 +80,17 @@ const AskAnExpert = ({navigation }) => {
       return;
     }
     
-    if (!category.trim()) {
-      Alert.alert('Error', 'Please enter a category for your question.');
-      return;
-    }
-    
     setLoading(true);
     
     try {
       const response = await axios.post('http://10.0.2.2:3000/ask/ask', {
         question,
-        category,
         userId
       });
       
       Alert.alert(
         'Success!', 
-        'Your question has been sent to an expert. You will be notified when it is answered.',
-        [
-          { 
-            text: 'View My Questions', 
-            onPress: () => navigation.navigate('MyQuestions') 
-          },
-          { 
-            text: 'Ask Another', 
-            onPress: () => {
-              setQuestion('');
-              setCategory('');
-            } 
-          }
-        ]
+        'Your question has been sent to an expert.',
       );
     } catch (error) {
       console.error('Error submitting question:', error);
@@ -186,18 +167,6 @@ const AskAnExpert = ({navigation }) => {
               Get personalized answers from verified experts in your field of interest
             </Text>
             
-            <Text style={styles.label}>Category:</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="list" size={24} color="#007bff" style={styles.icon} />
-              <TextInput
-                style={styles.categoryInput}
-                placeholder="Enter a category (e.g., Technology, Health, Finance)"
-                placeholderTextColor="#888"
-                value={category}
-                onChangeText={setCategory}
-              />
-            </View>
-            
             <Text style={styles.label}>Your Question:</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="chatbox-ellipses" size={24} color="#007bff" style={styles.icon} />
@@ -213,9 +182,9 @@ const AskAnExpert = ({navigation }) => {
             </View>
             
             <TouchableOpacity 
-              style={[styles.button, (!question.trim() || !category.trim()) && styles.buttonDisabled]}
+              style={[styles.button, (!question.trim() ) && styles.buttonDisabled]}
               onPress={handleSubmit}
-              disabled={!question.trim() || !category.trim() || loading}
+              disabled={!question.trim() || loading}
             >
               {loading ? (
                 <ActivityIndicator color="#FFF" />
@@ -230,7 +199,7 @@ const AskAnExpert = ({navigation }) => {
             <View style={styles.infoContainer}>
               <Ionicons name="information-circle" size={20} color="#007bff" />
               <Text style={styles.infoText}>
-                The experts typically respond within 24-48 hours
+               Ask the experts
               </Text>
             </View>
           </>

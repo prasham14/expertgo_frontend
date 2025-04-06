@@ -1,22 +1,20 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState,useContext } from 'react';
 import { 
   View, 
   Text, 
-  StyleSheet, 
   TextInput, 
   TouchableOpacity, 
   ScrollView, 
   KeyboardAvoidingView, 
   Platform,
-  Alert,
-  ActivityIndicator
+  Alert
 } from 'react-native';
 import axios from 'axios';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { UserContext } from './Context';
-
-const EditPortfolio = ({ navigation }) => {
-  const { userId } = useContext(UserContext);
+import  Ionicons  from 'react-native-vector-icons/Ionicons';
+import { UserContext } from '../context/Context';
+import styles from '../components/styles/Portfolio';
+const Portfolio = ({ route, navigation }) => {
+  const { userId} = useContext(UserContext);
   
   const [categories, setCategories] = useState(['']);
   const [voiceCallCharge, setVoiceCallCharge] = useState('');
@@ -26,62 +24,9 @@ const EditPortfolio = ({ navigation }) => {
   const [experience, setExperience] = useState('Fresher');
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [skills, setSkills] = useState(['']);
-  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [fetchingProfile, setFetchingProfile] = useState(true);
 
   const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years', '10+ Years'];
-
-  // Fetch the expert profile data on component mount
-  useEffect(() => {
-    fetchExpertProfile();
-  }, []);
-
-  const fetchExpertProfile = async () => {
-    try {
-      setFetchingProfile(true);
-      const response = await axios.get(`http://10.0.2.2:3000/expert/profile/${userId}`);
-      
-      if (response.data.success && response.data.data) {
-        const profileData = response.data.data;
-        
-        // Set state with existing data
-        setBio(profileData.bio || '');
-        setCurrentPost(profileData.currentPost || '');
-        setExperience(profileData.experience || 'Fresher');
-        setPortfolioUrl(profileData.url || '');
-        setName(profileData.name || '');
-        
-        // Set categories
-        if (profileData.category && profileData.category.length > 0) {
-          setCategories(profileData.category);
-        }
-        
-        // Set charges
-        if (profileData.charges && profileData.charges.length >= 2) {
-          setVoiceCallCharge(profileData.charges[0]?.toString() || '');
-          setVideoCallCharge(profileData.charges[1]?.toString() || '');
-        }
-        
-        // Set skills
-        if (profileData.skills && profileData.skills.length > 0) {
-          setSkills(profileData.skills);
-        }
-      } else {
-        Alert.alert('Profile Not Found', 'Could not find your expert profile. Please create one first.');
-        navigation.goBack();
-      }
-    } catch (error) {
-      console.error('Error fetching expert profile:', error);
-      Alert.alert(
-        'Error',
-        'Failed to fetch your expert profile. Please try again later.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
-      );
-    } finally {
-      setFetchingProfile(false);
-    }
-  };
 
   const addCategory = () => {
     setCategories([...categories, '']);
@@ -157,7 +102,7 @@ const EditPortfolio = ({ navigation }) => {
     return true;
   };
 
-  const updateProfile = async () => {
+  const submitForm = async () => {
     if (!validateForm()) return;
     
     try {
@@ -175,44 +120,35 @@ const EditPortfolio = ({ navigation }) => {
         currentPost,
         experience,
         url: portfolioUrl,
-        skills: filteredSkills,
-        name
+        skills: filteredSkills
       };
       
-      // Send the request to update the expert profile
-      const response = await axios.put(
-        `http://10.0.2.2:3000/expert/update/${userId}`,
+      // Send the request to create the expert profile
+      const response = await axios.post(
+        `http://10.0.2.2:3000/expert/create/${userId}`,
         payload
       );
       
       if (response.data.success) {
         Alert.alert(
           'Success', 
-          'Your expert profile has been updated successfully!',
-          [{ text: 'OK', onPress: () => navigation.goBack() }]
+          'Your expert profile has been created successfully!',
+          [{ text: 'OK', onPress: () => navigation.navigate('Portfolio', { userRole: 'expert' }) }]
         );
+        navigation.replace("MainTabs")
       } else {
-        throw new Error(response.data.message || 'Failed to update expert profile');
+        throw new Error(response.data.message || 'Failed to create expert profile');
       }
     } catch (error) {
-      console.error('Error updating expert profile:', error);
+      console.error('Error creating expert profile:', error);
       Alert.alert(
         'Error',
-        error.response?.data?.message || 'Failed to update expert profile. Please try again later.'
+        error.response?.data?.message || 'Failed to create expert profile. Please try again later.'
       );
     } finally {
       setLoading(false);
     }
   };
-
-  if (fetchingProfile) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007BFF" />
-        <Text style={styles.loadingText}>Loading profile data...</Text>
-      </View>
-    );
-  }
 
   return (
     <KeyboardAvoidingView
@@ -221,22 +157,23 @@ const EditPortfolio = ({ navigation }) => {
     >
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>Edit Expert Profile</Text>
+          <Text style={styles.headerText}>Create Expert Profile</Text>
         </View>
         
         <View style={styles.formContainer}>
-          {/* Name Section */}
+          {/* Bio Section */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Full Name</Text>
+            <Text style={styles.label}>Professional Bio*</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Your display name"
-              value={name}
-              onChangeText={setName}
+              style={styles.textArea}
+              placeholder="Write a brief professional bio"
+              value={bio}
+              onChangeText={setBio}
+              multiline
+              numberOfLines={4}
               placeholderTextColor="#aaa"
             />
           </View>
-
 
           {/* Current Position */}
           <View style={styles.fieldContainer}>
@@ -376,11 +313,11 @@ const EditPortfolio = ({ navigation }) => {
           {/* Submit Button */}
           <TouchableOpacity
             style={styles.submitButton}
-            onPress={updateProfile}
+            onPress={submitForm}
             disabled={loading}
           >
             <Text style={styles.submitButtonText}>
-              {loading ? 'Updating...' : 'Update Expert Profile'}
+              {loading ? 'Submitting...' : 'Create Expert Profile'}
             </Text>
           </TouchableOpacity>
           
@@ -397,171 +334,6 @@ const EditPortfolio = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9f9f9',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#333',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#007BFF',
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  formContainer: {
-    padding: 20,
-  },
-  fieldContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: 'white',
-    color: '#333',
-  },
-  textArea: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: 'white',
-    textAlignVertical: 'top',
-    minHeight: 120,
-    color: '#333',
-  },
-  experienceContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 10,
-  },
-  experienceButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#007BFF',
-    margin: 4,
-    backgroundColor: 'white',
-  },
-  experienceButtonSelected: {
-    backgroundColor: '#007BFF',
-  },
-  experienceButtonText: {
-    color: '#007BFF',
-    fontSize: 14,
-  },
-  experienceButtonTextSelected: {
-    color: 'white',
-  },
-  labelContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  addButtonText: {
-    marginLeft: 4,
-    color: '#4CAF50',
-    fontWeight: 'bold',
-  },
-  dynamicInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  dynamicInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: 'white',
-    color: '#333',
-  },
-  removeButton: {
-    marginLeft: 10,
-  },
-  chargesContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  chargeInputContainer: {
-    flex: 1,
-    marginHorizontal: 4,
-  },
-  chargeLabel: {
-    fontSize: 14,
-    marginBottom: 6,
-    color: '#555',
-  },
-  chargeInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: 'white',
-    color: '#333',
-  },
-  submitButton: {
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  cancelButton: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
-  },
-});
 
-export default EditPortfolio;
+
+export default Portfolio;

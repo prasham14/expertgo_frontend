@@ -131,6 +131,11 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
     }),
+  },signupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   },
   buttonText: {
     color: "#ffffff",

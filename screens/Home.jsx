@@ -15,9 +15,9 @@ import {useNavigation} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
-import homeStyles from './styles/Home';
-import Recomendations from './Recomendations';
-import { UserContext } from './Context';
+import homeStyles from '../components/styles/Home';
+import Recomendations from '../components/Recomendations';
+import { UserContext } from '../context/Context';
 
 const Home = () => {
   const [experts, setExperts] = useState([]);
@@ -29,7 +29,7 @@ const Home = () => {
 
   useEffect(() => {
     const getPortfolio = async () => {
-      if (!userId) return;
+      if (!userId || userRole === 'user') return;
       
       try {
         console.log("Checking portfolio for user:", userId);
@@ -42,35 +42,31 @@ const Home = () => {
         
         if (response.data.message ===  'Expert profile not found') {
           console.log("No portfolio found, showing modal" , userId);
+          setPortModal(true);
+
         } else {
           console.log("Portfolio found");
-          // Set portfolio data or do something else if needed
         }
       } catch (error) {
         console.error('Error fetching portfolio:', error.message);
-        // More detailed error logging
         if (error.response.data.message ==='Expert profile not found' ) {
           setPortModal(true);
 
-          // The request was made and the server responded with a status code
           console.error('Error response:', error.response.data);
           console.error('Error status:', error.response.status);
         } else if (error.request) {
-          // The request was made but no response was received
           console.error('No response received:', error.request);
         } else {
-          // Something happened in setting up the request
           console.error('Error setting up request:', error.message);
         }
       }
     };
     
-    // Only run this effect if userId is available
     if (userId) {
       getPortfolio();
     }
     
-  }, [userId]); // Add userId as a dependency
+  }, [userId]);
 
   useEffect(() => {
     const fetchExperts = async () => {
@@ -93,7 +89,6 @@ const Home = () => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    // Fetch your data here
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
@@ -107,7 +102,6 @@ const Home = () => {
     <View style={homeStyles.container}>
       <StatusBar backgroundColor="#4A6572" barStyle="light-content" />
 
-      {/* Header section with search and notifications */}
       <View style={homeStyles.header}>
         <View style={homeStyles.headerControls}>
           <TouchableOpacity

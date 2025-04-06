@@ -1,5 +1,5 @@
 // Profile.js (Refactored with Redux)
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import { 
   Text, 
   View, 
@@ -13,11 +13,10 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
-import styles from './styles/Profile';
-
+import styles from '../components/styles/Profile';
+import { UserContext } from '../context/Context';
 // Import Redux actions
 import {
   fetchUserProfile,
@@ -42,7 +41,8 @@ const Profile = () => {
   
   // Extract route params
   const { userId, userRole } = route.params;
-  
+  const { clearUserData } = useContext(UserContext);
+
   // Local UI state
   const [editUserNameModalVisible, setEditUserNameModalVisible] = useState(false);
   const [usernameInput, setUsernameInput] = useState('');
@@ -208,7 +208,7 @@ const Profile = () => {
   
   // Logout
   const handleLogout = async () => {
-    await AsyncStorage.clear();
+    await clearUserData();
     navigation.navigate('Login');
   };
 

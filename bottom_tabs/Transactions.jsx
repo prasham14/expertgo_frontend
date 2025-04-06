@@ -1,15 +1,14 @@
 import { StyleSheet, Text, View, FlatList } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Search from './Search';
-
+import { UserContext } from '../context/Context';
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState(null);
   const [userRole, setUserRole] = useState(null);
-
+  const {userId} = useContext(UserContext)
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -30,7 +29,7 @@ const Transactions = () => {
 
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get(`http://10.0.2.2:3000/pay/transactions/${email}`);
+        const response = await axios.get(`http://10.0.2.2:3000/pay/transactions/${userId}`);
         console.warn("response",response);
         setTransactions(response.data.data || []);
       } catch (error) {
@@ -56,10 +55,12 @@ const Transactions = () => {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <View style={styles.transactionCard}>
-              <Text style={styles.transactionText}> Amount: ${item.amount}</Text>
-              <Text style={styles.transactionText}>Date: {item.date}</Text>
-              <Text style={styles.transactionText}>To: {item.to}</Text>
-
+              <Text style={styles.transactionText}> Amount: Rs. {item.amount}</Text>
+              <Text style={styles.transactionText}>
+                Date: {new Date(item.date).toLocaleDateString()}
+              </Text>
+              <Text style={styles.transactionText}>To: {item.to.name}</Text>
+              <Text style={styles.transactionText}>Expert Email: {item.to.email}</Text>
             </View>
           )}
         />

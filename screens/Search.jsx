@@ -13,8 +13,9 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import { UserContext } from './Context';
-import styles from './styles/Search';
+import { UserContext } from '../context/Context';
+import styles from '../components/styles/Search';
+
 const Search = ({ route }) => {
   const { openKeyboard } = route.params || {};
   const navigation = useNavigation();
@@ -58,9 +59,15 @@ const Search = ({ route }) => {
   }, [userId]);
 
   // Fetch user profile image
-  const fetchUserImage = async () => {
+  const fetchUserImage = async (id) => {
+    const idToUse = id || userId;
+    if (!idToUse) {
+      console.warn('User ID is missing. Skipping image fetch.');
+      return;
+    }
+  
     try {
-      const response = await axios.get(`http://10.0.2.2:3000/profile/images/${userId}`);
+      const response = await axios.get(`http://10.0.2.2:3000/profile/images/${idToUse}`);
       setImageUrl(response.data.imageUrl);
     } catch (error) {
       console.error('Error fetching image:', error);
@@ -81,7 +88,7 @@ const Search = ({ route }) => {
       setIsLoading(false);
     }
   };
-
+  
   // Search experts by category
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -101,29 +108,40 @@ const Search = ({ route }) => {
     }
   };
 
-  // Debounced search
+  // Debounced search - FIXED the issue here
   useEffect(() => {
     if (searchQuery.trim() !== '') {
       const delayDebounceFn = setTimeout(() => {
-        handleSearch();
+        // Don't blur the input when searching
+        if (isSearchFocused && searchInputRef.current) {
+          handleSearch();
+        }
       }, 500);
       return () => clearTimeout(delayDebounceFn);
     } else {
       setSearchedExperts([]);
     }
-  }, [searchQuery]);
+  }, [searchQuery, isSearchFocused]);
 
   // Clear search
   const clearSearch = () => {
     setSearchQuery('');
     setSearchedExperts([]);
-    setIsSearchFocused(false);
-    searchInputRef.current?.blur();
+    
+    // Don't automatically blur - let user decide when to dismiss keyboard
+    // searchInputRef.current?.blur();
+    
+    // Keep focus state true as the input still has focus
+    // setIsSearchFocused(false);
   };
 
-  // Navigate to expert profile
-  const navigateToExpertProfile = (expert) => {
-    navigation.navigate('ExpertProfile', { expert });
+  // Handle input focus and blur
+  const handleInputFocus = () => {
+    setIsSearchFocused(true);
+  };
+
+  const handleInputBlur = () => {
+    setIsSearchFocused(false);
   };
 
   // Navigate to expert portfolio
@@ -153,7 +171,6 @@ const Search = ({ route }) => {
           <Ionicons name="star" size={14} color="#FFD700" />
           <Text style={styles.expertRating}>{item.ratings || '0.0'}</Text>
           <Text style={styles.expertDeals}>{item.totalDeals || '0'} Deals</Text>
-
         </View>
         <Text style={styles.expertBio} numberOfLines={2}>
           {item.bio || 'Expert bio information...'}
@@ -173,7 +190,11 @@ const Search = ({ route }) => {
   const renderCategoryCard = ({ item }) => (
     <TouchableOpacity 
       style={styles.categoryCard}
-      onPress={() => setSearchQuery(item.name)}
+      onPress={() => {
+        setSearchQuery(item.name);
+        // Ensure input keeps focus after setting category
+        searchInputRef.current?.focus();
+      }}
       activeOpacity={0.7}
     >
       <View style={styles.categoryIconContainer}>
@@ -184,49 +205,63 @@ const Search = ({ route }) => {
   );
 
   // Featured expert card renderer
-  const renderFeaturedExpert = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.featuredExpertCard}
-      onPress={() => navigateToPortfolio(item.userId?._id)}
-      activeOpacity={0.8}
-    >
-      <View style={styles.featuredExpertImageContainer}>
-        <Image 
-          source={{ uri: item.profileImage || imgUrl || 'https://via.placeholder.com/50' }} 
-          style={styles.featuredExpertImage} 
-        />
-        {item.isVerified && (
-          <View style={styles.verifiedBadge}>
-            <Ionicons name="checkmark-circle" size={16} color="#FFF" />
-          </View>
-        )}
-      </View>
-      <Text style={styles.featuredExpertName} numberOfLines={1}>
-        {item.name || item.email || 'Expert'}
-      </Text>
-      <Text style={styles.featuredExpertCategory} numberOfLines={1}>
-        {item.category || 'Professional Expert'}
-      </Text>
-      <View style={styles.featuredExpertRating}>
-        <Ionicons name="star" size={14} color="#FFD700" />
-        <Text style={styles.featuredRatingText}>
-          {item.ratings || '0.0'}
-        </Text>
-      </View>
-      <View style={styles.featuredExpertRating}>
-        <Text style={styles.featuredRatingText}>
-          {item.isAvailable ? ('Available'):('Currenlty Unavailable') || '0.0'}
-        </Text>
-      </View>
-      <TouchableOpacity
-        style={styles.visitButton}
+  const renderFeaturedExpert = ({ item }) => {
+    // Don't call fetch within render - it causes too many rerenders
+    return (
+      <TouchableOpacity 
+        style={styles.featuredExpertCard}
         onPress={() => navigateToPortfolio(item.userId?._id)}
         activeOpacity={0.8}
       >
-        <Text style={styles.visitButtonText}>Visit Profile</Text>
+        <View style={styles.featuredExpertImageContainer}>
+          <Image 
+            source={{ uri: item.profileImage || imgUrl || 'https://via.placeholder.com/50' }} 
+            style={styles.featuredExpertImage} 
+          />
+          {item.isVerified ? (
+            <View style={styles.verifiedBadge}>
+              <Ionicons name="checkmark-circle" size={16} color="#FFF" />
+            </View>
+          ) : null}
+        </View>
+        <Text style={styles.featuredExpertName} numberOfLines={1}>
+          {item.name || item.email || 'Expert'}
+        </Text>
+        <Text style={styles.featuredExpertCategory} numberOfLines={1}>
+          {item.category || 'Professional Expert'}
+        </Text>
+        <View style={styles.featuredExpertRating}>
+          <Ionicons name="star" size={14} color="#FFD700" />
+          <Text style={styles.featuredRatingText}>
+            {item.ratings || '0.0'}
+          </Text>
+        </View>
+        <View style={styles.featuredExpertRating}>
+          <Text style={styles.featuredRatingText}>
+            {item.isAvailable ? ('Available'):('Currently Unavailable') || '0.0'}
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.visitButton}
+          onPress={() => navigateToPortfolio(item.userId?._id)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.visitButtonText}>Visit Profile</Text>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  );
+    );
+  };
+
+  // Fetch images for all experts once at the beginning instead of in render
+  useEffect(() => {
+    if (experts.length > 0) {
+      experts.forEach(expert => {
+        if (expert.userId?._id) {
+          fetchUserImage(expert.userId._id);
+        }
+      });
+    }
+  }, [experts]);
 
   return (
     <View style={styles.container}>
@@ -243,15 +278,16 @@ const Search = ({ route }) => {
             placeholderTextColor="#8E8E93"
             value={searchQuery}
             onChangeText={setSearchQuery}
-            onFocus={() => setIsSearchFocused(true)}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
             returnKeyType="search"
             onSubmitEditing={handleSearch}
           />
-          {searchQuery !== '' && (
+          {searchQuery !== '' ? (
             <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
               <Ionicons name="close-circle" size={16} color="#8E8E93" />
             </TouchableOpacity>
-          )}
+          ) : null}
         </View>
       </View>
 
@@ -284,6 +320,7 @@ const Search = ({ route }) => {
             <ScrollView 
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
+              keyboardShouldPersistTaps="handled"
             >
               {/* Categories Section */}
               <View style={styles.sectionContainer}>
@@ -295,6 +332,7 @@ const Search = ({ route }) => {
                   showsHorizontalScrollIndicator={false}
                   renderItem={renderCategoryCard}
                   contentContainerStyle={styles.categoriesContainer}
+                  keyboardShouldPersistTaps="handled"
                 />
               </View>
               
@@ -309,6 +347,7 @@ const Search = ({ route }) => {
                     showsHorizontalScrollIndicator={false}
                     renderItem={renderFeaturedExpert}
                     contentContainerStyle={styles.featuredExpertsContainer}
+                    keyboardShouldPersistTaps="handled"
                   />
                 ) : (
                   <View style={styles.emptyContainer}>
@@ -318,7 +357,6 @@ const Search = ({ route }) => {
                   </View>
                 )}
               </View>
-              
             </ScrollView>
           )}
         </>

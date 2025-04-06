@@ -40,12 +40,22 @@ export const UserProvider = ({ children }) => {
   }, [userId]); // This will log when the state `userId` updates
 
   const clearUserData = async () => {
-    await AsyncStorage.clear();
-    // Fixed variable names to match your state variables
-    setUserEmail(null);
-    setUserRole(null);
-    setUserId(null);
+    try {
+      // Clear all stored data from AsyncStorage
+      await AsyncStorage.clear();
+      console.log('AsyncStorage cleared successfully');
+      
+      // Reset all user state variables
+      setUserEmail(null);
+      setUserRole(null);
+      setUserId(null);
+  
+      console.log('User state reset');
+    } catch (error) {
+      console.error('Error clearing user data:', error);
+    }
   };
+  
 
   return (
     <UserContext.Provider value={{ userId, userRole, userEmail, clearUserData }}>

@@ -9,7 +9,7 @@ import {
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
-import styles from './styles/Notifications';
+import styles from '../components/styles/Notifications';
 import { formatDistanceToNow, parseISO, format } from 'date-fns';
 
 const Notifications = ({route}) => {
@@ -120,45 +120,36 @@ const Notifications = ({route}) => {
     });
   };
 
-  // Helper function to format time string
   const formatMeetingTime = (timeString) => {
     try {
-      // Check if the timeString is a valid date string
       if (!timeString) return "N/A";
       
-      // Try to parse as ISO date
       const date = new Date(timeString);
       
-      // Check if valid date was created
       if (isNaN(date.getTime())) {
-        // If not a valid ISO date, it might be already in a custom format
         return timeString;
       }
       
-      // Format the date and time as requested
       const formattedDate = format(date, "dd/MM/yy");
       const formattedTime = format(date, "HH:mm");
       
       return `${formattedDate} at ${formattedTime}`;
     } catch (error) {
       console.warn('Time formatting error:', error, timeString);
-      return timeString || "N/A"; // Return original string or N/A as fallback
+      return timeString || "N/A"; 
     }
   };
 
   const renderNotification = ({ item }) => {
-    // Fix: Safely parse the date with error handling
     let timeAgo;
     try {
-      // Try to parse the date string to a Date object first
       const date = parseISO(item.preferredTime);
       timeAgo = formatDistanceToNow(date, { addSuffix: true });
     } catch (error) {
       console.warn('Date parsing error:', error, item.createdAt);
-      timeAgo = 'recently'; // Fallback value
+      timeAgo = 'recently'; 
     }
     
-    // Format the preferred time or time in the required format
     const formattedTime = formatMeetingTime(item.preferredTime || item.time);
     
     let icon;

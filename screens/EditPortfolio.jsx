@@ -1,4 +1,4 @@
-import React, { useState,useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { 
   View, 
   Text, 
@@ -7,14 +7,15 @@ import {
   ScrollView, 
   KeyboardAvoidingView, 
   Platform,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import axios from 'axios';
-import  Ionicons  from 'react-native-vector-icons/Ionicons';
-import { UserContext } from './Context';
-import styles from './styles/Portfolio';
-const Portfolio = ({ route, navigation }) => {
-  const { userId} = useContext(UserContext);
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { UserContext } from '../context/Context';
+import styles from '../components/styles/EditPortfolio';
+const EditPortfolio = ({ navigation }) => {
+  const { userId } = useContext(UserContext);
   
   const [categories, setCategories] = useState(['']);
   const [voiceCallCharge, setVoiceCallCharge] = useState('');
@@ -24,9 +25,60 @@ const Portfolio = ({ route, navigation }) => {
   const [experience, setExperience] = useState('Fresher');
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [skills, setSkills] = useState(['']);
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetchingProfile, setFetchingProfile] = useState(true);
 
   const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years', '10+ Years'];
+
+  useEffect(() => {
+    fetchExpertProfile();
+  }, []);
+
+  const fetchExpertProfile = async () => {
+    try {
+      setFetchingProfile(true);
+      const response = await axios.get(`http://10.0.2.2:3000/expert/profile/${userId}`);
+      
+      if (response.data.success && response.data.data) {
+        const profileData = response.data.data;
+        
+        setBio(profileData.bio || '');
+        setCurrentPost(profileData.currentPost || '');
+        setExperience(profileData.experience || 'Fresher');
+        setPortfolioUrl(profileData.url || '');
+        setName(profileData.name || '');
+        
+        // Set categories
+        if (profileData.category && profileData.category.length > 0) {
+          setCategories(profileData.category);
+        }
+        
+        // Set charges
+        if (profileData.charges && profileData.charges.length >= 2) {
+          setVoiceCallCharge(profileData.charges[0]?.toString() || '');
+          setVideoCallCharge(profileData.charges[1]?.toString() || '');
+        }
+        
+        // Set skills
+        if (profileData.skills && profileData.skills.length > 0) {
+          setSkills(profileData.skills);
+        }
+      } else {
+        Alert.alert('Profile Not Found', 'Could not find your expert profile. Please create one first.');
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error('Error fetching expert profile:', error);
+      Alert.alert(
+        'Error',
+        'Failed to fetch your expert profile. Please try again later.',
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    } finally {
+      setFetchingProfile(false);
+    }
+  };
 
   const addCategory = () => {
     setCategories([...categories, '']);
@@ -81,19 +133,16 @@ const Portfolio = ({ route, navigation }) => {
       return false;
     }
     
-    // Check if voice call charge is valid
     if (!voiceCallCharge.trim() || isNaN(parseFloat(voiceCallCharge))) {
       Alert.alert('Validation Error', 'Please provide a valid voice call charge');
       return false;
     }
     
-    // Check if video call charge is valid
     if (!videoCallCharge.trim() || isNaN(parseFloat(videoCallCharge))) {
       Alert.alert('Validation Error', 'Please provide a valid video call charge');
       return false;
     }
     
-    // Check if any skill is empty
     if (skills.some(skill => !skill.trim())) {
       Alert.alert('Validation Error', 'Please fill in all skills or remove empty ones');
       return false;
@@ -102,17 +151,15 @@ const Portfolio = ({ route, navigation }) => {
     return true;
   };
 
-  const submitForm = async () => {
+  const updateProfile = async () => {
     if (!validateForm()) return;
     
     try {
       setLoading(true);
       
-      // Filter out any empty categories or skills
       const filteredCategories = categories.filter(cat => cat.trim() !== '');
       const filteredSkills = skills.filter(skill => skill.trim() !== '');
       
-      // Create the request payload
       const payload = {
         bio,
         charges: [voiceCallCharge, videoCallCharge],
@@ -120,35 +167,43 @@ const Portfolio = ({ route, navigation }) => {
         currentPost,
         experience,
         url: portfolioUrl,
-        skills: filteredSkills
+        skills: filteredSkills,
+        name
       };
       
-      // Send the request to create the expert profile
-      const response = await axios.post(
-        `http://10.0.2.2:3000/expert/create/${userId}`,
+      const response = await axios.put(
+        `http://10.0.2.2:3000/expert/update/${userId}`,
         payload
       );
       
       if (response.data.success) {
         Alert.alert(
           'Success', 
-          'Your expert profile has been created successfully!',
-          [{ text: 'OK', onPress: () => navigation.navigate('Portfolio', { userRole: 'expert' }) }]
+          'Your expert profile has been updated successfully!',
+          [{ text: 'OK', onPress: () => navigation.goBack() }]
         );
-        navigation.replace("Home")
       } else {
-        throw new Error(response.data.message || 'Failed to create expert profile');
+        throw new Error(response.data.message || 'Failed to update expert profile');
       }
     } catch (error) {
-      console.error('Error creating expert profile:', error);
+      console.error('Error updating expert profile:', error);
       Alert.alert(
         'Error',
-        error.response?.data?.message || 'Failed to create expert profile. Please try again later.'
+        error.response?.data?.message || 'Failed to update expert profile. Please try again later.'
       );
     } finally {
       setLoading(false);
     }
   };
+
+  if (fetchingProfile) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007BFF" />
+        <Text style={styles.loadingText}>Loading profile data...</Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -157,23 +212,22 @@ const Portfolio = ({ route, navigation }) => {
     >
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>Create Expert Profile</Text>
+          <Text style={styles.headerText}>Edit Expert Profile</Text>
         </View>
         
         <View style={styles.formContainer}>
-          {/* Bio Section */}
+          {/* Name Section */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Professional Bio*</Text>
+            <Text style={styles.label}>Full Name</Text>
             <TextInput
-              style={styles.textArea}
-              placeholder="Write a brief professional bio"
-              value={bio}
-              onChangeText={setBio}
-              multiline
-              numberOfLines={4}
+              style={styles.input}
+              placeholder="Your display name"
+              value={name}
+              onChangeText={setName}
               placeholderTextColor="#aaa"
             />
           </View>
+
 
           {/* Current Position */}
           <View style={styles.fieldContainer}>
@@ -313,11 +367,11 @@ const Portfolio = ({ route, navigation }) => {
           {/* Submit Button */}
           <TouchableOpacity
             style={styles.submitButton}
-            onPress={submitForm}
+            onPress={updateProfile}
             disabled={loading}
           >
             <Text style={styles.submitButtonText}>
-              {loading ? 'Submitting...' : 'Create Expert Profile'}
+              {loading ? 'Updating...' : 'Update Expert Profile'}
             </Text>
           </TouchableOpacity>
           
@@ -335,5 +389,4 @@ const Portfolio = ({ route, navigation }) => {
 };
 
 
-
-export default Portfolio;
+export default EditPortfolio;

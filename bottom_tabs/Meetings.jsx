@@ -1,18 +1,18 @@
-import { Text, View, FlatList, Modal, TouchableOpacity, TextInput, Button, Alert, Dimensions } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { Text, View, FlatList, Modal, TouchableOpacity, TextInput, Button, Alert, Linking } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import styles from './styles/Meetings';
-
+import styles from '../components/styles/Meetings';
+import { UserContext } from '../context/Context';
 const Meetings = () => {
+  const {userRole,userId} = useContext(UserContext)
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState(null);
-  const [userRole, setUserRole] = useState(null);
   const [delayModal, setDelayModal] = useState(false);
   const [newTime, setNewTime] = useState('');
   const [selectedMeetingId, setSelectedMeetingId] = useState(null);
@@ -20,14 +20,23 @@ const Meetings = () => {
   const [refreshing, setRefreshing] = useState(false);
   
   const navigation = useNavigation();
-
+  const openMeetLink = (url) => {
+    if (url) {
+      Linking.canOpenURL(url).then(supported => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          console.log("Cannot open URL: " + url);
+          // You might want to show an alert here
+        }
+      });
+    }
+  };
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const storedEmail = await AsyncStorage.getItem('email');
-        const storedUserRole = await AsyncStorage.getItem('userRole');
         setEmail(storedEmail);
-        setUserRole(storedUserRole);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -41,12 +50,15 @@ const Meetings = () => {
     
     setLoading(true);
     try {
+      const id  = userId;
       const endpoint = userRole === 'expert' 
-        ? `http://10.0.2.2:3000/meetings/get-meetings/${email}`
-        : `http://10.0.2.2:3000/meetings/get-user-meetings/${email}`;
+        ? `http://10.0.2.2:3000/meet/expert-meetings/${id}`
+        : `http://10.0.2.2:3000/meet/user-meetings/${id}`;
       
       const response = await axios.get(endpoint);
       setMeetings(response.data.data);
+
+      console.log(response)
     } catch (error) {
       console.error('Error fetching meetings:', error);
       Alert.alert('Error', 'Failed to load meetings. Pull down to refresh.');
@@ -57,10 +69,10 @@ const Meetings = () => {
   };
 
   useEffect(() => {
-    if (email && userRole) {
+    if ( userRole) {
       fetchMeetings();
     }
-  }, [email, userRole]);
+  }, [userRole]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -154,7 +166,7 @@ const Meetings = () => {
   
   const startVideoCall = (meetingId, type) => {
     // Navigate to the VideoCall screen with the meeting ID
-    navigation.navigate("Video", { meetingId, type });
+    navigation.navigate("Meet", { meetingId, type });
   };
 
   // Check if a meeting is currently active (within ±15 minutes of scheduled time)
@@ -225,9 +237,9 @@ const Meetings = () => {
   }
 
   const renderMeetingCard = ({ item }) => {
-    const isActive = isMeetingActive(item.preferredTime);
-    const isExpired = isMeetingExpired(item.preferredTime);
-    const timeRemaining = getTimeRemaining(item.preferredTime);
+    const isActive = isMeetingActive(item.startTime);
+    const isExpired = isMeetingExpired(item.endTime);
+    const timeRemaining = getTimeRemaining(item.startTime);
     
     return (
       <View style={[
@@ -245,7 +257,7 @@ const Meetings = () => {
         {isExpired && (
           <View style={styles.expiredBadge}>
             <MaterialIcons name="error-outline" size={16} color="#FFF" />
-            <Text style={styles.expiredBadgeText}>Expired - Take Action Now</Text>
+            <Text style={styles.expiredBadgeText}>Expired</Text>
           </View>
         )}
         
@@ -257,25 +269,22 @@ const Meetings = () => {
         )}
         
         <View style={styles.meetingHeader}>
-          <View style={styles.meetingTypeTag}>
-            <Text style={styles.meetingTypeText}>{item.type.replace('_', ' ')}</Text>
-          </View>
-          
-         
+          {/* Meeting header content */}
         </View>
-        {userRole === 'expert' && (
-            <Text style={styles.meetingAmount}>₹ {item.amount}</Text>
-          )}
+        
+       
+          <Text style={styles.meetingAmount}>{item.title}</Text>
+        
         <View style={styles.meetingDetails}>
           {userRole === 'expert' ? (
             <View style={styles.detailRow}>
               <MaterialCommunityIcons name="account" size={20} color="#4F6C92" />
-              <Text style={styles.meetingDetailText}>{item.userEmail}</Text>
+              <Text style={styles.meetingDetailText}>{item.description}</Text>
             </View>
           ) : (
             <View style={styles.detailRow}>
               <MaterialCommunityIcons name="account-tie" size={20} color="#4F6C92" />
-              <Text style={styles.meetingDetailText}>Expert: {item.expertemail}</Text>
+              <Text style={styles.meetingDetailText}>Expert: {item.expert.email}</Text>
             </View>
           )}
           
@@ -285,27 +294,29 @@ const Meetings = () => {
               styles.meetingDetailText,
               isExpired ? styles.expiredText : null
             ]}>
-              {formatMeetingTime(item.preferredTime)}
+              {formatMeetingTime(item.startTime)}
             </Text>
           </View>
+  
+          {item.googleMeetLink && (
+            <View style={styles.detailRow}>
+              <MaterialCommunityIcons name="google-meet" size={20} color="#4F6C92" />
+              <Text style={styles.meetingDetailText}>
+                <Text style={styles.meetLink} onPress={() => openMeetLink(item.googleMeetLink)}>
+                  Join Google Meet Now
+                </Text>
+              </Text>
+            </View>
+          )}
         </View>
         
-        <TouchableOpacity
-          style={styles.chatIconButton}
-          onPress={() => navigation.navigate('Chat', { 
-            recipientEmail: userRole === 'expert' ? item.userEmail : item.expertemail,
-            meetingId: item._id
-          })}
-        >
-          <Ionicons name="chatbubble-ellipses-outline" size={22} color="#3A6EA5" />
-        </TouchableOpacity>
         
         <View style={styles.buttonRow}>
           {userRole === 'expert' ? (
             <>
               <TouchableOpacity
                 style={[styles.cancelButton, isExpired ? styles.actionButton : null]}
-                onPress={() => handleCancelMeeting(item._id, item.userEmail)}
+                onPress={() => handleCancelMeeting(item._id, item.userId)}
               >
                 <MaterialIcons name="cancel" size={18} color="#FFF" />
                 <Text style={styles.buttonText}>{isExpired ? "Close Meeting" : "Cancel"}</Text>
@@ -318,15 +329,15 @@ const Meetings = () => {
                   isExpired ? styles.expiredCallButton : null
                 ]}
                 onPress={() => isExpired ? 
-                  Alert.alert("Meeting Expired", "This meeting has already passed. Please reschedule or close it.") : 
-                  startVideoCall(item._id, item.type)
+                  startVideoCall(item._id) : 
+                  item.googleMeetLink ? Linking.openURL(item.googleMeetLink) : startVideoCall(item._id)
                 }
                 disabled={!isActive && !isExpired}
               >
                 <MaterialIcons name={isExpired ? "schedule" : "video-call"} size={18} color="#FFF" />
                 <Text style={styles.buttonText}>
                   {isActive ? "Start Call" : 
-                   isExpired ? "Reschedule" : "Coming Soon"}
+                   isExpired ? "Reschedule" : "Cancel"}
                 </Text>
               </TouchableOpacity>
             </>
@@ -334,10 +345,10 @@ const Meetings = () => {
             <>
               <TouchableOpacity
                 style={[styles.changeButton, isExpired ? styles.actionButton : null]}
-                onPress={() => openTimeChangeModal(item._id, item.expertemail)}
+                onPress={() => openTimeChangeModal(item._id, item.expertId)}
               >
                 <MaterialCommunityIcons name="clock-edit-outline" size={18} color="#FFF" />
-                <Text style={styles.buttonText}>{isExpired ? "Reschedule" : "Reschedule"}</Text>
+                <Text style={styles.buttonText}>{ "Reschedule"}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
@@ -347,15 +358,15 @@ const Meetings = () => {
                   isExpired ? styles.expiredCallButton : null
                 ]}
                 onPress={() => isExpired ? 
-                  Alert.alert("Meeting Expired", "This meeting has already passed. Please reschedule or request a refund.") : 
-                  startVideoCall(item._id, item.type)
+                  startVideoCall(item._id) : 
+                  item.googleMeetLink ? Linking.openURL(item.googleMeetLink) : startVideoCall(item._id)
                 }
                 disabled={!isActive && !isExpired}
               >
                 <MaterialIcons name={isExpired ? "error-outline" : "video-call"} size={18} color="#FFF" />
                 <Text style={styles.buttonText}>
                   {isActive ? "Join Call" : 
-                   isExpired ? "Request Refund" : "Coming Soon"}
+                   isExpired ? "Request Refund" : "Cancel"}
                 </Text>
               </TouchableOpacity>
             </>
@@ -390,11 +401,18 @@ const Meetings = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
+        
         <Text style={styles.header}>
           {userRole === 'expert' ? 'Expert Dashboard' : 'My Meetings'}
         </Text>
         <TouchableOpacity style={styles.refreshIconButton} onPress={handleRefresh}>
           <MaterialIcons name="refresh" size={24} color="#4F6C92" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.refreshIconButton}
+          onPress={() => navigation.navigate('Conversations')}
+        >
+          <Ionicons name="chatbubble-ellipses-outline" size={22} color="#3A6EA5" />
         </TouchableOpacity>
       </View>
 

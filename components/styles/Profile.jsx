@@ -1,156 +1,527 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
+
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5'
+    padding: 0,
   },
-  scrollView: {
-    flex: 1
+  headerBanner: {
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    color:'#000000'
   },
-  header: {
-    backgroundColor: '#3498db',
-    padding: 20,
+  pageTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#000000',
+    textAlign: 'center',
+  },
+  profileCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginTop: -30,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    padding: 16,
+  },
+  profileImageSection: {
     alignItems: 'center',
-    justifyContent: 'center'
+    marginBottom: 16,
   },
-  headerText: {
-    fontSize: 22,
+  imageWrapper: {
+    position: 'relative',
+    marginBottom: 8,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: '#4A80F0',
+  },
+  placeholderImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#E6E6FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#4A80F0',
+  },
+  placeholderText: {
+    fontSize: 36,
     fontWeight: 'bold',
-    color: '#fff'
+    color: '#4A80F0',
   },
-  formContainer: {
-    padding: 20
+  imageEditButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#4A80F0',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
-  fieldContainer: {
-    marginBottom: 20
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
   },
-  labelContainer: {
+  loadingText: {
+    fontSize: 12,
+    color: '#4A80F0',
+    marginLeft: 6,
+  },
+  userInfoContainer: {
+    paddingHorizontal: 8,
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  userName: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#1F2937',
+    textAlign: 'center',
+  },
+  nameActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  editNameButton: {
+    padding: 4,
+  },
+  verifiedBadgeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E6EFFF',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginLeft: 8,
+  },
+  verifiedText: {
+    fontSize: 12,
+    color: '#4A80F0',
+    marginLeft: 4,
+    fontWeight: '500',
+  },
+  infoSection: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  infoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  infoLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#4B5563',
+    marginLeft: 8,
+    flex: 1,
+  },
+  editButton: {
+    padding: 4,
+  },
+  infoValue: {
+    fontSize: 15,
+    color: '#1F2937',
+    marginLeft: 26,
+  },
+  bioSection: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  bioText: {
+    fontSize: 15,
+    color: '#4B5563',
+    lineHeight: 22,
+    marginLeft: 26,
+  },
+  bioEditContainer: {
+    marginTop: 8,
+  },
+  bioInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 12,
+    minHeight: 100,
+    textAlignVertical: 'top',
+    fontSize: 15,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    gap: 8,
+  },
+  saveButton: {
+    backgroundColor: '#4A80F0',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#6C757D',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  availabilitySection: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  availabilityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  availabilityLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#4B5563',
+    marginLeft: 8,
+  },
+  availabilityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginLeft: 26,
+  },
+  availabilityButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  availabilityButtonText: {
+    fontWeight: '500',
+    marginLeft: 8,
+  },
+  verifyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E6EFFF',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  verifyButtonText: {
+    color: '#4A80F0',
+    fontWeight: '500',
+    marginLeft: 6,
+  },
+  responseCard: {
+    backgroundColor: '#E0F7E0',
+    borderRadius: 8,
+    padding: 16,
+    margin: 16,
+    alignItems: 'center',
+  },
+  responseText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#28A745',
+    marginVertical: 8,
+  },
+  responseDetail: {
+    fontSize: 14,
+    color: '#4B5563',
+  },
+  becomeExpertButton: {
+    backgroundColor: '#4A80F0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  becomeExpertText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  portfolioSection: {
+    marginTop: 16,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    width: '90%',
+    maxWidth: 400,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    maxHeight: '80%',
+  },
+  modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10
+    marginBottom: 20,
   },
-  label: {
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+  modalSection: {
+    marginBottom: 20,
+  },
+  modalSectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '500',
+    color: '#4B5563',
     marginBottom: 8,
-    color: '#333'
-  },
-  input: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    fontSize: 16
-  },
-  textArea: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    fontSize: 16,
-    minHeight: 120,
-    textAlignVertical: 'top'
-  },
-  dynamicInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10
   },
-  dynamicInput: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
+  modalInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
     borderWidth: 1,
-    borderColor: '#ddd',
-    fontSize: 16
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+  },
+  inputIcon: {
+    marginRight: 8,
+  },
+  modalInput: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  modalPrimaryButton: {
+    backgroundColor: '#4A80F0',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 16,
+    marginLeft: 6,
+  },
+  modalSecondaryButton: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  modalSecondaryButtonText: {
+    color: '#4B5563',
+    fontWeight: '500',
+  },
+  inputGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  groupInput: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginRight: 8,
   },
   addButton: {
-    flexDirection: 'row',
-    alignItems: 'center'
+    backgroundColor: '#4A80F0',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   addButtonText: {
-    marginLeft: 8,
-    color: '#4CAF50',
-    fontWeight: 'bold'
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 20,
   },
-  removeButton: {
-    marginLeft: 10
-  },
-  chargesContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  chargeInputContainer: {
-    flex: 1,
-    marginRight: 10
-  },
-  chargeLabel: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 5
-  },
-  chargeInput: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    fontSize: 16
-  },
-  experienceContainer: {
+  tagContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start'
+    marginBottom: 16,
   },
-  experienceButton: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
+  tag: {
+    backgroundColor: '#4A80F0',
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginRight: 8,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tagText: {
+    color: '#FFFFFF',
+    marginRight: 4,
+  },
+  removeTag: {
+    marginLeft: 4,
+  },
+  chargesList: {
+    marginBottom: 16,
+  },
+  chargeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+  chargeText: {
+    color: '#4B5563',
+    marginLeft: 8,
+    fontWeight: '500',
+  },
+  otpContainer: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  otpInput: {
+    backgroundColor: '#F8F9FA',
     borderWidth: 1,
-    borderColor: '#ddd',
-    marginRight: 10,
-    marginBottom: 10
-  },
-  experienceButtonSelected: {
-    backgroundColor: '#3498db',
-    borderColor: '#3498db'
-  },
-  experienceButtonText: {
-    color: '#333',
-    fontSize: 14
-  },
-  experienceButtonTextSelected: {
-    color: '#fff'
-  },
-  submitButton: {
-    backgroundColor: '#3498db',
+    borderColor: '#D1D5DB',
     borderRadius: 8,
-    padding: 15,
+    padding: 12,
+    fontSize: 24,
+    fontWeight: '600',
+    width: '50%',
+    textAlign: 'center',
+    marginTop: 16,
+    letterSpacing: 4,
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#4B5563',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  textButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20
+    justifyContent: 'center',
+    paddingVertical: 8,
   },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold'
+  linkText: {
+    color: '#4A80F0',
+    fontWeight: '500',
+    marginLeft: 4,
   },
-  cancelButton: {
-    backgroundColor: '#e0e0e0',
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEEAEA',
     borderRadius: 8,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 10
+    padding: 12,
+    marginBottom: 16,
   },
-  cancelButtonText: {
-    color: '#333',
-    fontSize: 18,
-    fontWeight: 'bold'
+  errorText: {
+    color: '#DC3545',
+    marginLeft: 6,
+  },
+  editExpertProfileButton: {
+    backgroundColor: '#4A80F0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    margin: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  editExpertProfileText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  input: {
+    backgroundColor: '#F8F9FA',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    minHeight: 80,
+    textAlignVertical: 'top',
   }
 });
 

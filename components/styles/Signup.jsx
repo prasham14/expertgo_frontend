@@ -307,6 +307,11 @@ const styles = StyleSheet.create({
         elevation: 3,
       },
     }),
+  },loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
   },
 });
 

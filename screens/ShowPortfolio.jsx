@@ -1,9 +1,9 @@
 import React, { useEffect, useState,useContext } from 'react';
 import { View, Text, ActivityIndicator, Alert, StyleSheet, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import axios from 'axios';
-import styles from './styles/ShowPortfolio';
+import styles from '../components/styles/ShowPortfolio';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { UserContext } from './Context';
+import { UserContext } from '../context/Context';
 const PortfolioScreen = ({ route, navigation }) => {
   const { userEmail } = useContext(UserContext);
   const userId = route.params.expertId;
@@ -170,9 +170,10 @@ const PortfolioScreen = ({ route, navigation }) => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
             style={styles.scheduleButton}
-            onPress={() => navigation.navigate('VideoCall', {
-              expertId: userId,
+            onPress={() => navigation.navigate('Meet', {
+              expertId: expert.userId,
               email: userEmail,
+              amount : expert.charges[0],
               type: "video_call"
             })}
           >
@@ -184,9 +185,10 @@ const PortfolioScreen = ({ route, navigation }) => {
 
           <TouchableOpacity 
             style={[styles.scheduleButton, styles.voiceCallButton]}
-            onPress={() => navigation.navigate('VideoCall', {
+            onPress={() => navigation.navigate('Meet', {
               expertId: expert.userId,
               email: userEmail,
+              amount : expert.charges[1],
               type: "voice_call"
             })}
           >

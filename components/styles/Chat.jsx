@@ -1,86 +1,113 @@
-import { StyleSheet } from "react-native";
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#f4f6f9',
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    header: {
-      backgroundColor: '#007bff',
-      paddingVertical: 15,
-      paddingHorizontal: 20,
-      elevation: 3,
-    },
-    headerTitle: {
-      color: '#ffffff',
-      fontSize: 18,
-      fontWeight: '600',
-      textAlign: 'center',
-    },
-    messagesContainer: {
-      padding: 15,
-    },
-    messageContainer: {
-      maxWidth: '80%',
-      padding: 10,
-      borderRadius: 12,
-      marginBottom: 10,
-    },
-    userMessage: {
-      alignSelf: 'flex-end',
-      backgroundColor: '#dcf8c6',
-      borderBottomRightRadius: 2,
-    },
-    otherMessage: {
-      alignSelf: 'flex-start',
-      backgroundColor: '#ffffff',
-      borderBottomLeftRadius: 2,
-    },
-    messageText: {
-      fontSize: 16,
-      color: '#333',
-    },
-    timestamp: {
-      fontSize: 12,
-      color: '#999',
-      alignSelf: 'flex-end',
-      marginTop: 5,
-    },
-    inputContainer: {
-      flexDirection: 'row',
-      padding: 10,
-      borderTopWidth: 1,
-      borderTopColor: '#e0e0e0',
-      backgroundColor: '#ffffff',
-    },
-    input: {
-      flex: 1,
-      backgroundColor: '#f0f0f0',
-      borderRadius: 20,
-      paddingHorizontal: 15,
-      paddingVertical: 10,
-      maxHeight: 100,
-    },
-    sendButton: {
-      backgroundColor: '#007bff',
-      borderRadius: 25,
-      width: 50,
-      height: 50,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginLeft: 10,
-    },
-    disabledButton: {
-      backgroundColor: '#cccccc',
-    },
-    sendButtonText: {
-      color: '#ffffff',
-      fontWeight: '600',
-    },
-  });
 
-  export default styles
+import { StyleSheet } from 'react-native';
+
+export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#E4DDD6'
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#075E54',
+    elevation: 4
+  },
+  backButton: {
+    marginRight: 16
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    fontWeight: 'bold'
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF'
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  messagesContainer: {
+    padding: 16,
+    paddingBottom: 8
+  },
+  messageContainer: {
+    maxWidth: '75%',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8
+  },
+  userMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#DCF8C6',
+    borderTopRightRadius: 0
+  },
+  otherMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 0
+  },
+  messageText: {
+    fontSize: 16,
+    color: '#000000'
+  },
+  messageFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: 4
+  },
+  timestamp: {
+    fontSize: 12,
+    color: '#666666',
+    marginRight: 4
+  },
+  readStatus: {
+    fontSize: 12,
+    color: '#4FC3F7'
+  },
+  typingIndicator: {
+    padding: 8,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    borderRadius: 20,
+    margin: 8,
+    alignSelf: 'flex-start'
+  },
+  typingText: {
+    fontStyle: 'italic',
+    color: '#555'
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    padding: 8,
+    backgroundColor: '#FFFFFF'
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    maxHeight: 100
+  },
+  sendButton: {
+    marginLeft: 8,
+    backgroundColor: '#128C7E',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  disabledButton: {
+    backgroundColor: '#B0BEC5'
+  },
+  sendButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold'
+  }
+});
