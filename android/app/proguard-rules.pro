@@ -9,3 +9,10 @@
 
 # Add any project specific keep options here:
 -keep class **.zego.**  { *; }
+# Razorpay keep rules
+-keep class com.razorpay.** { *; }
+-dontwarn com.razorpay.**
+
+# Keep annotations used by Razorpay
+-keep class proguard.annotation.Keep { *; }
+-keep class proguard.annotation.KeepClassMembers { *; }

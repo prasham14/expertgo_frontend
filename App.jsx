@@ -7,8 +7,9 @@ import { Provider } from 'react-redux';
 import { store } from "./store/index";
 import { UserProvider } from "./context/Context";
 import GoogleSignupScreen from './screens/GoogleSignIn';
-
+// import './global.css';
 import { requestPermissionAndroid, setupNotificationListeners } from "./MainTabs/Service";
+// import { TailwindProvider } from 'nativewind';
 
 import { MainTabs } from "./MainTabs/Main";
 
@@ -22,12 +23,14 @@ import ChangePassword from "./screens/ChangePassword";
 import TandC from "./components/TandC";
 import Portfolio from "./screens/Portfolio";
 import PortfolioScreen from "./screens/ShowPortfolio";
-import VC from "./screens/VC";
 import EditPortfolio from "./screens/EditPortfolio";
 import CreateMeetingScreen from "./screens/MeetingScreen";
 import ChatScreen from "./screens/Chat";
 import ConversationsListScreen from "./screens/ConversationList";
 import ContactsScreen from "./screens/ContactUsers";
+import DashBoard from "./screens/DashBoard";
+import CancelTnC from "./screens/CancelTnC";
+
 
 const Stack = createStackNavigator();
 
@@ -68,8 +71,10 @@ const App = () => {
   }
 
   return (
+
     <Provider store={store}>
       <UserProvider>
+        {/* <TailwindProvider> */}
         <NavigationContainer>
           <Stack.Navigator initialRouteName={initialRoute}>
             <Stack.Screen name="Signup" component={SignUp} options={{ headerShown: false }} />
@@ -82,16 +87,20 @@ const App = () => {
             <Stack.Screen name="TnC" component={TandC} options={{ headerShown: false }} />
             <Stack.Screen name="Portfolio" component={Portfolio} options={{ headerShown: false }} />
             <Stack.Screen name="PortfolioScreen" component={PortfolioScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Video" component={VC} options={{ headerShown: false }} />
             <Stack.Screen name="Conversations" component={ConversationsListScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Chat" component={ChatScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Contacts" component={ContactsScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="EditPortfolio" component={EditPortfolio} />
+            <Stack.Screen name="Dashboard" component={DashBoard} options={{ headerShown: false }}/>
+            <Stack.Screen name="CancelTnC" component={CancelTnC}/>
+
             <Stack.Screen name="Meet" component={CreateMeetingScreen} />
             <Stack.Screen name="Google" component={GoogleSignupScreen} />
 
           </Stack.Navigator>
         </NavigationContainer>
+        {/* </TailwindProvider> */}
+        
       </UserProvider>
     </Provider>
   );

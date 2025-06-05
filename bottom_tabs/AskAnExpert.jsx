@@ -135,112 +135,117 @@ const AskAnExpert = ({navigation }) => {
 
   const renderUserView = () => {
     return (
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Ionicons name="help-circle" size={40} color="#007bff" />
-          <Text style={styles.heading}>Ask an Expert</Text>
-        </View>
+      // <View style={styles.container}>
+      //   <View style={styles.headerContainer}>
+      //     <Ionicons name="help-circle" size={40} color="#007bff" />
+      //     <Text style={styles.heading}>Ask an Expert</Text>
+      //   </View>
         
-        <View style={styles.toggleButtonsContainer}>
-          <TouchableOpacity 
-            style={[styles.toggleButton, !showAnswered && styles.activeToggleButton]}
-            onPress={() => setShowAnswered(false)}
-          >
-            <Text style={[styles.toggleButtonText, !showAnswered && styles.activeToggleButtonText]}>
-              Ask a Question
-            </Text>
-          </TouchableOpacity>
+      //   <View style={styles.toggleButtonsContainer}>
+      //     <TouchableOpacity 
+      //       style={[styles.toggleButton, !showAnswered && styles.activeToggleButton]}
+      //       onPress={() => setShowAnswered(false)}
+      //     >
+      //       <Text style={[styles.toggleButtonText, !showAnswered && styles.activeToggleButtonText]}>
+      //         Ask a Question
+      //       </Text>
+      //     </TouchableOpacity>
           
-          <TouchableOpacity 
-            style={[styles.toggleButton, showAnswered && styles.activeToggleButton]}
-            onPress={fetchAnsweredQuestions}
-          >
-            <Text style={[styles.toggleButtonText, showAnswered && styles.activeToggleButtonText]}>
-              My Answered Questions
-            </Text>
-          </TouchableOpacity>
-        </View>
+      //     <TouchableOpacity 
+      //       style={[styles.toggleButton, showAnswered && styles.activeToggleButton]}
+      //       onPress={fetchAnsweredQuestions}
+      //     >
+      //       <Text style={[styles.toggleButtonText, showAnswered && styles.activeToggleButtonText]}>
+      //         My Answered Questions
+      //       </Text>
+      //     </TouchableOpacity>
+      //   </View>
         
-        {!showAnswered ? (
-          <>
-            <Text style={styles.subText}>
-              Get personalized answers from verified experts in your field of interest
-            </Text>
+      //   {!showAnswered ? (
+      //     <>
+      //       <Text style={styles.subText}>
+      //         Get personalized answers from verified experts in your field of interest
+      //       </Text>
             
-            <Text style={styles.label}>Your Question:</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="chatbox-ellipses" size={24} color="#007bff" style={styles.icon} />
-              <TextInput
-                style={styles.input}
-                placeholder="Type your question here..."
-                placeholderTextColor="#888"
-                value={question}
-                onChangeText={setQuestion}
-                multiline
-                numberOfLines={4}
-              />
-            </View>
+      //       <Text style={styles.label}>Your Question:</Text>
+      //       <View style={styles.inputContainer}>
+      //         <Ionicons name="chatbox-ellipses" size={24} color="#007bff" style={styles.icon} />
+      //         <TextInput
+      //           style={styles.input}
+      //           placeholder="Type your question here..."
+      //           placeholderTextColor="#888"
+      //           value={question}
+      //           onChangeText={setQuestion}
+      //           multiline
+      //           numberOfLines={4}
+      //         />
+      //       </View>
             
-            <TouchableOpacity 
-              style={[styles.button, (!question.trim() ) && styles.buttonDisabled]}
-              onPress={handleSubmit}
-              disabled={!question.trim() || loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFF" />
-              ) : (
-                <>
-                  <Ionicons name="send" size={20} color="#FFF" style={styles.buttonIcon} />
-                  <Text style={styles.buttonText}>Submit Question</Text>
-                </>
-              )}
-            </TouchableOpacity>
+      //       <TouchableOpacity 
+      //         style={[styles.button, (!question.trim() ) && styles.buttonDisabled]}
+      //         onPress={handleSubmit}
+      //         disabled={!question.trim() || loading}
+      //       >
+      //         {loading ? (
+      //           <ActivityIndicator color="#FFF" />
+      //         ) : (
+      //           <>
+      //             <Ionicons name="send" size={20} color="#FFF" style={styles.buttonIcon} />
+      //             <Text style={styles.buttonText}>Submit Question</Text>
+      //           </>
+      //         )}
+      //       </TouchableOpacity>
             
-            <View style={styles.infoContainer}>
-              <Ionicons name="information-circle" size={20} color="#007bff" />
-              <Text style={styles.infoText}>
-               Ask the experts
-              </Text>
-            </View>
-          </>
-        ) : (
-          fetchingQuestions ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#007bff" />
-              <Text style={styles.loadingText}>Loading answered questions...</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={questions}
-              keyExtractor={(item) => item._id}
-              renderItem={({ item }) => (
-                <View style={styles.answeredQuestionCard}>
-                  <View style={styles.questionHeader}>
-                    <Text style={styles.categoryTag}>{item.category}</Text>
-                    <Text style={styles.timestamp}>
-                      Answered on {new Date(item.updatedAt).toLocaleDateString()}
-                    </Text>
-                  </View>
+      //       <View style={styles.infoContainer}>
+      //         <Ionicons name="information-circle" size={20} color="#007bff" />
+      //         <Text style={styles.infoText}>
+      //          Ask the experts
+      //         </Text>
+      //       </View>
+      //     </>
+      //   ) : (
+      //     fetchingQuestions ? (
+      //       <View style={styles.loadingContainer}>
+      //         <ActivityIndicator size="large" color="#007bff" />
+      //         <Text style={styles.loadingText}>Loading answered questions...</Text>
+      //       </View>
+      //     ) : (
+      //       <FlatList
+      //         data={questions}
+      //         keyExtractor={(item) => item._id}
+      //         renderItem={({ item }) => (
+      //           <View style={styles.answeredQuestionCard}>
+      //             <View style={styles.questionHeader}>
+      //               <Text style={styles.categoryTag}>{item.category}</Text>
+      //               <Text style={styles.timestamp}>
+      //                 Answered on {new Date(item.updatedAt).toLocaleDateString()}
+      //               </Text>
+      //             </View>
                   
-                  <Text style={styles.questionText}>{item.question}</Text>
+      //             <Text style={styles.questionText}>{item.question}</Text>
                   
-                  <View style={styles.answerDisplaySection}>
-                    <Text style={styles.answerLabel}>Expert's Answer:</Text>
-                    <Text style={styles.answerText}>{item.answer}</Text>
-                  </View>
-                </View>
-              )}
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Ionicons name="chatbox" size={60} color="#ccc" />
-                  <Text style={styles.emptyText}>
-                    No answered questions yet. Ask your first question!
-                  </Text>
-                </View>
-              }
-            />
-          )
-        )}
+      //             <View style={styles.answerDisplaySection}>
+      //               <Text style={styles.answerLabel}>Expert's Answer:</Text>
+      //               <Text style={styles.answerText}>{item.answer}</Text>
+      //             </View>
+      //           </View>
+      //         )}
+      //         ListEmptyComponent={
+      //           <View style={styles.emptyContainer}>
+      //             <Ionicons name="chatbox" size={60} color="#ccc" />
+      //             <Text style={styles.emptyText}>
+      //               No answered questions yet. Ask your first question!
+      //             </Text>
+      //           </View>
+      //         }
+      //       />
+      //     )
+      //   )}
+      // </View>
+      <View>
+        <Text>
+          Comming Soon......
+        </Text>
       </View>
     );
   };
@@ -385,7 +390,7 @@ const AskAnExpert = ({navigation }) => {
   
   return (
     <ScrollView style={styles.mainContainer}>
-      {userRole === 'user' ? (
+      {/* {userRole === 'user' ? (
         renderUserView()
       ) : userRole === 'expert' ? (
         renderExpertView()
@@ -393,7 +398,12 @@ const AskAnExpert = ({navigation }) => {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007bff" />
         </View>
-      )}
+      )} */}
+      <View>
+        <Text>
+          Comming Soon......
+        </Text>
+      </View>
     </ScrollView>
   );
 };

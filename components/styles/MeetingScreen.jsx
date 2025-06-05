@@ -138,6 +138,37 @@ const styles = StyleSheet.create({
     paymentStatus: {
       marginTop: 10,
       color: '#28a745',
+    },// Add to your styles
+    slotContainer: {
+      backgroundColor: '#f0f0f0',
+      padding: 12,
+      borderRadius: 5,
+      alignItems: 'center',
+    },
+    slotText: {
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    durationContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    durationButton: {
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      backgroundColor: '#f0f0f0',
+      borderRadius: 5,
+      margin: 5,
+    },
+    selectedDuration: {
+      backgroundColor: '#007BFF',
+    },
+    durationText: {
+      color: '#333',
+    },
+    selectedDurationText: {
+      color: '#fff',
+      fontWeight: '500',
     }
   });
   export default styles;

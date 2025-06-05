@@ -1,11 +1,10 @@
-import { StyleSheet } from "react-native";
+// Add these styles to your styles/Notifications.js file
 
-
-
-const styles = StyleSheet.create({
+const styles = {
+  // Keep your existing styles and add/modify these:
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f9f9f9',
     padding: 16,
   },
   header: {
@@ -14,26 +13,30 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: '#333',
   },
-  listContainer: {
-    paddingBottom: 16,
-  },
   notificationItem: {
-    flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 10,
+    padding: 14,
     marginBottom: 12,
-    padding: 12,
+    flexDirection: 'row',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 2,
     elevation: 2,
+    position: 'relative',
+  },
+  removeIcon: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 1,
   },
   iconContainer: {
+    backgroundColor: '#f0f7ff',
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f7ff',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -48,73 +51,35 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   name: {
-    fontSize: 16,
     fontWeight: 'bold',
+    fontSize: 15,
     color: '#333',
   },
   time: {
-    fontSize: 12,
     color: '#888',
+    fontSize: 12,
   },
   description: {
-    fontSize: 14,
     color: '#555',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   amount: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#2c7d32',
-    marginBottom: 8,
+    fontWeight: 'bold',
+    color: '#2e7d32',
+    marginTop: 2,
   },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 4,
-  },
-  acceptButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#4CAF50',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    marginRight: 8,
-  },
-  rejectButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f44336',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-  },
-  payButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#4a90e2',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-    marginTop: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-    marginLeft: 4,
-  },
-  emptyState: {
+  emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 16,
     color: '#888',
-    marginTop: 16,
+    fontSize: 16,
   },
-});
+  listContainer: {
+    paddingBottom: 20,
+  },
+};
 
-  export default styles;
+export default styles;

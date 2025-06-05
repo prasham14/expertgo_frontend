@@ -44,6 +44,7 @@ import {
         const userInfo = await GoogleSignin.signIn();
         const tokens = await GoogleSignin.getTokens();
         console.log(userInfo)
+        console.log(tokens);
         // Firebase Authentication
         const googleCredential = auth.GoogleAuthProvider.credential(tokens.idToken);
         await auth().signInWithCredential(googleCredential);
@@ -75,7 +76,7 @@ import {
         // Store Token
         // await AsyncStorage.setItem('authToken', response.data.token);
         Alert.alert('Success', 'Successfully signed in!');
-        navigation.navigate("MainTabs")
+        navigation.replace("MainTabs")
       } catch (error) {
         console.error('Detailed Login Error:', error);
         handleError(error);

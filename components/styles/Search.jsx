@@ -83,12 +83,12 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#0095f6',
+    backgroundColor: '#4267B2',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
     elevation: 3,
-    shadowColor: '#0095f6',
+    shadowColor: '#F7F9FC',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -107,68 +107,124 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   expertCard: {
+    backgroundColor: '#F7F9FC',
+    borderRadius: 12,
+    marginVertical: 10,
+    marginHorizontal: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    padding: 12,
+    position: 'relative',
+  },
+  
+  cardHeader: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  
+  featuredExpertImageContainer: {
+    position: 'relative',
     alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    backgroundColor: '#FFFFFF',
   },
-  expertImage: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    marginRight: 14,
-    backgroundColor: '#F5F5F5',
+  
+  featuredExpertImage: {
+    width: 85,
+    height: 85,
+    borderRadius: 42.5,
+    borderWidth: 2,
+    borderColor: '#4A90E2',
   },
+  
+  availabilityBadge: {
+    position: 'absolute',
+    bottom: -5,
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  
+  unavailableBadge: {
+    backgroundColor: '#F44336',
+  },
+  
+  availabilityText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  
   expertInfo: {
-    flex: 1,
+    paddingHorizontal: 5,
+    alignItems: 'center',
   },
+  
   expertName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#262626',
-    marginBottom: 2,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 4,
   },
+  
   expertCategory: {
     fontSize: 14,
-    color: '#0095f6',
-    marginBottom: 4,
-    fontWeight: '500',
+    color: '#666666',
+    marginBottom: 8,
   },
+  
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 10,
   },
+  
   expertRating: {
-    fontSize: 13,
-    color: '#262626',
     marginLeft: 4,
-    marginRight: 8,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333333',
+    marginRight: 10,
   },
+  
+  dealsBadge: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  
   expertDeals: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#666666',
   },
+  
   expertBio: {
     fontSize: 13,
-    color: '#666666',
+    color: '#777777',
+    textAlign: 'center',
     lineHeight: 18,
+    marginBottom: 15,
   },
+  
   contactButton: {
-    backgroundColor: '#0095f6',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    backgroundColor: '#4A90E2',
     borderRadius: 8,
-    marginLeft: 12,
-    elevation: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginTop: 5,
   },
+  
   contactButtonText: {
     color: '#FFFFFF',
-    fontSize: 13,
     fontWeight: '600',
+    fontSize: 14,
   },
   
   // Featured Experts
@@ -237,7 +293,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   visitButton: {
-    backgroundColor: '#0095f6',
+    backgroundColor: '#4267B2',
     borderRadius: 8,
     paddingVertical: 8,
     alignItems: 'center',

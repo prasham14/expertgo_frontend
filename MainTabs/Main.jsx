@@ -1,6 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import FontAwesome  from "react-native-vector-icons/Ionicons";
 import { UserProvider } from "../context/Context";
 import Home from "../screens/Home";
 import Meetings from "../bottom_tabs/Meetings";
@@ -19,7 +20,7 @@ export const MainTabs = () => {
         if (route.name === "Home") {
           iconName = "home-outline";
         } else if (route.name === "Ask") {
-          iconName = "question-outline";
+          iconName = "question-circle";
         }
         else if (route.name === "Meetings") {
           iconName = "calendar-outline";

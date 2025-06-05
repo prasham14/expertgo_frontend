@@ -18,7 +18,8 @@ import axios from 'axios';
 import homeStyles from '../components/styles/Home';
 import Recomendations from '../components/Recomendations';
 import { UserContext } from '../context/Context';
-
+import ExpertDash from '../components/ExpertDash';
+// import tw from '../tailwind';
 const Home = () => {
   const [experts, setExperts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -117,17 +118,20 @@ const Home = () => {
           </TouchableOpacity>
 
           <View style={homeStyles.headerButtons}>
-            <TouchableOpacity
-              style={homeStyles.iconButton}
-              onPress={() =>
-                navigation.navigate('Notifications', {userId, email:userEmail, userRole})
-              }>
-              <Ionicons
-                name="notifications-outline"
-                size={24}
-                color="#4A6572"
-              />
-            </TouchableOpacity>
+            {
+              userRole === 'expert' ? ( <TouchableOpacity
+                style={homeStyles.iconButton}
+                onPress={() =>
+                  navigation.navigate('Notifications', {userId, email:userEmail, userRole})
+                }>
+                <Ionicons
+                  name="notifications-outline"
+                  size={24}
+                  color="#4A6572"
+                />
+              </TouchableOpacity>):(null)
+            }
+           
 
             <TouchableOpacity
               style={homeStyles.iconButton}
@@ -160,29 +164,10 @@ const Home = () => {
           </View>
         ) : (
           <>
-          
             {userRole === 'expert' ? <Recomendations /> : null}  {/* Expert dashboard */}
             {userRole === 'expert' ? (
-              <View style={homeStyles.expertDashboard}>
-                <Text style={homeStyles.dashboardTitle}>Expert Dashboard</Text>
-
-                <View style={homeStyles.statsContainer}>
-                  <View style={homeStyles.statCard}>
-                    <Text style={homeStyles.statValue}>0</Text>
-                    <Text style={homeStyles.statLabel}>Upcoming Calls</Text>
-                  </View>
-                  <View style={homeStyles.statCard}>
-                    <Text style={homeStyles.statValue}>0</Text>
-                    <Text style={homeStyles.statLabel}>This Week</Text>
-                  </View>
-                  <View style={homeStyles.statCard}>
-                    <Text style={homeStyles.statValue}>$0</Text>
-                    <Text style={homeStyles.statLabel}>Earnings</Text>
-                  </View>
-                </View>
-                {/* Create Portfolio */}
-             
-              </View>
+                  // <ExpertDash/>
+                  null
             ) : (
               <>
                 {/* Famous Experts  */}
@@ -224,68 +209,11 @@ const Home = () => {
                     </View>
                   </View>
                 </View>
-                {/* Testimonials Section */}
-                <View style={homeStyles.testimonialSection}>
-                  <Text style={homeStyles.sectionTitle}>
-                    What Our Users Say
-                  </Text>
-                  <FlatList
-                    data={[
-                      {
-                        id: '1',
-                        name: 'Michael S.',
-                        text: 'ExpertCall connected me with the perfect financial advisor. Worth every penny!',
-                        rating: 5,
-                      },
-                      {
-                        id: '2',
-                        name: 'Sarah K.',
-                        text: 'I was able to get legal advice within hours. Amazing service!',
-                        rating: 5,
-                      },
-                      {
-                        id: '3',
-                        name: 'David L.',
-                        text: 'The tech experts on this platform helped me solve issues that had been frustrating me for weeks.',
-                        rating: 4,
-                      },
-                    ]}
-                    keyExtractor={item => item.id}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={({item}) => (
-                      <View style={homeStyles.testimonialCard}>
-                        <View style={homeStyles.testimonialHeader}>
-                          <View style={homeStyles.testimonialAvatar}>
-                            <Text style={homeStyles.testimonialInitial}>
-                              {item.name[0]}
-                            </Text>
-                          </View>
-                          <Text style={homeStyles.testimonialName}>
-                            {item.name}
-                          </Text>
-                        </View>
-                        <Text style={homeStyles.testimonialText}>
-                          {item.text}
-                        </Text>
-                        <View style={homeStyles.testimonialRating}>
-                          {[...Array(5)].map((_, i) => (
-                            <Ionicons
-                              key={i}
-                              name={i < item.rating ? 'star' : 'star-outline'}
-                              size={16}
-                              color="#FFD700"
-                            />
-                          ))}
-                        </View>
-                      </View>
-                    )}
-                  />
-                </View>
+             
               </>
             )}
             {/* Support Section */}
-            <View style={homeStyles.supportSection}>
+            {/* <View style={homeStyles.supportSection}>
               <Text style={homeStyles.supportTitle}>Need Help?</Text>
               <Text style={homeStyles.supportText}>
                 Our support team is available 24/7
@@ -300,7 +228,7 @@ const Home = () => {
                   Contact Support
                 </Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
           </>
         )}
                 <Modal

@@ -17,22 +17,46 @@ import { UserContext } from '../context/Context';
 import RazorpayCheckout from 'react-native-razorpay';
 import styles from '../components/styles/MeetingScreen';
 
-
-
 const CreateMeetingScreen = ({ navigation, route }) => {
-  const { expertId,type,amount } = route.params;
+  const { expertId, type, amount, availSlots, name,expertEmail } = route.params;
+  
+  function generateRoomId(length = 10) {
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      result += characters[randomIndex];
+    }
+    return result;
+  }
+  
+  const roomId = generateRoomId();
+  
   const { userId } = useContext(UserContext);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date(new Date().getTime() + 60 * 60 * 1000)); 
+  
+  const currentDate = new Date();
+  const tomorrow = new Date(currentDate);
+  tomorrow.setDate(currentDate.getDate() + 1);
+  tomorrow.setHours(10, 0, 0, 0);
+  
+  const [selectedDate, setSelectedDate] = useState(tomorrow);
+  const [startTime, setStartTime] = useState(tomorrow);
+  const [endTime, setEndTime] = useState(new Date(tomorrow.getTime() + 60 * 60 * 1000)); // 1 hour later
+  
   const [googleId, setGoogleId] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Store expert availability as time objects for proper comparison
+  const [expertStartHour, setExpertStartHour] = useState(0);
+  const [expertEndHour, setExpertEndHour] = useState(23);
+  const [expertStartPeriod, setExpertStartPeriod] = useState('AM');
+  const [expertEndPeriod, setExpertEndPeriod] = useState('PM');
   
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
-  const [pickerMode, setPickerMode] = useState('date');
-  const [currentEditingTime, setCurrentEditingTime] = useState('start');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
@@ -41,11 +65,12 @@ const CreateMeetingScreen = ({ navigation, route }) => {
   const [baseAmount, setBaseAmount] = useState(amount);
   const [calculatedAmount, setCalculatedAmount] = useState(amount);
 
-
   useEffect(() => {
     const fetchGoogleId = async () => {
+      console.log(availSlots);
       try {
         const id = await AsyncStorage.getItem('googleId');
+        console.log(expertId);
         if (id) {
           setGoogleId(id);
         } else {
@@ -59,108 +84,205 @@ const CreateMeetingScreen = ({ navigation, route }) => {
 
     fetchGoogleId();
     setBaseAmount(amount); 
-  calculateAmount(startTime, endTime);
+
+    // Parse available time slots properly
+    if (availSlots) {
+      const timeSlotMatch = availSlots.match(/(\d+)\s*(AM|PM)?\s*-\s*(\d+)\s*(AM|PM)/i);
+      
+      if (timeSlotMatch) {
+        const startHour = parseInt(timeSlotMatch[1], 10);
+        const startPeriod = timeSlotMatch[2] ? timeSlotMatch[2].toUpperCase() : timeSlotMatch[4].toUpperCase();
+        const endHour = parseInt(timeSlotMatch[3], 10);
+        const endPeriod = timeSlotMatch[4].toUpperCase();
+        
+        setExpertStartHour(startHour);
+        setExpertStartPeriod(startPeriod);
+        setExpertEndHour(endHour);
+        setExpertEndPeriod(endPeriod);
+      }
+    }
+
+    calculateAmount(startTime, endTime);
   }, []);
-const calculateAmount = (start, end) => {
-  const durationMs = end.getTime() - start.getTime();
-  const durationMinutes = Math.max(1, Math.round(durationMs / (1000 * 60)));
-  const tenMinuteBlocks = Math.ceil(durationMinutes / 10);
-  const newAmount = (baseAmount * tenMinuteBlocks).toString();
-  setCalculatedAmount(newAmount);
-  return newAmount;
-};
 
-const onDateChange = (event, selectedDate) => {
+  // Helper function to convert 12-hour format to 24-hour format
+  const convertTo24Hour = (hour, period) => {
+    hour = parseInt(hour, 10);
+    
+    if (period === 'AM') {
+      return hour === 12 ? 0 : hour;
+    } else {
+      return hour === 12 ? 12 : hour + 12;
+    }
+  };
+
+  // Check if time is within expert's available hours
+  const isWithinExpertHours = (time) => {
+    const hour = time.getHours();
+    const expertStartHour24 = convertTo24Hour(expertStartHour, expertStartPeriod);
+    const expertEndHour24 = convertTo24Hour(expertEndHour, expertEndPeriod);
+    
+    return hour >= expertStartHour24 && hour <= expertEndHour24;
+  };
+
+  const calculateAmount = (start, end) => {
+    const durationMs = end.getTime() - start.getTime();
+    const durationMinutes = Math.max(1, Math.round(durationMs / (1000 * 60)));
+  
+    const ratePerMinute = baseAmount / 10; // since baseAmount is for 20 minutes
+    const newAmount = Math.ceil(durationMinutes * ratePerMinute).toString(); // round up to nearest int
+  
+    setCalculatedAmount(newAmount);
+    return newAmount;
+  };
+  
+
+  // Handle date selection
+// Handle date selection
+const onDateChange = (event, selected) => {
   if (Platform.OS === 'android') {
-    setShowStartPicker(false);
-    setShowEndPicker(false);
+    setShowDatePicker(false);
   }
   
-  if (!selectedDate) return;
-
-  let newStartTime = startTime;
-  let newEndTime = endTime;
-
-  if (currentEditingTime === 'start') {
-    if (pickerMode === 'date') {
-      if (Platform.OS === 'android') {
-        const newDate = new Date(selectedDate);
-        const currentTime = new Date(startTime);
-        newDate.setHours(currentTime.getHours());
-        newDate.setMinutes(currentTime.getMinutes());
-        newStartTime = newDate;
-        setStartTime(newDate);
-        
-        setPickerMode('time');
-        setTimeout(() => setShowStartPicker(true), 100);
-      } else {
-        newStartTime = selectedDate;
-        setStartTime(selectedDate);
-      }
-    } else {
-      newStartTime = selectedDate;
-      setStartTime(selectedDate);
-      setPickerMode('date'); 
-
-      if (endTime < selectedDate) {
-        newEndTime = new Date(selectedDate.getTime() + 60 * 60 * 1000); 
-        setEndTime(newEndTime);
-      }
-    }
-  } else {
-    // For end time
-    if (pickerMode === 'date') {
-      // If we just picked the date, now let's pick the time (Android)
-      if (Platform.OS === 'android') {
-        const newDate = new Date(selectedDate);
-        const currentTime = new Date(endTime);
-        newDate.setHours(currentTime.getHours());
-        newDate.setMinutes(currentTime.getMinutes());
-        newEndTime = newDate;
-        setEndTime(newDate);
-        
-        // Show time picker next
-        setPickerMode('time');
-        setTimeout(() => setShowEndPicker(true), 100);
-      } else {
-        // iOS handles both date and time in one picker
-        newEndTime = selectedDate;
-        setEndTime(selectedDate);
-      }
-    } else {
-      // We finished picking the time
-      newEndTime = selectedDate;
-      setEndTime(selectedDate);
-      setPickerMode('date'); // Reset for next time
-    }
-  }
+  if (!selected) return;
   
-  // Calculate new amount based on duration
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  if (selected < today) {
+    Alert.alert('Invalid Date', 'Please select today or a future date.');
+    return;
+  }
+
+  setSelectedDate(selected);
+  
+  const newStartTime = new Date(selected);
+  newStartTime.setHours(
+    startTime.getHours(), 
+    startTime.getMinutes(), 
+    0, 0
+  );
+  
+  const newEndTime = new Date(selected);
+  newEndTime.setHours(
+    endTime.getHours(), 
+    endTime.getMinutes(), 
+    0, 0
+  );
+  
+  setStartTime(newStartTime);
+  setEndTime(newEndTime);
+  
+  // Recalculate amount
   calculateAmount(newStartTime, newEndTime);
 };
 
-  // Show date pickers in a platform-appropriate way
-  const showDateTimePicker = (timeType) => {
-    setCurrentEditingTime(timeType);
-    setPickerMode('date');
-    
-    if (timeType === 'start') {
-      setShowStartPicker(true);
-      setShowEndPicker(false);
-    } else {
-      setShowEndPicker(true);
-      setShowStartPicker(false);
+  // Handle start time selection
+  const onStartTimeChange = (event, selected) => {
+    if (Platform.OS === 'android') {
+      setShowStartTimePicker(false);
     }
+    
+    if (!selected) return;
+    
+    // Make sure the selected time is not in the past
+    const now = new Date();
+    if (selectedDate.getDate() === now.getDate() && 
+        selectedDate.getMonth() === now.getMonth() && 
+        selectedDate.getFullYear() === now.getFullYear() && 
+        selected < now) {
+      Alert.alert('Invalid Time', 'Please select a future time.');
+      return;
+    }
+    
+    // Update start time
+    const newStartTime = new Date(selectedDate);
+    newStartTime.setHours(selected.getHours(), selected.getMinutes());
+    
+    // Check if the new start time is within expert's available hours
+    if (!isWithinExpertHours(newStartTime)) {
+      Alert.alert('Warning', `Expert only available between ${expertStartHour}${expertStartPeriod} - ${expertEndHour}${expertEndPeriod}`);
+      return;
+    }
+    
+    setStartTime(newStartTime);
+    
+    // If end time is before new start time, update end time to be 1 hour after start
+    if (endTime <= newStartTime) {
+      const newEndTime = new Date(newStartTime.getTime() + 60 * 60 * 1000);
+      setEndTime(newEndTime);
+    }
+    
+    // Recalculate amount
+    calculateAmount(newStartTime, endTime <= newStartTime ? new Date(newStartTime.getTime() + 60 * 60 * 1000) : endTime);
+  };
+
+  // Handle end time selection
+  const onEndTimeChange = (event, selected) => {
+    if (Platform.OS === 'android') {
+      setShowEndTimePicker(false);
+    }
+    
+    if (!selected) return;
+    
+    // Create new end time object
+    const newEndTime = new Date(selectedDate);
+    newEndTime.setHours(selected.getHours(), selected.getMinutes());
+    
+    // Make sure end time is after start time
+    if (newEndTime <= startTime) {
+      Alert.alert('Invalid Time', 'End time must be after start time.');
+      return;
+    }
+    
+    // Check if the new end time is within expert's available hours
+    if (!isWithinExpertHours(newEndTime)) {
+      Alert.alert('Warning', `Expert only available between ${expertStartHour}${expertStartPeriod} - ${expertEndHour}${expertEndPeriod}`);
+      return;
+    }
+    
+    // Update end time
+    setEndTime(newEndTime);
+    
+    // Recalculate amount
+    calculateAmount(startTime, newEndTime);
   };
 
   // Format date for display
-  const formatDateTime = (date) => {
-    return date.toLocaleString();
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   };
-  
+
+  // Format time for display
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
+
+  // Show date picker
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
+  };
+
+  // Show time pickers
+  const showStartTimePickerModal = () => {
+    setShowStartTimePicker(true);
+  };
+
+  const showEndTimePickerModal = () => {
+    setShowEndTimePicker(true);
+  };
+
   // Payment handler
   const handlePayment = async () => {
-
     if (!calculatedAmount || parseFloat(calculatedAmount) <= 0) {
       Alert.alert('Error', 'Please enter a valid amount.');
       return;
@@ -168,10 +290,9 @@ const onDateChange = (event, selectedDate) => {
 
     setLoading(true);
     try {
-      
       const { data } = await axios.post(
         'http://10.0.2.2:3000/pay/order',
-        { amount :calculatedAmount}
+        { amount: calculatedAmount }
       );
 
       if (data.data) {
@@ -208,16 +329,17 @@ const onDateChange = (event, selectedDate) => {
                   to: expertId,
                   type: type,
                   time: startTime,
-                  preferredTime: formatDateTime(startTime),
+                  preferredTime: `${formatDate(startTime)} ${formatTime(startTime)}`,
                 }
               );
-
+           
               setPaymentStatus(verifyResponse.data.message);
               setPaymentComplete(true);
               Alert.alert('Success', 'Payment Successful! Creating your meeting...');
-              
+              console.log(verifyResponse);
               // Now proceed to create the meeting after successful payment
-              createMeeting();
+              createMeeting(verifyResponse.data.data);
+              console.log("id" ,verifyResponse.data.data )
               
             } catch (error) {
               Alert.alert('Error', 'Amount Limit Exceeded');
@@ -239,78 +361,94 @@ const onDateChange = (event, selectedDate) => {
   };
   const checkAvailability = async () => {
     setLoading(true);
-  
+    console.log('Params:',startTime.toISOString(), endTime.toISOString());
+
     try {
       const response = await axios.get('http://10.0.2.2:3000/meet/check-availability', {
         params: {
           googleId,
           title,
-          description,
-          expertId,
+          expertId:expertId,
           startTime: startTime.toISOString(),
-          endTime: endTime.toISOString()
+        endTime: endTime.toISOString()
         }
       });
-  
-      if (response.data.error) {
-        return true; 
-      } else {
-        return false; 
-      }
-  
+      
+      console.log(response);
+      // Check if the response indicates availability
+      return response.data.available === true;
     } catch (error) {
       console.error('Availability check failed:', error);
       const errorMessage = error.response?.data?.error || 'Failed to check availability. Please try again.';
-      // Alert.alert('Error', errorMessage);
-      return true; // assume busy if there's an error
+      console.log('Error message:', errorMessage);
+      
+      // If status is 409, the expert is busy
+      if (error.response?.status === 409) {
+        return false; // Expert is busy
+      }
+      
+      // For other errors, alert the user and assume the expert is busy
+      Alert.alert('Error', errorMessage);
+      return false;
     } finally {
       setLoading(false);
     }
   };
   
   // Create meeting after payment success
-  const createMeeting = async () => {
+  const createMeeting = async (transactionId) => {
+    console.log("expertID" ,expertId)
     setLoading(true);
-    
+    console.log("create" , startTime);
+    console.log("transactionid",transactionId)
     try {
       const response = await axios.post('http://10.0.2.2:3000/meet/create-meeting', {
         googleId,
         title,
         description,
         expertId: expertId,
+        transactionId,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString()
       });
+      const id_room = await axios.post(
+        `http://10.0.2.2:3000/meet/save-room-id/${userId}/${expertId}`,
+        { roomId }
+      );
       
       if (response.status === 201) {
         // Try to send notification
         try {
           const notificationResponse = await axios.get(
-            `http://10.0.2.2:3000/noti/get-user-fcm/${expertId}`,
+            `http://10.0.2.2:3000/noti/get-user-fcm/${expertEmail}`,
           );
           
           const fcmToken = notificationResponse.data.fcm;
-          
+          console.log("fcm", fcmToken);
           const notificationData = {
             token: fcmToken,
             title: 'New Meeting Scheduled',
-            body: `A meeting titled "${title}" has been scheduled for ${formatDateTime(startTime)}`,
+            body: `A meeting titled "${title}" has been scheduled for ${formatDate(startTime)} ${formatTime(startTime)}`,
           };
           
           await axios.post(
             'http://10.0.2.2:3000/noti/send-notification',
             notificationData,
           );
+          await axios.post('http://10.0.2.2:3000/noti/save-request' , {
+            startTime,
+            endTime,
+            title,
+            isRead : false,
+            from : userId,
+            to : expertId
+          })
         } catch (notificationError) {
           console.error('Failed to send notification:', notificationError);
           // Continue even if notification fails
         }
         
-        Alert.alert(
-          'Success', 
-          'Meeting created successfully! Check your Notifications for meeting link.',
-          [{ text: 'OK', onPress: () => navigation.navigate('MainTabs') }]
-        );
+        navigation.replace('MainTabs') 
       }
     } catch (error) {
       console.error('Meeting creation failed:', error);
@@ -321,20 +459,29 @@ const onDateChange = (event, selectedDate) => {
     }
   };
 
-  const handleFormSubmit =async () => {
+  const handleFormSubmit = async () => {
+    console.log("here" , startTime.toISOString()  , endTime.toISOString())
+    // Check if both start and end times are within expert's available hours
+    if (!isWithinExpertHours(startTime) || !isWithinExpertHours(endTime)) {
+      Alert.alert("Warning", `Expert only available between ${expertStartHour}${expertStartPeriod} - ${expertEndHour}${expertEndPeriod}`);
+      return;
+    }
+    
     const currentTime = new Date();
     if (startTime <= currentTime) {
       Alert.alert('Oops!', 'Please select a future date and time for the meeting');
       return;
     }
-    const response = await checkAvailability();
-      if(response){
-        Alert.alert(
-          'Sorry', 
-          'The Expert is busy at this time',
-        );
-        return;
-      }
+    
+    const isAvailable = await checkAvailability();
+    if (!isAvailable) {
+      Alert.alert(
+        'Sorry', 
+        'The Expert is busy at this time',
+      );
+      return;
+    }
+    
     // Form validation
     if (!title.trim()) {
       Alert.alert('Error', 'Please enter a meeting title');
@@ -346,16 +493,16 @@ const onDateChange = (event, selectedDate) => {
       return;
     }
     
-
     setPaymentModalVisible(true);
   };
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.header}>Create New Meeting</Text>
+      <Text style={styles.header}>{name} is Available between: {availSlots}</Text>
       
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Title</Text>
+        <Text style={styles.label}>Title (Agenda)</Text>
         <TextInput
           style={styles.input}
           value={title}
@@ -364,58 +511,73 @@ const onDateChange = (event, selectedDate) => {
         />
       </View>
       
+      {/* Date Selection */}
       <View style={styles.formGroup}>
-        <Text style={styles.label}>Description</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Meeting Description"
-          multiline
-          numberOfLines={4}
-        />
+        <Text style={styles.label}>Date</Text>
+        <TouchableOpacity 
+          style={styles.dateButton} 
+          onPress={showDatePickerModal}
+        >
+          <Text>{formatDate(selectedDate)}</Text>
+        </TouchableOpacity>
       </View>
       
+      {/* Start Time Selection */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>Start Time</Text>
         <TouchableOpacity 
           style={styles.dateButton} 
-          onPress={() => showDateTimePicker('start')}
+          onPress={showStartTimePickerModal}
         >
-          <Text>{formatDateTime(startTime)}</Text>
+          <Text>{formatTime(startTime)}</Text>
         </TouchableOpacity>
       </View>
       
+      {/* End Time Selection */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>End Time</Text>
         <TouchableOpacity 
           style={styles.dateButton} 
-          onPress={() => showDateTimePicker('end')}
+          onPress={showEndTimePickerModal}
         >
-          <Text>{formatDateTime(endTime)}</Text>
+          <Text>{formatTime(endTime)}</Text>
         </TouchableOpacity>
       </View>
       
-      {/* Conditionally render the date/time pickers */}
-      {showStartPicker && (
+      {/* Date Picker */}
+      {showDatePicker && (
         <DateTimePicker
-          testID="startTimePicker"
-          value={startTime}
-          mode={pickerMode}
+          testID="datePicker"
+          value={selectedDate}
+          mode="date"
           is24Hour={true}
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           onChange={onDateChange}
+          minimumDate={new Date()} // This prevents selecting past dates
         />
       )}
       
-      {showEndPicker && (
+      {/* Start Time Picker */}
+      {showStartTimePicker && (
+        <DateTimePicker
+          testID="startTimePicker"
+          value={startTime}
+          mode="time"
+          is24Hour={false}
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={onStartTimeChange}
+        />
+      )}
+      
+      {/* End Time Picker */}
+      {showEndTimePicker && (
         <DateTimePicker
           testID="endTimePicker"
           value={endTime}
-          mode={pickerMode}
-          is24Hour={true}
+          mode="time"
+          is24Hour={false}
           display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={onDateChange}
+          onChange={onEndTimeChange}
         />
       )}
       
@@ -431,67 +593,63 @@ const onDateChange = (event, selectedDate) => {
         )}
       </TouchableOpacity>
       
-     {/* Payment Modal */}
-<Modal
-  animationType="slide"
-  transparent={true}
-  visible={paymentModalVisible}
-  onRequestClose={() => setPaymentModalVisible(false)}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <Text style={styles.modalHeader}>Payment Required</Text>
-      <Text style={styles.modalText}>
-        Please make a payment to schedule the meeting with the expert.
-      </Text>
-      
-      <View style={styles.paymentDetails}>
-        <Text style={styles.detailText}>
-          Meeting Duration: {Math.round((endTime - startTime) / (1000 * 60))} minutes
-        </Text>
-        <Text style={styles.detailText}>
-          Rate: ₹{baseAmount} per 10 minutes
-        </Text>
-        {/* <Text style={styles.detailText}>
-          10-minute blocks: {Math.ceil(Math.round((endTime - startTime) / (1000 * 60)) / 10)}
-        </Text> */}
-      </View>
-      
-      <View style={styles.paymentInputContainer}>
-        <Text style={styles.totalAmountLabel}>Total Amount:</Text>
-        <Text style={styles.totalAmount}>₹{calculatedAmount}</Text>
-      </View>
-      
-      <View style={styles.buttonRow}>
-        <TouchableOpacity 
-          style={[styles.modalButton, styles.cancelButton]} 
-          onPress={() => setPaymentModalVisible(false)}
-        >
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.modalButton, styles.payButton]}
-          onPress={handlePayment}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.payButtonText}>Pay Now</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-      
-      {paymentStatus && (
-        <Text style={styles.paymentStatus}>{paymentStatus}</Text>
-      )}
-    </View>
-  </View>
-</Modal>
+      {/* Payment Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={paymentModalVisible}
+        onRequestClose={() => setPaymentModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeader}>Payment Required</Text>
+            <Text style={styles.modalText}>
+              Please make a payment to schedule the meeting with the expert.
+            </Text>
+            
+            <View style={styles.paymentDetails}>
+              <Text style={styles.detailText}>
+                Meeting Duration: {Math.round((endTime - startTime) / (1000 * 60))} minutes
+              </Text>
+              <Text style={styles.detailText}>
+                Rate: ₹{baseAmount} per 10 minutes
+              </Text>
+            </View>
+            
+            <View style={styles.paymentInputContainer}>
+              <Text style={styles.totalAmountLabel}>Total Amount:</Text>
+              <Text style={styles.totalAmount}>₹{calculatedAmount}</Text>
+            </View>
+            
+            <View style={styles.buttonRow}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]} 
+                onPress={() => setPaymentModalVisible(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.payButton]}
+                onPress={handlePayment}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.payButtonText}>Pay Now</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+            
+            {paymentStatus && (
+              <Text style={styles.paymentStatus}>{paymentStatus}</Text>
+            )}
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
-
 
 export default CreateMeetingScreen;

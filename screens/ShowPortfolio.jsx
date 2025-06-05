@@ -1,21 +1,43 @@
 import React, { useEffect, useState,useContext } from 'react';
-import { View, Text, ActivityIndicator, Alert, StyleSheet, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, StyleSheet,Linking, Image, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import axios from 'axios';
 import styles from '../components/styles/ShowPortfolio';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { UserContext } from '../context/Context';
+
 const PortfolioScreen = ({ route, navigation }) => {
-  const { userEmail } = useContext(UserContext);
-  const userId = route.params.expertId;
+  const { userEmail ,userId} = useContext(UserContext);
+
+  const expertId = route.params.expertId;
   const [expert, setExpert] = useState(null);
   const [loading, setLoading] = useState(true);
   const[imageUrl ,setImageUrl] = useState('');
+  const [sameUser,setSameUser] = useState(false);
+  const[alreadyMeet,setAlreadyMeet] = useState(false);
+  const [startTime,setStartTime] = useState('');
+
+  const checkMeetAlready = async ()=>{
+    try {
+      if (!expertId) return;
+      const response = await axios.get(`http://10.0.2.2:3000/meet/check-already-meet/${expertId}/${userId}`);
+      if(response.data.alreadyScheduled){
+        setAlreadyMeet(true);
+        setStartTime(response.data.time);
+      }
+    } catch (error) {
+      console.error("Error fetching expert profile:", error);
+      // Alert.alert("Error", "Error fetching expert profile.");
+    }
+  }
+
 
   const getExpertProfile = async () => {
     try {
-      if (!userId) return;
-    
-      const response = await axios.get(`http://10.0.2.2:3000/expert/profile/${userId}`);
+      if (!expertId) return;
+      if(userId === expertId) {
+        setSameUser(true);
+      }
+      const response = await axios.get(`http://10.0.2.2:3000/expert/profile/${expertId}`);
 
       if (response.status === 200) {
         setExpert(response.data.data);
@@ -30,7 +52,7 @@ const PortfolioScreen = ({ route, navigation }) => {
   };
    const fetchImage = async () => {
       try {
-        const response = await axios.get(`http://10.0.2.2:3000/profile/images/${userId}`);
+        const response = await axios.get(`http://10.0.2.2:3000/profile/images/${expertId}`);
         setImageUrl(response.data.imageUrl);
       } catch (error) {
         console.error('Error fetching image:', error);
@@ -44,6 +66,7 @@ const PortfolioScreen = ({ route, navigation }) => {
       setLoading(false);
     };
     fetchData();
+    checkMeetAlready();
   }, []);
 
   if (loading) {
@@ -65,7 +88,26 @@ const PortfolioScreen = ({ route, navigation }) => {
       </View>
     );
   };
+  const handleOpenURL = async (url) => {
+    if (!url) return;
+    
+    // Check if the URL can be opened
+    const canOpen = await Linking.canOpenURL(url);
+    
+    if (canOpen) {
+      // Open the URL
+      await Linking.openURL(url);
+    } else {
+      // Show error if URL cannot be opened
+      Alert.alert('Error', 'Cannot open this URL');
+    }
+  };
 
+  const formattedTime = new Date(startTime).toLocaleString('en-US', {
+    dateStyle: 'long',
+    timeStyle: 'short'
+  });
+  
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView 
@@ -94,8 +136,15 @@ const PortfolioScreen = ({ route, navigation }) => {
             <Text style={styles.currentPost}>
               {expert?.currentPost || "Professional"}
             </Text>
-            
+            <Text style={styles.currentPost}>
+              {expert?.isAvailable ? ("Available"):("Not Available")}
+            </Text>
             {renderRatingStars(expert?.ratings || 0)}
+
+
+            <TouchableOpacity onPress={()=>handleOpenURL(expert.url)}>
+      <Text style={[styles.currentPost, styles.linkText]}>Visit</Text>
+    </TouchableOpacity>
           </View>
         </View>
 
@@ -127,7 +176,7 @@ const PortfolioScreen = ({ route, navigation }) => {
 
         {/* Expert Details */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Expert Profile</Text>
+          <Text style={styles.sectionTitle}>Portfolio</Text>
           
           {expert?.bio && (
             <View style={styles.bioContainer}>
@@ -148,56 +197,50 @@ const PortfolioScreen = ({ route, navigation }) => {
 
           {/* Charges Section */}
           <View style={styles.chargesContainer}>
-            <Text style={styles.sectionSubtitle}>Consultation Charges</Text>
-            <View style={styles.chargeRow}>
-              <View style={styles.chargeItem}>
-                <Ionicons name="videocam-outline" size={20} color="#28a745" />
-                <Text style={styles.chargeText}>
-                  Video Call: ₹{expert?.charges?.[0] || "N/A"}/10 min
-                </Text>
-              </View>
-              <View style={styles.chargeItem}>
-                <Ionicons name="call-outline" size={20} color="#17a2b8" />
-                <Text style={styles.chargeText}>
-                  Voice Call: ₹{expert?.charges?.[1] || "N/A"}/10 min
-                </Text>
-              </View>
-            </View>
+            <Text style={styles.sectionSubtitle}>Charges  :  ₹{expert?.charges?.[0] || "N/A"}/10 min</Text>
           </View>
         </View>
 
-        {/* Schedule Buttons */}
-        <View style={styles.buttonContainer}>
+       {
+        sameUser ? (  <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.scheduleButton}
+            onPress={() => navigation.navigate('EditPortfolio')}
+          >
+            <Ionicons name="pencil" size={24} color="#fff" />
+            <Text style={styles.scheduleButtonText}>
+              Edit Portfolio
+            </Text>
+          </TouchableOpacity>
+        </View>):(alreadyMeet ? (<View style={styles.buttonContainer}>
+          <View 
+            style={styles.scheduleButton}
+          >
+            <Text style={styles.scheduleButtonText}>
+              Already scheduled a meeting at {formattedTime} 
+            </Text>
+          </View>
+        </View>):(  <View style={styles.buttonContainer}>
           <TouchableOpacity 
             style={styles.scheduleButton}
             onPress={() => navigation.navigate('Meet', {
-              expertId: expert.userId,
+              expertId: expert.userId._id,
               email: userEmail,
+              expertEmail : expert.email,
+              name: expert.name,
               amount : expert.charges[0],
-              type: "video_call"
+              type: "video_call",
+              availSlots : expert.availSlots
             })}
           >
             <Ionicons name="videocam" size={24} color="#fff" />
             <Text style={styles.scheduleButtonText}>
-              Schedule Video Call
+              Schedule Call Now!
             </Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.scheduleButton, styles.voiceCallButton]}
-            onPress={() => navigation.navigate('Meet', {
-              expertId: expert.userId,
-              email: userEmail,
-              amount : expert.charges[1],
-              type: "voice_call"
-            })}
-          >
-            <Ionicons name="call" size={24} color="#fff" />
-            <Text style={styles.scheduleButtonText}>
-              Schedule Voice Call
-            </Text>
-          </TouchableOpacity>
-        </View>
+        </View>))
+       }
+      
       </ScrollView>
     </SafeAreaView>
   );

@@ -21,11 +21,12 @@ const Search = ({ route }) => {
   const navigation = useNavigation();
   const { userId, userEmail, userRole } = useContext(UserContext);
   const searchInputRef = useRef(null);
-
+const [hasSearched, setHasSearched] = useState(false);
   // State management
   const [experts, setExperts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchedExperts, setSearchedExperts] = useState([]);
+  const[isFound,setIsFound] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [imgUrl, setImageUrl] = useState('');
@@ -55,24 +56,8 @@ const Search = ({ route }) => {
   // Fetch experts on component mount
   useEffect(() => {
     fetchExperts();
-    fetchUserImage();
   }, [userId]);
 
-  // Fetch user profile image
-  const fetchUserImage = async (id) => {
-    const idToUse = id || userId;
-    if (!idToUse) {
-      console.warn('User ID is missing. Skipping image fetch.');
-      return;
-    }
-  
-    try {
-      const response = await axios.get(`http://10.0.2.2:3000/profile/images/${idToUse}`);
-      setImageUrl(response.data.imageUrl);
-    } catch (error) {
-      console.error('Error fetching image:', error);
-    }
-  };
 
   // Fetch featured experts
   const fetchExperts = async () => {
@@ -91,22 +76,23 @@ const Search = ({ route }) => {
   
   // Search experts by category
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+  if (!searchQuery.trim()) return;
 
-    try {
-      setIsLoading(true);
-      const response = await axios.get(
-        `http://10.0.2.2:3000/expert/searchExperts?category=${searchQuery.trim()}`
-      );
-      if (response.data.success) {
-        setSearchedExperts(response.data.experts);
-      }
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error searching experts:', error);
-      setIsLoading(false);
+  try {
+    setIsLoading(true);
+    setHasSearched(true); // <-- Add this line
+    const response = await axios.get(
+      `http://10.0.2.2:3000/expert/searchExperts?category=${searchQuery.trim()}`
+    );
+    if (response.data.success) {
+      setSearchedExperts(response.data.experts);
     }
-  };
+    setIsLoading(false);
+  } catch (error) {
+    console.error('Error searching experts:', error);
+    setIsLoading(false);
+  }
+};
 
   // Debounced search - FIXED the issue here
   useEffect(() => {
@@ -127,12 +113,6 @@ const Search = ({ route }) => {
   const clearSearch = () => {
     setSearchQuery('');
     setSearchedExperts([]);
-    
-    // Don't automatically blur - let user decide when to dismiss keyboard
-    // searchInputRef.current?.blur();
-    
-    // Keep focus state true as the input still has focus
-    // setIsSearchFocused(false);
   };
 
   // Handle input focus and blur
@@ -152,32 +132,49 @@ const Search = ({ route }) => {
     });
   };
 
-  // Expert card in search results
   const renderExpertCard = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.expertCard}
       onPress={() => navigateToPortfolio(item.userId?._id)}
       activeOpacity={0.7}
     >
-      <Image 
-        source={{ uri: item.profileImage || imgUrl || 'https://via.placeholder.com/50' }} 
-        style={styles.expertImage} 
-      />
-      <Text style={styles.expertDeals}>{item.isAvailable ? ('Available'):('Currently Unavailable') || '0'} </Text>
+      <View style={styles.cardHeader}>
+        <View style={styles.featuredExpertImageContainer}>
+          <Image
+            source={{ uri: item.profileImage }}
+            style={styles.featuredExpertImage}
+          />
+          {item.isAvailable ? (
+            <View style={styles.availabilityBadge}>
+              <Text style={styles.availabilityText}>Available</Text>
+            </View>
+          ) : (
+            <View style={[styles.availabilityBadge, styles.unavailableBadge]}>
+              <Text style={styles.availabilityText}>Unavailable</Text>
+            </View>
+          )}
+        </View>
+      </View>
+  
       <View style={styles.expertInfo}>
-        <Text style={styles.expertName}>{item.name || 'Expert'}</Text>
+        <Text style={styles.expertName} numberOfLines={1}>{item.name || 'Expert'}</Text>
         <Text style={styles.expertCategory}>{item.category || 'Category'}</Text>
+        
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={14} color="#FFD700" />
           <Text style={styles.expertRating}>{item.ratings || '0.0'}</Text>
-          <Text style={styles.expertDeals}>{item.totalDeals || '0'} Deals</Text>
+          <View style={styles.dealsBadge}>
+            <Text style={styles.expertDeals}>{item.totalDeals || '0'} Deals</Text>
+          </View>
         </View>
+        
         <Text style={styles.expertBio} numberOfLines={2}>
           {item.bio || 'Expert bio information...'}
         </Text>
       </View>
-      <TouchableOpacity 
-        style={styles.contactButton} 
+      
+      <TouchableOpacity
+        style={styles.contactButton}
         onPress={() => navigateToPortfolio(item.userId?._id)}
         activeOpacity={0.8}
       >
@@ -215,7 +212,7 @@ const Search = ({ route }) => {
       >
         <View style={styles.featuredExpertImageContainer}>
           <Image 
-            source={{ uri: item.profileImage || imgUrl || 'https://via.placeholder.com/50' }} 
+            source={{ uri: item.profileImage}} 
             style={styles.featuredExpertImage} 
           />
           {item.isVerified ? (
@@ -252,16 +249,7 @@ const Search = ({ route }) => {
     );
   };
 
-  // Fetch images for all experts once at the beginning instead of in render
-  useEffect(() => {
-    if (experts.length > 0) {
-      experts.forEach(expert => {
-        if (expert.userId?._id) {
-          fetchUserImage(expert.userId._id);
-        }
-      });
-    }
-  }, [experts]);
+ 
 
   return (
     <View style={styles.container}>
@@ -296,70 +284,69 @@ const Search = ({ route }) => {
           <ActivityIndicator size="large" color="#0095f6" />
         </View>
       ) : (
-        <>
-          {searchedExperts.length > 0 ? (
-            <FlatList
-              data={searchedExperts}
-              keyExtractor={(item) => item._id || Math.random().toString()}
-              renderItem={renderExpertCard}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.resultsContainer}
-              ListHeaderComponent={
-                <Text style={styles.resultTitle}>
-                  Found {searchedExperts.length} expert{searchedExperts.length !== 1 ? 's' : ''}
-                </Text>
-              }
-              ListEmptyComponent={
-                <View style={styles.emptyContainer}>
-                  <Ionicons name="search-outline" size={48} color="#CCCCCC" />
-                  <Text style={styles.emptyText}>No experts found</Text>
-                </View>
-              }
-            />
-          ) : (
-            <ScrollView 
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled"
-            >
-              {/* Categories Section */}
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Browse Categories</Text>
-                <FlatList
-                  data={featuredCategories}
-                  keyExtractor={(item) => item.id}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  renderItem={renderCategoryCard}
-                  contentContainerStyle={styles.categoriesContainer}
-                  keyboardShouldPersistTaps="handled"
-                />
-              </View>
-              
-              {/* Featured Experts Section */}
-              <View style={styles.sectionContainer}>
-                <Text style={styles.sectionTitle}>Our Trusted Experts</Text>
-                {experts.length > 0 ? (
-                  <FlatList
-                    data={experts}
-                    keyExtractor={(item, index) => item._id || index.toString()}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={renderFeaturedExpert}
-                    contentContainerStyle={styles.featuredExpertsContainer}
-                    keyboardShouldPersistTaps="handled"
-                  />
-                ) : (
-                  <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>
-                      No experts available at the moment.
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </ScrollView>
-          )}
-        </>
+     <>
+  {hasSearched ? (
+    <FlatList
+      data={searchedExperts}
+      keyExtractor={(item) => item._id || Math.random().toString()}
+      renderItem={renderExpertCard}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.resultsContainer}
+      ListHeaderComponent={
+        searchedExperts.length > 0 ? (
+          <Text style={styles.resultTitle}>
+            Found {searchedExperts.length} expert{searchedExperts.length !== 1 ? 's' : ''}
+          </Text>
+        ) : null
+      }
+      ListEmptyComponent={
+        <View style={styles.emptyContainer}>
+          <Ionicons name="search-outline" size={48} color="#CCCCCC" />
+          <Text style={styles.emptyText}>No experts found</Text>
+        </View>
+      }
+    />
+  ) : (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled"
+    >
+      {/* Categories Section */}
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Browse Categories</Text>
+        <FlatList
+          data={featuredCategories}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={renderCategoryCard}
+          contentContainerStyle={styles.categoriesContainer}
+        />
+      </View>
+
+      {/* Featured Experts Section */}
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Our Trusted Experts</Text>
+        {experts.length > 0 ? (
+          <FlatList
+            data={experts}
+            keyExtractor={(item, index) => item._id || index.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={renderFeaturedExpert}
+            contentContainerStyle={styles.featuredExpertsContainer}
+          />
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No experts available at the moment.</Text>
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  )}
+</>
+
       )}
     </View>
   );

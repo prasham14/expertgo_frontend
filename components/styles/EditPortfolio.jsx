@@ -164,6 +164,43 @@ const styles = StyleSheet.create({
     cancelButtonText: {
       color: '#666',
       fontSize: 16,
+    },// Add these to your styles object
+    timingContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    timeInput: {
+      height: 40,
+      width: 60,
+      borderWidth: 1,
+      borderColor: '#ccc',
+      borderRadius: 5,
+      paddingHorizontal: 10,
+      textAlign: 'center',
+    },
+    timeSeparator: {
+      marginHorizontal: 10,
+      fontSize: 18,
+    },
+    amPmSelector: {
+      flexDirection: 'row',
+      marginLeft: 10,
+    },
+    amPmOption: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderWidth: 1,
+      borderColor: '#ccc',
+    },
+    selectedAmPm: {
+      backgroundColor: '#007BFF',
+      borderColor: '#007BFF',
+    },
+    amPmText: {
+      color: '#333',
+    },
+    selectedAmPmText: {
+      color: '#fff',
     },
   });
 export default styles  

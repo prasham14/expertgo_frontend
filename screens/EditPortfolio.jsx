@@ -28,9 +28,12 @@ const EditPortfolio = ({ navigation }) => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetchingProfile, setFetchingProfile] = useState(true);
-
+  const [availSlots,setAvailSlots] = useState('');
   const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years', '10+ Years'];
-
+  const [startTime, setStartTime] = useState('');
+const [endTime, setEndTime] = useState('');
+const [timeFormat1, setTimeFormat1] = useState('PM');
+const [timeFormat2, setTimeFormat2] = useState('PM');
   useEffect(() => {
     fetchExpertProfile();
   }, []);
@@ -48,6 +51,18 @@ const EditPortfolio = ({ navigation }) => {
         setExperience(profileData.experience || 'Fresher');
         setPortfolioUrl(profileData.url || '');
         setName(profileData.name || '');
+        setAvailSlots(profileData.availSlots || '');
+
+if (profileData.availSlots) {
+  const timeSlotMatch = profileData.availSlots.match(/(\d+)\s*(AM|PM)?\s*-\s*(\d+)\s*(AM|PM)/i);
+  
+  if (timeSlotMatch) {
+    setStartTime(timeSlotMatch[1]);
+    setTimeFormat1(timeSlotMatch[2] ? timeSlotMatch[2].toUpperCase() : timeSlotMatch[4].toUpperCase());
+    setEndTime(timeSlotMatch[3]);
+    setTimeFormat2(timeSlotMatch[4].toUpperCase());
+  }
+}
         
         // Set categories
         if (profileData.category && profileData.category.length > 0) {
@@ -147,13 +162,17 @@ const EditPortfolio = ({ navigation }) => {
       Alert.alert('Validation Error', 'Please fill in all skills or remove empty ones');
       return false;
     }
+    if(startTime > 12 || startTime < 1 || endTime > 12 || endTime < 1 ){
+      Alert.alert('Validation Error', 'Please provide a valid timings');
+      return false;
+    }
     
     return true;
   };
 
   const updateProfile = async () => {
     if (!validateForm()) return;
-    
+
     try {
       setLoading(true);
       
@@ -168,7 +187,8 @@ const EditPortfolio = ({ navigation }) => {
         experience,
         url: portfolioUrl,
         skills: filteredSkills,
-        name
+        name,
+        availSlots : startTime + ' ' + timeFormat1 +  '-' + endTime + ' '  + timeFormat2
       };
       
       const response = await axios.put(
@@ -211,9 +231,7 @@ const EditPortfolio = ({ navigation }) => {
       style={styles.container}
     >
       <ScrollView style={styles.scrollView}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Edit Expert Profile</Text>
-        </View>
+
         
         <View style={styles.formContainer}>
           {/* Name Section */}
@@ -240,6 +258,71 @@ const EditPortfolio = ({ navigation }) => {
               placeholderTextColor="#aaa"
             />
           </View>
+          <View style={styles.fieldContainer}>
+  <Text style={styles.label}>Available Timings:</Text>
+  <View style={styles.timingContainer}>
+    <TextInput
+      style={styles.timeInput}
+      placeholder="Start"
+      keyboardType="numeric"
+      maxLength={2}
+      value={startTime}
+      onChangeText={setStartTime}
+      placeholderTextColor="#aaa"
+    />
+     <View style={styles.amPmSelector}>
+      <TouchableOpacity
+        style={[
+          styles.amPmOption,
+          timeFormat1 === 'AM' && styles.selectedAmPm
+        ]}
+        onPress={() => setTimeFormat1('AM')}
+      >
+        <Text style={timeFormat1 === 'AM' ? styles.selectedAmPmText : styles.amPmText}>AM</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.amPmOption,
+          timeFormat1 === 'PM' && styles.selectedAmPm
+        ]}
+        onPress={() => setTimeFormat1('PM')}
+      >
+        <Text style={timeFormat1 === 'PM' ? styles.selectedAmPmText : styles.amPmText}>PM</Text>
+      </TouchableOpacity>
+    </View>
+    <Text style={styles.timeSeparator}>-</Text>
+    <TextInput
+      style={styles.timeInput}
+      placeholder="End"
+      keyboardType="numeric"
+      maxLength={2}
+      value={endTime}
+      onChangeText={setEndTime}
+      placeholderTextColor="#aaa"
+    />
+    <View style={styles.amPmSelector}>
+      <TouchableOpacity
+        style={[
+          styles.amPmOption,
+          timeFormat2 === 'AM' && styles.selectedAmPm
+        ]}
+        onPress={() => setTimeFormat2('AM')}
+      >
+        <Text style={timeFormat2 === 'AM' ? styles.selectedAmPmText : styles.amPmText}>AM</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.amPmOption,
+          timeFormat2 === 'PM' && styles.selectedAmPm
+        ]}
+        onPress={() => setTimeFormat2('PM')}
+      >
+        <Text style={timeFormat2 === 'PM' ? styles.selectedAmPmText : styles.amPmText}>PM</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</View>
+
 
           {/* Experience */}
           <View style={styles.fieldContainer}>

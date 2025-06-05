@@ -223,16 +223,16 @@ const Profile = () => {
 
   return (
     <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
-        {/* Header Banner */}
-        <View style={styles.headerBanner}>
-          <Text style={styles.pageTitle}>User Profile</Text>
-        </View>
-        
-        {userData && (
-          <View style={styles.profileCard}>
-            {/* Profile Image Section */}
-            <View style={styles.profileImageSection}>
+    <View style={styles.container}>
+      {/* Header Banner */}
+      <View style={styles.headerBanner}>
+      </View>
+      
+      {userData && (
+        <View style={styles.profileCard}>
+          {/* Profile Image Section with Availability Toggle */}
+          <View style={styles.profileImageSection}>
+            <View style={styles.imageContainer}>
               <View style={styles.imageWrapper}>
                 {imageUrl ? (
                   <Image source={{ uri: imageUrl }} style={styles.profileImage} />
@@ -247,287 +247,281 @@ const Profile = () => {
                   <Ionicons name="camera" size={20} color="#fff" />
                 </TouchableOpacity>
               </View>
-              {loading && (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator color="#4A80F0" size="small" />
-                  <Text style={styles.loadingText}>Uploading...</Text>
-                </View>
-              )}
-            </View>
-            
-            {/* User Info Container */}
-            <View style={styles.userInfoContainer}>
-              {/* Username Section */}
-              <View style={styles.nameContainer}>
-                <Text style={styles.userName}>{userData.name || "N/A"}</Text>
-                <View style={styles.nameActions}>
-                  <TouchableOpacity 
-                    style={styles.editNameButton}
-                    onPress={() => {
-                      setUsernameInput(userData.name || "");
-                      setEditUserNameModalVisible(true);
-                    }}
-                  >
-                    <Ionicons name="create-outline" size={18} color="#4A80F0" />
-                  </TouchableOpacity>
-                  {isVerified ? (
-                    <View style={styles.verifiedBadgeContainer}>
-                      <Ionicons name="shield-checkmark" size={16} color="#4A80F0" />
-                      <Text style={styles.verifiedText}>Verified</Text>
-                    </View>
-                  ) : null}
-                </View>
-              </View>
               
-              {/* Email Section */}
-              <View style={styles.infoSection}>
-                <View style={styles.infoHeader}>
-                  <Ionicons name="mail-outline" size={18} color="#555" />
-                  <Text style={styles.infoLabel}>Email</Text>
-                  <TouchableOpacity 
-                    style={styles.editButton} 
-                    onPress={() => setEditEmailModal(true)}
-                  >
-                    <Ionicons name="pencil-outline" size={16} color="#4A80F0" />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.infoValue}>{userData.email || "N/A"}</Text>
-              </View>
-              
-              {/* Expert Specific Sections */}
+              {/* Availability Toggle Button */}
               {userRole === 'expert' && (
-                <>
-                  {/* Bio Section */}
-                  <View style={styles.bioSection}>
-                    <View style={styles.infoHeader}>
-                      <Ionicons name="document-text-outline" size={18} color="#555" />
-                      <Text style={styles.infoLabel}>Bio</Text>
-                      {!isEditing ? (
-                        <TouchableOpacity 
-                          style={styles.editButton} 
-                          onPress={handleEditBio}
-                        >
-                          <Ionicons name="pencil-outline" size={16} color="#4A80F0" />
-                        </TouchableOpacity>
-                      ) : null}
-                    </View>
-    
-                    {!isEditing ? (
-                      <Text style={styles.bioText} numberOfLines={3}>{bio || "Add your professional bio here..."}</Text>
-                    ) : (
-                      <View style={styles.bioEditContainer}>
-                        <TextInput
-                          style={styles.bioInput}
-                          value={tempBio}
-                          onChangeText={setTempBio}
-                          placeholder="Write a short bio about yourself..."
-                          multiline
-                          autoFocus
-                        />
-                        <View style={styles.buttonContainer}>
-                          <TouchableOpacity onPress={saveBio} style={styles.saveButton}>
-                            <Ionicons name="checkmark" size={18} color="#fff" />
-                            <Text style={styles.buttonText}>Save</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => setIsEditing(false)} style={styles.cancelButton}>
-                            <Ionicons name="close" size={18} color="#fff" />
-                            <Text style={styles.buttonText}>Cancel</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    )}
-                  </View>
-                  
-                  {/* Availability Section */}
-                  <View style={styles.availabilitySection}>
-                    <View style={styles.availabilityHeader}>
-                      <Ionicons name="time-outline" size={18} color="#555" />
-                      <Text style={styles.availabilityLabel}>Availability</Text>
-                    </View>
-                    <View style={styles.availabilityControls}>
-                      <TouchableOpacity 
-                        style={[
-                          styles.availabilityButton,
-                          { backgroundColor: isAvailable ? '#E0F7E0' : '#F7E0E0' }
-                        ]} 
-                        onPress={toggleAvailability}
-                      >
-                        <Ionicons 
-                          name={isAvailable ? "checkmark-circle" : "close-circle"} 
-                          size={24} 
-                          color={isAvailable ? "#28A745" : "#DC3545"} 
-                        />
-                        <Text style={[
-                          styles.availabilityButtonText, 
-                          { color: isAvailable ? "#28A745" : "#DC3545" }
-                        ]}>
-                          {isAvailable ? "Available" : "Unavailable"}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </>
+                <TouchableOpacity 
+                  style={[
+                    styles.availabilityToggle,
+                    { backgroundColor: isAvailable ? '#28A745' : '#DC3545' }
+                  ]}
+                  onPress={toggleAvailability}
+                >
+                  <Ionicons 
+                    name={isAvailable ? "radio-button-on" : "radio-button-off"} 
+                    size={16} 
+                    color="#FFFFFF" 
+                  />
+                  <Text style={styles.availabilityToggleText}>
+                    {isAvailable ? "Online" : "Offline"}
+                  </Text>
+                </TouchableOpacity>
               )}
             </View>
+            
+            {loading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator color="#4A80F0" size="small" />
+                <Text style={styles.loadingText}>Uploading...</Text>
+              </View>
+            )}
           </View>
-        )}
-        
-        {/* Become Expert Button */}
-        {userRole === 'user' && (
-          <TouchableOpacity style={styles.becomeExpertButton} onPress={becomeAnExpert}>
-            <Ionicons name="star" size={20} color="#FFF" />
-            <Text style={styles.becomeExpertText}>Become an Expert</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-      
-      {/* Edit username modal */}
-      <Modal 
-        animationType="slide" 
-        transparent 
-        visible={editUserNameModalVisible} 
-        onRequestClose={() => setEditUserNameModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit Username</Text>
-              <TouchableOpacity onPress={() => setEditUserNameModalVisible(false)}>
-                <Ionicons name="close" size={24} color="#555" />
-              </TouchableOpacity>
-            </View>
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Enter new username"
-              value={usernameInput}
-              onChangeText={setUsernameInput}
-            />
-            <TouchableOpacity style={styles.modalPrimaryButton} onPress={handleEditUserName}>
-              <Text style={styles.modalButtonText}>Save Changes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.modalSecondaryButton} 
-              onPress={() => setEditUserNameModalVisible(false)}
-            >
-              <Text style={styles.modalSecondaryButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-      
-      {/* Email Edit Modal with OTP Verification */}
-      <Modal 
-        animationType="slide" 
-        transparent 
-        visible={editEmailModal} 
-        onRequestClose={resetEmailModal}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Edit Email</Text>
-              <TouchableOpacity onPress={resetEmailModal}>
-                <Ionicons name="close" size={24} color="#555" />
-              </TouchableOpacity>
+          
+          {/* User Info Container */}
+          <View style={styles.userInfoContainer}>
+            {/* Username Section */}
+            <View style={styles.nameContainer}>
+              <Text style={styles.userName}>{userData.name || "N/A"}</Text>
+              <View style={styles.nameActions}>
+                <TouchableOpacity 
+                  style={styles.editNameButton}
+                  onPress={() => {
+                    setUsernameInput(userData.name || "");
+                    setEditUserNameModalVisible(true);
+                  }}
+                >
+                  <Ionicons name="create-outline" size={18} color="#4A80F0" />
+                </TouchableOpacity>
+                {isVerified ? (
+                  <View style={styles.verifiedBadgeContainer}>
+                    <Ionicons name="shield-checkmark" size={16} color="#4A80F0" />
+                    <Text style={styles.verifiedText}>Verified</Text>
+                  </View>
+                ) : null}
+              </View>
             </View>
             
-            {!emailVerification.showOtpInput ? (
-              // Step 1: Enter new email and send OTP
+            {/* Email Section */}
+            <View style={styles.infoSection}>
+              <View style={styles.infoHeader}>
+                <Ionicons name="mail-outline" size={18} color="#555" />
+                <Text style={styles.infoLabel}>Email</Text>
+                <TouchableOpacity 
+                  style={styles.editButton} 
+                  onPress={() => setEditEmailModal(true)}
+                >
+                  <Ionicons name="pencil-outline" size={16} color="#4A80F0" />
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.infoValue}>{userData.email || "N/A"}</Text>
+            </View>
+            
+            {/* Expert Specific Sections */}
+            {userRole === 'expert' && (
               <>
-                <View style={styles.modalInputContainer}>
-                  <Ionicons name="mail-outline" size={20} color="#555" style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.modalInput}
-                    placeholder="Enter your new email"
-                    value={emailVerification.newEmail}
-                    onChangeText={(text) => dispatch(setEmailVerificationState({ newEmail: text }))}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                  />
+                {/* Bio Section */}
+                <View style={styles.bioSection}>
+                  <View style={styles.infoHeader}>
+                    <Ionicons name="document-text-outline" size={18} color="#555" />
+                    <Text style={styles.infoLabel}>Bio</Text>
+                    {!isEditing ? (
+                      <TouchableOpacity 
+                        style={styles.editButton} 
+                        onPress={handleEditBio}
+                      >
+                        <Ionicons name="pencil-outline" size={16} color="#4A80F0" />
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+  
+                  {!isEditing ? (
+                    <Text style={styles.bioText} numberOfLines={3}>{bio || "Add your professional bio here..."}</Text>
+                  ) : (
+                    <View style={styles.bioEditContainer}>
+                      <TextInput
+                        style={styles.bioInput}
+                        value={tempBio}
+                        onChangeText={setTempBio}
+                        placeholder="Write a short bio about yourself..."
+                        multiline
+                        autoFocus
+                      />
+                      <View style={styles.buttonContainer}>
+                        <TouchableOpacity onPress={saveBio} style={styles.saveButton}>
+                          <Ionicons name="checkmark" size={18} color="#fff" />
+                          <Text style={styles.buttonText}>Save</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setIsEditing(false)} style={styles.cancelButton}>
+                          <Ionicons name="close" size={18} color="#fff" />
+                          <Text style={styles.buttonText}>Cancel</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
                 </View>
-                <TouchableOpacity 
-                  style={styles.modalPrimaryButton} 
-                  onPress={handleSendOTP}
-                  disabled={emailVerification.loading}
-                >
-                  <Ionicons name="send-outline" size={18} color="#FFF" />
-                  <Text style={styles.modalButtonText}>
-                    {emailVerification.loading ? "Sending..." : "Send OTP"}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              // Step 2: Enter OTP for verification
-              <>
-                <View style={styles.otpContainer}>
-                  <Ionicons name="lock-closed-outline" size={28} color="#4A80F0" />
-                  <Text style={styles.infoText}>Enter the OTP sent to {emailVerification.newEmail}</Text>
-                  <TextInput
-                    style={styles.otpInput}
-                    placeholder="Enter OTP"
-                    keyboardType="numeric"
-                    value={otp}
-                    onChangeText={setOtp}
-                    maxLength={4}
-                  />
-                </View>
-                <TouchableOpacity 
-                  style={styles.modalPrimaryButton} 
-                  onPress={verifyOtpAndUpdateEmail}
-                  disabled={emailVerification.loading}
-                >
-                  <Ionicons name="shield-checkmark-outline" size={18} color="#FFF" />
-                  <Text style={styles.modalButtonText}>
-                    {emailVerification.loading ? "Verifying..." : "Verify OTP"}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.textButton} 
-                  onPress={handleSendOTP}
-                  disabled={emailVerification.loading}
-                >
-                  <Ionicons name="refresh-outline" size={16} color="#4A80F0" />
-                  <Text style={styles.linkText}>Resend OTP</Text>
-                </TouchableOpacity>
+                
               </>
             )}
-            
-            {emailVerification.error ? (
-              <View style={styles.errorContainer}>
-                <Ionicons name="alert-circle" size={16} color="#DC3545" />
-                <Text style={styles.errorText}>{emailVerification.error}</Text>
-              </View>
-            ) : null}
-            
-            <TouchableOpacity 
-              style={styles.modalSecondaryButton} 
-              onPress={resetEmailModal}
-            >
-              <Text style={styles.modalSecondaryButtonText}>Cancel</Text>
-            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
-      
-      {/* Expert Profile Edit Button */}
-      {userRole === 'expert' && (
-        <TouchableOpacity 
-          style={styles.editExpertProfileButton}
-          onPress={() => navigation.navigate('EditPortfolio')}
-        >
-          <Ionicons name="construct-outline" size={20} color="#FFF" />
-          <Text style={styles.editExpertProfileText}>Edit My Expert Profile</Text>
-        </TouchableOpacity>
       )}
       
-      {/* Logout Button */}
+      {/* Become Expert Button */}
+      {userRole === 'user' && (
+        <TouchableOpacity style={styles.becomeExpertButton} onPress={becomeAnExpert}>
+          <Ionicons name="star" size={20} color="#FFF" />
+          <Text style={styles.becomeExpertText}>Become an Expert</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+    
+    {/* Edit username modal */}
+    <Modal 
+      animationType="slide" 
+      transparent 
+      visible={editUserNameModalVisible} 
+      onRequestClose={() => setEditUserNameModalVisible(false)}
+    >
+      <View style={styles.modalBackground}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Edit Username</Text>
+            <TouchableOpacity onPress={() => setEditUserNameModalVisible(false)}>
+              <Ionicons name="close" size={24} color="#555" />
+            </TouchableOpacity>
+          </View>
+          <TextInput
+            style={styles.modalInput}
+            placeholder="Enter new username"
+            value={usernameInput}
+            onChangeText={setUsernameInput}
+          />
+          <TouchableOpacity style={styles.modalPrimaryButton} onPress={handleEditUserName}>
+            <Text style={styles.modalButtonText}>Save Changes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.modalSecondaryButton} 
+            onPress={() => setEditUserNameModalVisible(false)}
+          >
+            <Text style={styles.modalSecondaryButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+    
+    {/* Email Edit Modal with OTP Verification */}
+    <Modal 
+      animationType="slide" 
+      transparent 
+      visible={editEmailModal} 
+      onRequestClose={resetEmailModal}
+    >
+      <View style={styles.modalBackground}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Edit Email</Text>
+            <TouchableOpacity onPress={resetEmailModal}>
+              <Ionicons name="close" size={24} color="#555" />
+            </TouchableOpacity>
+          </View>
+          
+          {!emailVerification.showOtpInput ? (
+            // Step 1: Enter new email and send OTP
+            <>
+              <View style={styles.modalInputContainer}>
+                <Ionicons name="mail-outline" size={20} color="#555" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Enter your new email"
+                  value={emailVerification.newEmail}
+                  onChangeText={(text) => dispatch(setEmailVerificationState({ newEmail: text }))}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+              <TouchableOpacity 
+                style={styles.modalPrimaryButton} 
+                onPress={handleSendOTP}
+                disabled={emailVerification.loading}
+              >
+                <Ionicons name="send-outline" size={18} color="#FFF" />
+                <Text style={styles.modalButtonText}>
+                  {emailVerification.loading ? "Sending..." : "Send OTP"}
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            // Step 2: Enter OTP for verification
+            <>
+              <View style={styles.otpContainer}>
+                <Ionicons name="lock-closed-outline" size={28} color="#4A80F0" />
+                <Text style={styles.infoText}>Enter the OTP sent to {emailVerification.newEmail}</Text>
+                <TextInput
+                  style={styles.otpInput}
+                  placeholder="Enter OTP"
+                  keyboardType="numeric"
+                  value={otp}
+                  onChangeText={setOtp}
+                  maxLength={4}
+                />
+              </View>
+              <TouchableOpacity 
+                style={styles.modalPrimaryButton} 
+                onPress={verifyOtpAndUpdateEmail}
+                disabled={emailVerification.loading}
+              >
+                <Ionicons name="shield-checkmark-outline" size={18} color="#FFF" />
+                <Text style={styles.modalButtonText}>
+                  {emailVerification.loading ? "Verifying..." : "Verify OTP"}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.textButton} 
+                onPress={handleSendOTP}
+                disabled={emailVerification.loading}
+              >
+                <Ionicons name="refresh-outline" size={16} color="#4A80F0" />
+                <Text style={styles.linkText}>Resend OTP</Text>
+              </TouchableOpacity>
+            </>
+          )}
+          
+          {emailVerification.error ? (
+            <View style={styles.errorContainer}>
+              <Ionicons name="alert-circle" size={16} color="#DC3545" />
+              <Text style={styles.errorText}>{emailVerification.error}</Text>
+            </View>
+          ) : null}
+          
+          <TouchableOpacity 
+            style={styles.modalSecondaryButton} 
+            onPress={resetEmailModal}
+          >
+            <Text style={styles.modalSecondaryButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+    
+    {/* Expert Profile Edit Button */}
+    {userRole === 'expert' && (
       <TouchableOpacity 
         style={styles.editExpertProfileButton}
-        onPress={handleLogout}
+        onPress={() => navigation.navigate('EditPortfolio')}
       >
-        <Text style={styles.editExpertProfileText}>Logout</Text>
+        <Ionicons name="construct-outline" size={20} color="#FFF" />
+        <Text style={styles.editExpertProfileText}>Edit My Expert Profile</Text>
       </TouchableOpacity>
-    </ScrollView>
+    )}
+    
+    {/* Logout Button */}
+    <TouchableOpacity 
+      style={styles.editExpertProfileButton}
+      onPress={handleLogout}
+    >
+      <Text style={styles.editExpertProfileText}>Logout</Text>
+    </TouchableOpacity>
+  </ScrollView>
   );
 };
 

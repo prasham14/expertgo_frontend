@@ -25,7 +25,7 @@ const Portfolio = ({ route, navigation }) => {
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [skills, setSkills] = useState(['']);
   const [loading, setLoading] = useState(false);
-
+  const [availSlots,setAvailSlots] = useState('');
   const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years', '10+ Years'];
 
   const addCategory = () => {
@@ -120,7 +120,8 @@ const Portfolio = ({ route, navigation }) => {
         currentPost,
         experience,
         url: portfolioUrl,
-        skills: filteredSkills
+        skills: filteredSkills,
+        availSlots
       };
       
       // Send the request to create the expert profile
@@ -171,6 +172,16 @@ const Portfolio = ({ route, navigation }) => {
               onChangeText={setBio}
               multiline
               numberOfLines={4}
+              placeholderTextColor="#aaa"
+            />
+          </View>
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Available Slots</Text>
+            <TextInput
+              style={styles.textArea}
+              placeholder="eg. 2-10 PM or 9 - 10AM"
+              value={bio}
+              onChangeText={availSlots}
               placeholderTextColor="#aaa"
             />
           </View>
@@ -245,17 +256,6 @@ const Portfolio = ({ route, navigation }) => {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Charges*</Text>
             <View style={styles.chargesContainer}>
-              <View style={styles.chargeInputContainer}>
-                <Text style={styles.chargeLabel}>Voice Call (per hour)</Text>
-                <TextInput
-                  style={styles.chargeInput}
-                  placeholder="Amount"
-                  value={voiceCallCharge}
-                  onChangeText={setVoiceCallCharge}
-                  keyboardType="numeric"
-                  placeholderTextColor="#aaa"
-                />
-              </View>
               <View style={styles.chargeInputContainer}>
                 <Text style={styles.chargeLabel}>Video Call (per hour)</Text>
                 <TextInput
@@ -333,7 +333,5 @@ const Portfolio = ({ route, navigation }) => {
     </KeyboardAvoidingView>
   );
 };
-
-
 
 export default Portfolio;
