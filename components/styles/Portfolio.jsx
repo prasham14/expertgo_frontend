@@ -1,159 +1,319 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
+  // Main container styles
   container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#F4F6F9',
-    alignItems: 'center',
-  },
-  header: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    color: '#2C3E50',
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#CED4DA',
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 16,
-    fontSize: 17,
-    backgroundColor: '#FFFFFF',
-    width: '100%',
-  },
-  rowInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-  },
-  inputGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-  },
-  modalBackground: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#f8f9fa',
+  },
+  
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  
+  // Header styles
+  header: {
+    paddingVertical: 20,
+    paddingTop: 40,
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  modalContainer: {
-    width: '90%',
     backgroundColor: '#fff',
-    padding: 22,
-    borderRadius: 15,
-    elevation: 12,
+    marginHorizontal: -20,
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
   },
-  sectionTitle: {
+  
+  headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#2C3E50',
+    color: '#2c3e50',
     textAlign: 'center',
   },
-  addButton: {
-    backgroundColor: '#28A745',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
+  
+  // Form container
+  formContainer: {
+    paddingBottom: 30,
   },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginLeft: 8,
+  
+  // Field container styles
+  fieldContainer: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  saveButton: {
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 0,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#000',
-    marginTop: -1,
-  },
-  closeButton: {
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 0,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#000',
-    marginTop: -1,
-  },
-  buttonText: {
-    color: '#000',
-    fontSize: 17,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
+  
+  // Label styles
   label: {
-    fontSize: 17,
-    fontWeight: '500',
-    color: '#495057',
-    marginBottom: 6,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: 8,
   },
-  value: {
-    fontSize: 15,
-    color: '#6C757D',
-  },
-  listItem: {
-    fontSize: 17,
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  bottomButtons: {
+  
+  labelContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
-    marginTop: 15,
-  },
-  button: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 0,
     alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#000',
-    marginHorizontal: 5,
+    marginBottom: 12,
   },
-  logoutButton: {
-    width: '100%',
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 0,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#000',
-    marginTop: 15,
+  
+  // Input styles
+  input: {
+    borderWidth: 1,
+    borderColor: '#dee2e6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    color: '#495057',
   },
+  
   textArea: {
     borderWidth: 1,
-    borderColor: '#CED4DA',
-    padding: 14,
+    borderColor: '#dee2e6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    color: '#495057',
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  
+  // Experience selection styles
+  experienceContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  
+  experienceButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#dee2e6',
+    backgroundColor: '#fff',
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  
+  experienceButtonSelected: {
+    backgroundColor: '#007bff',
+    borderColor: '#007bff',
+  },
+  
+  experienceButtonText: {
+    fontSize: 14,
+    color: '#6c757d',
+    fontWeight: '500',
+  },
+  
+  experienceButtonTextSelected: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  
+  // Add button styles
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e8f5e8',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+  },
+  
+  addButtonText: {
+    color: '#4CAF50',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  
+  // Dynamic input styles
+  dynamicInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  
+  dynamicInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#dee2e6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    color: '#495057',
+    marginRight: 8,
+  },
+  
+  removeButton: {
+    padding: 4,
+  },
+  
+  // Charges container styles
+  chargesContainer: {
+    gap: 12,
+  },
+  
+  chargeInputContainer: {
+    marginBottom: 12,
+  },
+  
+  chargeLabel: {
+    fontSize: 14,
+    color: '#6c757d',
+    marginBottom: 6,
+    fontWeight: '500',
+  },
+  
+  chargeInput: {
+    borderWidth: 1,
+    borderColor: '#dee2e6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    color: '#495057',
+  },
+  
+  // Button styles
+  submitButton: {
+    backgroundColor: '#007bff',
     borderRadius: 12,
-    height: 130,
-    marginBottom: 15,
-    fontSize: 17,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    marginTop: 20,
+    shadowColor: '#007bff',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  
+  cancelButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#6c757d',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  
+  cancelButtonText: {
+    color: '#6c757d',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  
+  // Additional utility styles
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  
+  spaceBetween: {
+    justifyContent: 'space-between',
+  },
+  
+  centerAlign: {
+    alignItems: 'center',
+  },
+  
+  textCenter: {
+    textAlign: 'center',
+  },
+  
+  marginBottom: {
+    marginBottom: 16,
+  },
+  
+  // Loading state styles
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  
+  loadingContainer: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#2c3e50',
+  },
+  
+  // Error states
+  errorText: {
+    color: '#dc3545',
+    fontSize: 14,
+    marginTop: 4,
+  },
+  
+  errorInput: {
+    borderColor: '#dc3545',
+    borderWidth: 2,
+  },
+  
+  // Success states
+  successText: {
+    color: '#28a745',
+    fontSize: 14,
+    marginTop: 4,
+  },
+  
+  // Disabled states
+  disabledButton: {
+    backgroundColor: '#6c757d',
+    opacity: 0.6,
+  },
+  
+  disabledText: {
+    color: '#adb5bd',
   },
 });
 

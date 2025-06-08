@@ -399,11 +399,10 @@ const AskAnExpert = ({navigation }) => {
           <ActivityIndicator size="large" color="#007bff" />
         </View>
       )} */}
-      <View>
-        <Text>
-          Comming Soon......
-        </Text>
-      </View>
+     <View style={styles.container}>
+  <Text style={styles.comingSoonText}>Coming Soon...</Text>
+</View>
+
     </ScrollView>
   );
 };

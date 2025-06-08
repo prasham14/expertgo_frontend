@@ -84,6 +84,7 @@ const homeStyles = StyleSheet.create({
     color: '#333333',
     marginBottom: 20,
   },
+
   stepsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -419,7 +420,40 @@ const homeStyles = StyleSheet.create({
   tabTextActive: {
     color: '#333333',
     fontWeight: '500',
-  }
+  },
+  bankPromptContainer: {
+  backgroundColor: '#FFF7ED',
+  borderColor: '#FDBA74',
+  borderWidth: 1,
+  borderRadius: 10,
+  padding: 16,
+  marginHorizontal: 16,
+  marginBottom: 20,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+bankPromptText: {
+  color: '#92400E',
+  fontSize: 15,
+  marginBottom: 10,
+  textAlign: 'center',
+  fontWeight: '500',
+},
+
+bankPromptButton: {
+  backgroundColor: '#F97316',
+  paddingVertical: 10,
+  paddingHorizontal: 24,
+  borderRadius: 8,
+},
+
+bankPromptButtonText: {
+  color: '#FFFFFF',
+  fontWeight: '600',
+  fontSize: 14,
+},
+
 });
 
 export default homeStyles;

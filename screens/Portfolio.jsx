@@ -1,4 +1,4 @@
-import React, { useState,useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
   View, 
   Text, 
@@ -10,12 +10,17 @@ import {
   Alert
 } from 'react-native';
 import axios from 'axios';
-import  Ionicons  from 'react-native-vector-icons/Ionicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { UserContext } from '../context/Context';
 import styles from '../components/styles/Portfolio';
+import styles1 from '../components/styles/EditPortfolio';
 const Portfolio = ({ route, navigation }) => {
-  const { userId} = useContext(UserContext);
+  const { userId } = useContext(UserContext);
   
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [timeFormat1, setTimeFormat1] = useState('PM');
+  const [timeFormat2, setTimeFormat2] = useState('PM');
   const [categories, setCategories] = useState(['']);
   const [voiceCallCharge, setVoiceCallCharge] = useState('');
   const [videoCallCharge, setVideoCallCharge] = useState('');
@@ -25,7 +30,7 @@ const Portfolio = ({ route, navigation }) => {
   const [portfolioUrl, setPortfolioUrl] = useState('');
   const [skills, setSkills] = useState(['']);
   const [loading, setLoading] = useState(false);
-  const [availSlots,setAvailSlots] = useState('');
+  
   const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years', '10+ Years'];
 
   const addCategory = () => {
@@ -87,15 +92,20 @@ const Portfolio = ({ route, navigation }) => {
       return false;
     }
     
-    // Check if video call charge is valid
-    if (!videoCallCharge.trim() || isNaN(parseFloat(videoCallCharge))) {
-      Alert.alert('Validation Error', 'Please provide a valid video call charge');
-      return false;
-    }
-    
     // Check if any skill is empty
     if (skills.some(skill => !skill.trim())) {
       Alert.alert('Validation Error', 'Please fill in all skills or remove empty ones');
+      return false;
+    }
+    
+    // Validate time inputs
+    if (!startTime.trim() || !endTime.trim()) {
+      Alert.alert('Validation Error', 'Please provide both start and end times');
+      return false;
+    }
+    
+    if (startTime > 12 || startTime < 1 || endTime > 12 || endTime < 1) {
+      Alert.alert('Validation Error', 'Please provide valid timings (1-12)');
       return false;
     }
     
@@ -121,7 +131,7 @@ const Portfolio = ({ route, navigation }) => {
         experience,
         url: portfolioUrl,
         skills: filteredSkills,
-        availSlots
+        availSlots: startTime + ' ' + timeFormat1 + '-' + endTime + ' ' + timeFormat2
       };
       
       // Send the request to create the expert profile
@@ -175,15 +185,71 @@ const Portfolio = ({ route, navigation }) => {
               placeholderTextColor="#aaa"
             />
           </View>
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Available Slots</Text>
-            <TextInput
-              style={styles.textArea}
-              placeholder="eg. 2-10 PM or 9 - 10AM"
-              value={bio}
-              onChangeText={availSlots}
-              placeholderTextColor="#aaa"
-            />
+
+          {/* Available Timings */}
+          <View style={styles1.fieldContainer}>
+            <Text style={styles1.label}>Available Timings:</Text>
+            <View style={styles1.timingContainer}>
+              <TextInput
+                style={styles1.timeInput}
+                placeholder="Start"
+                keyboardType="numeric"
+                maxLength={2}
+                value={startTime}
+                onChangeText={setStartTime}
+                placeholderTextColor="#aaa"
+              />
+              <View style={styles1.amPmSelector}>
+                <TouchableOpacity
+                  style={[
+                    styles1.amPmOption,
+                    timeFormat1 === 'AM' && styles1.selectedAmPm
+                  ]}
+                  onPress={() => setTimeFormat1('AM')}
+                >
+                  <Text style={timeFormat1 === 'AM' ? styles1.selectedAmPmText : styles1.amPmText}>AM</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles1.amPmOption,
+                    timeFormat1 === 'PM' && styles1.selectedAmPm
+                  ]}
+                  onPress={() => setTimeFormat1('PM')}
+                >
+                  <Text style={timeFormat1 === 'PM' ? styles1.selectedAmPmText : styles1.amPmText}>PM</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles1.timeSeparator}>-</Text>
+              <TextInput
+                style={styles1.timeInput}
+                placeholder="End"
+                keyboardType="numeric"
+                maxLength={2}
+                value={endTime}
+                onChangeText={setEndTime}
+                placeholderTextColor="#aaa"
+              />
+              <View style={styles1.amPmSelector}>
+                <TouchableOpacity
+                  style={[
+                    styles1.amPmOption,
+                    timeFormat2 === 'AM' && styles1.selectedAmPm
+                  ]}
+                  onPress={() => setTimeFormat2('AM')}
+                >
+                  <Text style={timeFormat2 === 'AM' ? styles1.selectedAmPmText : styles1.amPmText}>AM</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles1.amPmOption,
+                    timeFormat2 === 'PM' && styles1.selectedAmPm
+                  ]}
+                  onPress={() => setTimeFormat2('PM')}
+                >
+                  <Text style={timeFormat2 === 'PM' ? styles1.selectedAmPmText : styles1.amPmText}>PM</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           {/* Current Position */}
@@ -254,15 +320,15 @@ const Portfolio = ({ route, navigation }) => {
 
           {/* Charges */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Charges*</Text>
+            <Text style={styles.label}>Charge for 10 minute call</Text>
             <View style={styles.chargesContainer}>
               <View style={styles.chargeInputContainer}>
-                <Text style={styles.chargeLabel}>Video Call (per hour)</Text>
+                <Text style={styles.chargeLabel}>Per 10 minutes</Text>
                 <TextInput
                   style={styles.chargeInput}
                   placeholder="Amount"
-                  value={videoCallCharge}
-                  onChangeText={setVideoCallCharge}
+                  value={voiceCallCharge}
+                  onChangeText={setVoiceCallCharge}
                   keyboardType="numeric"
                   placeholderTextColor="#aaa"
                 />

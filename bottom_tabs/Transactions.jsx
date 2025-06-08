@@ -114,13 +114,13 @@ const Transactions = ({ navigation }) => {
           <Icon name="email" size={12} color="#64748B" />
           <Text style={styles.locationText}>{item.email}</Text>
         </View>
-        <View style={styles.paymentMethodContainer}>
+        {/* <View style={styles.paymentMethodContainer}>
           {
             item.status === 'pending' ? ( <Text style={styles.cardNumber}>You can cancel the meeting</Text>):( <Text style={styles.cardNumber}> {item.status}</Text>)
           }
        
 
-        </View>
+        </View> */}
       </View>
       <Text style={styles.amount}>{item.amount}</Text>
     </View>

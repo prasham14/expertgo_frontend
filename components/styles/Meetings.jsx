@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FB',
+    backgroundColor: '#ffffff',
     padding: 16,
   },
   headerContainer: {
@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   meetingCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#A1A1AA',
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -37,14 +37,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
-    elevation: 2,
     borderWidth: 1,
     borderColor: '#EEF2F6',
   },
   activeMeetingCard: {
     borderLeftWidth: 4,
     borderLeftColor: '#4F46E5',
-    backgroundColor: '#F5F7FF',
+    backgroundColor: '#F0F0F2',
   },
   expiredMeetingCard: {
     opacity: 0.8,
@@ -54,7 +53,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: '#4F46E5',
+    backgroundColor: 'green',
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 20,

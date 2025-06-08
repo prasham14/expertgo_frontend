@@ -118,7 +118,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
     padding: 12,
     position: 'relative',
   },
@@ -238,7 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginRight: 14,
-    elevation: 2,
+    
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

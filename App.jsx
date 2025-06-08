@@ -30,7 +30,8 @@ import ConversationsListScreen from "./screens/ConversationList";
 import ContactsScreen from "./screens/ContactUsers";
 import DashBoard from "./screens/DashBoard";
 import CancelTnC from "./screens/CancelTnC";
-
+import BankDetailsScreen from "./screens/AddBankDetails";
+import BankTerms from "./screens/BankTnc";
 
 const Stack = createStackNavigator();
 
@@ -93,6 +94,8 @@ const App = () => {
             <Stack.Screen name="EditPortfolio" component={EditPortfolio} />
             <Stack.Screen name="Dashboard" component={DashBoard} options={{ headerShown: false }}/>
             <Stack.Screen name="CancelTnC" component={CancelTnC}/>
+            <Stack.Screen name="Bank-details" component={BankDetailsScreen}/>
+            <Stack.Screen name="BankTerms" component={BankTerms}/>
 
             <Stack.Screen name="Meet" component={CreateMeetingScreen} />
             <Stack.Screen name="Google" component={GoogleSignupScreen} />

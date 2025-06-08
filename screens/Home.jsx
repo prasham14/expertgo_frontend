@@ -1,4 +1,4 @@
-import React, {useState, useEffect,useContext} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import homeStyles from '../components/styles/Home';
 import Recomendations from '../components/Recomendations';
-import { UserContext } from '../context/Context';
+import {UserContext} from '../context/Context';
 import ExpertDash from '../components/ExpertDash';
 // import tw from '../tailwind';
 const Home = () => {
@@ -26,31 +26,30 @@ const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   const [portModal, setPortModal] = useState(false);
-  const { userId,userEmail,userRole } = useContext(UserContext);
+  const {userId, userEmail, userRole} = useContext(UserContext);
 
   useEffect(() => {
     const getPortfolio = async () => {
       if (!userId || userRole === 'user') return;
-      
+
       try {
-        console.log("Checking portfolio for user:", userId);
-        
+        console.log('Checking portfolio for user:', userId);
+
         const response = await axios.get(
           `http://10.0.2.2:3000/expert/profile/${userId}`,
         );
-        
-        console.log("Portfolio API response:", response.data);
-        
-        if (response.data.message ===  'Expert profile not found') {
-          console.log("No portfolio found, showing modal" , userId);
-          setPortModal(true);
 
+        console.log('Portfolio API response:', response.data);
+
+        if (response.data.message === 'Expert profile not found') {
+          console.log('No portfolio found, showing modal', userId);
+          setPortModal(true);
         } else {
-          console.log("Portfolio found");
+          console.log('Portfolio found');
         }
       } catch (error) {
         console.error('Error fetching portfolio:', error.message);
-        if (error.response.data.message ==='Expert profile not found' ) {
+        if (error.response.data.message === 'Expert profile not found') {
           setPortModal(true);
 
           console.error('Error response:', error.response.data);
@@ -62,11 +61,11 @@ const Home = () => {
         }
       }
     };
-    
+
     if (userId) {
       getPortfolio();
+      fetchBankDetails(userId);
     }
-    
   }, [userId]);
 
   useEffect(() => {
@@ -98,6 +97,26 @@ const Home = () => {
     const val = true;
     navigation.navigate('Search', {openKeyboard: val});
   };
+  const [bankDetails, setBankDetails] = useState(false);
+  const [bankDetailsFetched, setBankDetailsFetched] = useState(false);
+
+  const fetchBankDetails = async userId => {
+    try {
+      const response = await axios.get(
+        `http://10.0.2.2:3000/bank/get-bank-details/${userId}`,
+      );
+
+      if (response?.data) {
+        setBankDetails(true);
+      }
+    } catch (err) {
+      console.log('Bank fetch error:', err);
+    } finally {
+      setTimeout(() => {
+        setBankDetailsFetched(true); 
+      }, 500); 
+    }
+  };
 
   return (
     <View style={homeStyles.container}>
@@ -118,20 +137,23 @@ const Home = () => {
           </TouchableOpacity>
 
           <View style={homeStyles.headerButtons}>
-            {
-              userRole === 'expert' ? ( <TouchableOpacity
+            {userRole === 'expert' ? (
+              <TouchableOpacity
                 style={homeStyles.iconButton}
                 onPress={() =>
-                  navigation.navigate('Notifications', {userId, email:userEmail, userRole})
+                  navigation.navigate('Notifications', {
+                    userId,
+                    email: userEmail,
+                    userRole,
+                  })
                 }>
                 <Ionicons
                   name="notifications-outline"
                   size={24}
                   color="#4A6572"
                 />
-              </TouchableOpacity>):(null)
-            }
-           
+              </TouchableOpacity>
+            ) : null}
 
             <TouchableOpacity
               style={homeStyles.iconButton}
@@ -164,14 +186,12 @@ const Home = () => {
           </View>
         ) : (
           <>
-            {userRole === 'expert' ? <Recomendations /> : null}  {/* Expert dashboard */}
-            {userRole === 'expert' ? (
-                  // <ExpertDash/>
-                  null
-            ) : (
+            {userRole === 'expert' ? <Recomendations /> : null}{' '}
+            {/* Expert dashboard */}
+            {userRole === 'expert' ? null : ( // <ExpertDash/>
               <>
                 {/* Famous Experts  */}
-              
+
                 {/* How It Works Section */}
                 <View style={homeStyles.howItWorksSection}>
                   <Text style={homeStyles.sectionTitle}>
@@ -209,7 +229,6 @@ const Home = () => {
                     </View>
                   </View>
                 </View>
-             
               </>
             )}
             {/* Support Section */}
@@ -231,46 +250,69 @@ const Home = () => {
             </View> */}
           </>
         )}
-                <Modal
-                  visible={portModal}
-                  transparent={true}
-                  animationType="fade"
-                  onRequestClose={() => setPortModal(false)}>
-                  <View style={homeStyles.modalOverlay}>
-                    <View style={homeStyles.modalContent}>
-                      <TouchableOpacity
-                        style={homeStyles.closeButton}
-                        onPress={() => setPortModal(false)}>
-                        <Ionicons name="close" size={24} color="#666" />
-                      </TouchableOpacity>
 
-                      <View style={homeStyles.portfolioContainer}>
-                        <MaterialIcons
-                          name="featured-play-list"
-                          size={40}
-                          color="#4A6572"
-                          style={homeStyles.portfolioIcon}
-                        />
-                        <Text style={homeStyles.portfolioTitle}>
-                          Create Your Portfolio
-                        </Text>
-                        <Text style={homeStyles.portfolioDescription}>
-                          Showcase your expertise and credentials to attract
-                          more clients.
-                        </Text>
-                        <TouchableOpacity
-                          style={homeStyles.portfolioButton}
-                          onPress={() => {
-                            navigation.navigate('Portfolio');
-                          }}>
-                          <Text style={homeStyles.portfolioButtonText}>
-                            Get Started
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </View>
-                </Modal>
+        {bankDetailsFetched && !bankDetails && (
+          <View style={homeStyles.bankPromptContainer}>
+            {userRole === 'user' ? (
+              <Text style={homeStyles.bankPromptText}>
+                Please complete your bank details for refunds.
+              </Text>
+            ) : (
+              <Text style={homeStyles.bankPromptText}>
+                Please complete your bank details to start receiving payments.
+              </Text>
+            )}
+
+            <TouchableOpacity
+              style={homeStyles.bankPromptButton}
+              onPress={() => navigation.navigate('Bank-details', {navigation})}>
+              <Text style={homeStyles.bankPromptButtonText}>
+                Add Bank Details
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <Modal
+          visible={portModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setPortModal(false)}>
+          <View style={homeStyles.modalOverlay}>
+            <View style={homeStyles.modalContent}>
+              <TouchableOpacity
+                style={homeStyles.closeButton}
+                onPress={() => setPortModal(false)}>
+                <Ionicons name="close" size={24} color="#666" />
+              </TouchableOpacity>
+
+              <View style={homeStyles.portfolioContainer}>
+                <MaterialIcons
+                  name="featured-play-list"
+                  size={40}
+                  color="#4A6572"
+                  style={homeStyles.portfolioIcon}
+                />
+                <Text style={homeStyles.portfolioTitle}>
+                  Create Your Portfolio
+                </Text>
+                <Text style={homeStyles.portfolioDescription}>
+                  Showcase your expertise and credentials to attract more
+                  clients.
+                </Text>
+                <TouchableOpacity
+                  style={homeStyles.portfolioButton}
+                  onPress={() => {
+                    navigation.navigate('Portfolio');
+                  }}>
+                  <Text style={homeStyles.portfolioButtonText}>
+                    Get Started
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </View>
   );
