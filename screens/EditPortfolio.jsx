@@ -14,9 +14,10 @@ import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { UserContext } from '../context/Context';
 import styles from '../components/styles/EditPortfolio';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const EditPortfolio = ({ navigation }) => {
   const { userId } = useContext(UserContext);
-  
+  console.log(userId)
   const [categories, setCategories] = useState(['']);
   const [voiceCallCharge, setVoiceCallCharge] = useState('');
   const [videoCallCharge, setVideoCallCharge] = useState('');
@@ -38,62 +39,61 @@ const [timeFormat2, setTimeFormat2] = useState('PM');
     fetchExpertProfile();
   }, []);
 
-  const fetchExpertProfile = async () => {
-    try {
-      setFetchingProfile(true);
-      const response = await axios.get(`http://10.0.2.2:3000/expert/profile/${userId}`);
-      
-      if (response.data.success && response.data.data) {
-        const profileData = response.data.data;
-        
-        setBio(profileData.bio || '');
-        setCurrentPost(profileData.currentPost || '');
-        setExperience(profileData.experience || 'Fresher');
-        setPortfolioUrl(profileData.url || '');
-        setName(profileData.name || '');
-        setAvailSlots(profileData.availSlots || '');
+const fetchExpertProfile = async () => {
+  try {
+    setFetchingProfile(true);
 
-if (profileData.availSlots) {
-  const timeSlotMatch = profileData.availSlots.match(/(\d+)\s*(AM|PM)?\s*-\s*(\d+)\s*(AM|PM)/i);
-  
-  if (timeSlotMatch) {
-    setStartTime(timeSlotMatch[1]);
-    setTimeFormat1(timeSlotMatch[2] ? timeSlotMatch[2].toUpperCase() : timeSlotMatch[4].toUpperCase());
-    setEndTime(timeSlotMatch[3]);
-    setTimeFormat2(timeSlotMatch[4].toUpperCase());
-  }
-}
+    const profileDataString = await AsyncStorage.getItem('PortfolioData');
+
+    if (profileDataString) {
+      const profileData = JSON.parse(profileDataString);
+
+      console.log('Loaded from AsyncStorage:', profileData);
+
+      setBio(profileData.bio || '');
+      setCurrentPost(profileData.currentPost || '');
+      setExperience(profileData.experience || 'Fresher');
+      setPortfolioUrl(profileData.url || '');
+      setName(profileData.name || '');
+      setAvailSlots(profileData.availSlots || '');
+
+      if (profileData.availSlots) {
+        const timeSlotMatch = profileData.availSlots.match(/(\d+)\s*(AM|PM)?\s*-\s*(\d+)\s*(AM|PM)/i);
         
-        // Set categories
-        if (profileData.category && profileData.category.length > 0) {
-          setCategories(profileData.category);
+        if (timeSlotMatch) {
+          setStartTime(timeSlotMatch[1]);
+          setTimeFormat1(timeSlotMatch[2] ? timeSlotMatch[2].toUpperCase() : timeSlotMatch[4].toUpperCase());
+          setEndTime(timeSlotMatch[3]);
+          setTimeFormat2(timeSlotMatch[4].toUpperCase());
         }
-        
-        // Set charges
-        if (profileData.charges && profileData.charges.length >= 2) {
-          setVoiceCallCharge(profileData.charges[0]?.toString() || '');
-          setVideoCallCharge(profileData.charges[1]?.toString() || '');
-        }
-        
-        // Set skills
-        if (profileData.skills && profileData.skills.length > 0) {
-          setSkills(profileData.skills);
-        }
-      } else {
-        Alert.alert('Profile Not Found', 'Could not find your expert profile. Please create one first.');
-        navigation.goBack();
       }
-    } catch (error) {
-      console.error('Error fetching expert profile:', error);
-      Alert.alert(
-        'Error',
-        'Failed to fetch your expert profile. Please try again later.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
-      );
-    } finally {
-      setFetchingProfile(false);
+
+      if (profileData.category && profileData.category.length > 0) {
+        setCategories(profileData.category);
+      }
+
+      if (profileData.charges && profileData.charges.length >= 2) {
+        setVoiceCallCharge(profileData.charges[0]?.toString() || '');
+        setVideoCallCharge(profileData.charges[1]?.toString() || '');
+      } else if (profileData.charges && profileData.charges.length === 1) {
+        setVoiceCallCharge(profileData.charges[0]?.toString() || '');
+      }
+
+      if (profileData.skills && profileData.skills.length > 0) {
+        setSkills(profileData.skills);
+      }
+    } else {
+      Alert.alert('No Saved Data', 'No expert profile data found in local storage.');
+      navigation.goBack();
     }
-  };
+  } catch (error) {
+    console.error('Error loading expert profile from storage:', error);
+    Alert.alert('Error', 'Failed to load expert profile from local storage.');
+  } finally {
+    setFetchingProfile(false);
+  }
+};
+
 
   const addCategory = () => {
     setCategories([...categories, '']);
@@ -192,11 +192,12 @@ if (profileData.availSlots) {
       };
       
       const response = await axios.put(
-        `http://10.0.2.2:3000/expert/update/${userId}`,
+        `https://expertgo-v1.onrender.com/expert/update/${userId}`,
         payload
       );
       
       if (response.data.success) {
+          await AsyncStorage.setItem('PortfolioData', JSON.stringify(payload)); 
         Alert.alert(
           'Success', 
           'Your expert profile has been updated successfully!',
@@ -383,23 +384,12 @@ if (profileData.availSlots) {
             <Text style={styles.label}>Charges*</Text>
             <View style={styles.chargesContainer}>
               <View style={styles.chargeInputContainer}>
-                <Text style={styles.chargeLabel}>Voice Call (per hour)</Text>
+                <Text style={styles.chargeLabel}> Call (per 10 minutes)</Text>
                 <TextInput
                   style={styles.chargeInput}
                   placeholder="Amount"
                   value={voiceCallCharge}
                   onChangeText={setVoiceCallCharge}
-                  keyboardType="numeric"
-                  placeholderTextColor="#aaa"
-                />
-              </View>
-              <View style={styles.chargeInputContainer}>
-                <Text style={styles.chargeLabel}>Video Call (per hour)</Text>
-                <TextInput
-                  style={styles.chargeInput}
-                  placeholder="Amount"
-                  value={videoCallCharge}
-                  onChangeText={setVideoCallCharge}
                   keyboardType="numeric"
                   placeholderTextColor="#aaa"
                 />

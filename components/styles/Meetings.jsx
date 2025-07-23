@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
@@ -11,14 +11,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
-    paddingTop: 10,
+    paddingTop: 20,
+    position: 'relative', 
   },
+
   header: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
     fontSize: 32,
     fontWeight: '700',
     color: '#1E293B',
     letterSpacing: 0.5,
   },
+
   refreshIconButton: {
     padding: 8,
     borderRadius: 20,
@@ -29,12 +36,13 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   meetingCard: {
-    backgroundColor: '#A1A1AA',
+    backgroundColor: '#F0F0F2',
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
+    marginTop : 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
     shadowRadius: 8,
     borderWidth: 1,
@@ -226,7 +234,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '90%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
@@ -303,7 +311,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 4,
@@ -327,7 +335,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 6,

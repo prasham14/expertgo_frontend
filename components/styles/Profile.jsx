@@ -113,8 +113,9 @@ const styles = StyleSheet.create({
   },
 
   verificationBadge: {
+          marginRight: 16,
     verificationBadge: {
-      marginLeft: 8,
+      marginRight: 16,
       backgroundColor: '#E0F7FA',
       borderRadius: 50,
       padding: 4,
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
   actionButton: {
     backgroundColor: '#F0F0F2',
     borderRadius: 15,
-    padding: 18,
+    padding: 14,
     marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: {
@@ -404,6 +405,19 @@ modalSecondaryButtonText: {
     alignSelf: 'flex-start',
     backgroundColor: '#ccc',
   },
+// 
+availabilityToggleTopRight: {
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 10,
+  paddingVertical: 4,
+  borderRadius: 20,
+  zIndex: 10,
+},
+
 
   availabilityToggleText: {
     fontSize: 14,

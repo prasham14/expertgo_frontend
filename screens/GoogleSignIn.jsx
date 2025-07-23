@@ -1,7 +1,6 @@
 import {
     StyleSheet,
     Text,
-    View,
     SafeAreaView,
     Pressable,
     Alert
@@ -59,10 +58,8 @@ import {
           serverAuthCode: userInfo.data.serverAuthCode,
           fcm // This is the key!
         };
-        
-        // Send to Backend
         const response = await axios.post(
-          'http://10.0.2.2:3000/user/auth/google/signup',
+          'https://expertgo-v1.onrender.com/user/auth/google/signup',
           signupPayload, 
           { headers: { 'Content-Type': 'application/json' } }
         );
@@ -71,6 +68,8 @@ import {
         await AsyncStorage.setItem("userId", response.data.user._id);
         await AsyncStorage.setItem("email", response.data.user.email);
         await AsyncStorage.setItem("userRole", response.data.user.role);
+        await AsyncStorage.setItem("name", response.data.user.name);
+
         
       await AsyncStorage.setItem('googleId' , response.data.user.googleId);
         // Store Token
@@ -93,6 +92,7 @@ import {
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         Alert.alert('Error', 'Google Play services not available');
       } else {
+        console.log(error.message)
         Alert.alert('Login Error', `An error occurred: ${error.message}`);
       }
     };

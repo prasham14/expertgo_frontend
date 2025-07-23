@@ -41,11 +41,9 @@ export const UserProvider = ({ children }) => {
 
   const clearUserData = async () => {
     try {
-      // Clear all stored data from AsyncStorage
       await AsyncStorage.clear();
       console.log('AsyncStorage cleared successfully');
       
-      // Reset all user state variables
       setUserEmail(null);
       setUserRole(null);
       setUserId(null);

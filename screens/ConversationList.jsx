@@ -30,7 +30,7 @@ const ConversationsListScreen = ({ navigation }) => {
         setUserEmail(email);
         
         // Connect to socket
-        const socketInstance = io('http://10.0.2.2:3000');
+        const socketInstance = io('https://expertgo-v1.onrender.com');
         socketInstance.on('connect', () => {
           console.log('Socket connected in conversations list');
           socketInstance.emit('register', { userId: email });
@@ -68,7 +68,7 @@ const ConversationsListScreen = ({ navigation }) => {
   
   const fetchConversations = async (email) => {
     try {
-      const response = await axios.get(`http://10.0.2.2:3000/convo/user/${email}`);
+      const response = await axios.get(`https://expertgo-v1.onrender.com/convo/user/${email}`);
       if (response.data.success) {
         setConversations(response.data.conversations);
       }
@@ -127,7 +127,7 @@ const ConversationsListScreen = ({ navigation }) => {
   const navigateToChat = async (recipientEmail) => {
     try {
       // Create or get conversation
-      const response = await axios.post('http://10.0.2.2:3000/convo/create', {
+      const response = await axios.post('https://expertgo-v1.onrender.com/convo/create', {
         participants: [userEmail, recipientEmail]
       });
       

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,112 +11,114 @@ import {
   Alert,
   Modal,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import homeStyles from '../components/styles/Home';
 import Recomendations from '../components/Recomendations';
-import {UserContext} from '../context/Context';
+import { UserContext } from '../context/Context';
 import ExpertDash from '../components/ExpertDash';
-// import tw from '../tailwind';
+
 const Home = () => {
   const [experts, setExperts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   const [portModal, setPortModal] = useState(false);
-  const {userId, userEmail, userRole} = useContext(UserContext);
+  const { userId, userEmail, userRole } = useContext(UserContext);
+  const [bankDetails, setBankDetails] = useState(false);
+  const [bankDetailsFetched, setBankDetailsFetched] = useState(false);
+  const [showContent, setShowContent] = useState(false); // New state
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (userRole) setShowContent(true);
+    }, 500); // Adjust delay if needed
+    return () => clearTimeout(timeout);
+  }, [userRole]);
 
   useEffect(() => {
     const getPortfolio = async () => {
       if (!userId || userRole === 'user') return;
 
       try {
-        console.log('Checking portfolio for user:', userId);
-
         const response = await axios.get(
-          `http://10.0.2.2:3000/expert/profile/${userId}`,
+          `https://expertgo-v1.onrender.com/expert/profile/${userId}`,
         );
-
-        console.log('Portfolio API response:', response.data);
-
         if (response.data.message === 'Expert profile not found') {
-          console.log('No portfolio found, showing modal', userId);
           setPortModal(true);
-        } else {
-          console.log('Portfolio found');
         }
       } catch (error) {
-        console.error('Error fetching portfolio:', error.message);
-        if (error.response.data.message === 'Expert profile not found') {
+        if (
+          error.response &&
+          error.response.data.message === 'Expert profile not found'
+        ) {
           setPortModal(true);
-
-          console.error('Error response:', error.response.data);
-          console.error('Error status:', error.response.status);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Error setting up request:', error.message);
         }
       }
     };
 
     if (userId) {
       getPortfolio();
-      fetchBankDetails(userId);
     }
-  }, [userId]);
+  }, [userId, userRole]);
 
   useEffect(() => {
     const fetchExperts = async () => {
       try {
         const response = await axios.get(
-          'http://10.0.2.2:3000/expert/getExperts',
+          'https://expertgo-v1.onrender.com/expert/getExperts',
         );
         if (response.data.success) {
           setExperts(response.data.famousExperts);
         }
-        console.log('Experts Data:', response.data.famousExperts);
       } catch (error) {
         console.error('Error fetching experts:', error);
       }
+      setLoading(false);
     };
 
-    setLoading(false);
     fetchExperts();
   }, []);
 
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
+    setTimeout(() => setRefreshing(false), 2000);
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
+      const fetchBankDetails = async () => {
+        try {
+          const response = await axios.get(
+            `https://expertgo-v1.onrender.com/bank/get-bank-details/${userId}`,
+          );
+          setBankDetails(!!response?.data);
+        } catch (err) {
+          setBankDetails(false);
+        } finally {
+          setTimeout(() => setBankDetailsFetched(true), 500);
+        }
+      };
+
+      fetchBankDetails();
+    }, [userId])
+  );
+
   const handleNavigate = () => {
-    const val = true;
-    navigation.navigate('Search', {openKeyboard: val});
+    navigation.navigate('Search', { openKeyboard: true });
   };
-  const [bankDetails, setBankDetails] = useState(false);
-  const [bankDetailsFetched, setBankDetailsFetched] = useState(false);
 
-  const fetchBankDetails = async userId => {
-    try {
-      const response = await axios.get(
-        `http://10.0.2.2:3000/bank/get-bank-details/${userId}`,
-      );
-
-      if (response?.data) {
-        setBankDetails(true);
-      }
-    } catch (err) {
-      console.log('Bank fetch error:', err);
-    } finally {
-      setTimeout(() => {
-        setBankDetailsFetched(true); 
-      }, 500); 
-    }
-  };
+  if (!showContent) {
+    return (
+      <View style={homeStyles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4A6572" />
+        <Text style={homeStyles.loadingText}>Loading profile...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={homeStyles.container}>
@@ -137,7 +139,7 @@ const Home = () => {
           </TouchableOpacity>
 
           <View style={homeStyles.headerButtons}>
-            {userRole === 'expert' ? (
+            {userRole === 'expert' && (
               <TouchableOpacity
                 style={homeStyles.iconButton}
                 onPress={() =>
@@ -147,24 +149,13 @@ const Home = () => {
                     userRole,
                   })
                 }>
-                <Ionicons
-                  name="notifications-outline"
-                  size={24}
-                  color="#4A6572"
-                />
+                <Ionicons name="notifications-outline" size={24} color="#4A6572" />
               </TouchableOpacity>
-            ) : null}
-
+            )}
             <TouchableOpacity
               style={homeStyles.iconButton}
-              onPress={() =>
-                navigation.navigate('Profile', {userRole, userId})
-              }>
-              <Ionicons
-                name="person-circle-outline"
-                size={24}
-                color="#4A6572"
-              />
+              onPress={() => navigation.navigate('Profile', { userRole, userId })}>
+              <Ionicons name="person-circle-outline" size={24} color="#4A6572" />
             </TouchableOpacity>
           </View>
         </View>
@@ -182,100 +173,58 @@ const Home = () => {
         {loading ? (
           <View style={homeStyles.loadingContainer}>
             <ActivityIndicator size="large" color="#4A6572" />
-            <Text style={homeStyles.loadingText}>Loading...</Text>
+            {/* <Text style={homeStyles.loadingText}>Loading experts...</Text> */}
           </View>
         ) : (
           <>
-            {userRole === 'expert' ? <Recomendations /> : null}{' '}
-            {/* Expert dashboard */}
-            {userRole === 'expert' ? null : ( // <ExpertDash/>
-              <>
-                {/* Famous Experts  */}
-
-                {/* How It Works Section */}
-                <View style={homeStyles.howItWorksSection}>
-                  <Text style={homeStyles.sectionTitle}>
-                    How ExpertCall Works
-                  </Text>
-                  <View style={homeStyles.stepsContainer}>
-                    <View style={homeStyles.stepCard}>
+            {userRole === 'expert' ? <Recomendations /> : null}
+            {userRole === 'user' && (
+              <View style={homeStyles.howItWorksSection}>
+                <Text style={homeStyles.sectionTitle}>How ExpertGo Works</Text>
+                <View style={homeStyles.stepsContainer}>
+                  {[1, 2, 3].map((num, index) => (
+                    <View key={index} style={homeStyles.stepCard}>
                       <View style={homeStyles.stepNumber}>
-                        <Text style={homeStyles.stepNumberText}>1</Text>
-                      </View>
-                      <Text style={homeStyles.stepTitle}>Browse Experts</Text>
-                      <Text style={homeStyles.stepDescription}>
-                        Find professionals in your area of interest
-                      </Text>
-                    </View>
-                    <View style={homeStyles.stepCard}>
-                      <View style={homeStyles.stepNumber}>
-                        <Text style={homeStyles.stepNumberText}>2</Text>
-                      </View>
-                      <Text style={homeStyles.stepTitle}>Schedule a Call</Text>
-                      <Text style={homeStyles.stepDescription}>
-                        Book a time that works for both of you
-                      </Text>
-                    </View>
-                    <View style={homeStyles.stepCard}>
-                      <View style={homeStyles.stepNumber}>
-                        <Text style={homeStyles.stepNumberText}>3</Text>
+                        <Text style={homeStyles.stepNumberText}>{num}</Text>
                       </View>
                       <Text style={homeStyles.stepTitle}>
-                        Get Expert Advice
+                        {['Browse Experts', 'Schedule a Call', 'Get Expert Advice'][index]}
                       </Text>
                       <Text style={homeStyles.stepDescription}>
-                        Connect and receive valuable insights
+                        {
+                          [
+                            'Find professionals in your area of interest',
+                            'Book a time that works for both of you',
+                            'Connect and receive valuable insights',
+                          ][index]
+                        }
                       </Text>
                     </View>
-                  </View>
+                  ))}
                 </View>
-              </>
+              </View>
             )}
-            {/* Support Section */}
-            {/* <View style={homeStyles.supportSection}>
-              <Text style={homeStyles.supportTitle}>Need Help?</Text>
-              <Text style={homeStyles.supportText}>
-                Our support team is available 24/7
-              </Text>
-              <TouchableOpacity style={homeStyles.supportButton}>
-                <Ionicons
-                  name="chatbubble-ellipses-outline"
-                  size={20}
-                  color="#FFF"
-                />
-                <Text style={homeStyles.supportButtonText}>
-                  Contact Support
-                </Text>
-              </TouchableOpacity>
-            </View> */}
           </>
         )}
 
         {bankDetailsFetched && !bankDetails && (
           <View style={homeStyles.bankPromptContainer}>
-            {userRole === 'user' ? (
-              <Text style={homeStyles.bankPromptText}>
-                Please complete your bank details for refunds.
-              </Text>
-            ) : (
-              <Text style={homeStyles.bankPromptText}>
-                Please complete your bank details to start receiving payments.
-              </Text>
-            )}
-
+            <Text style={homeStyles.bankPromptText}>
+              {userRole === 'user'
+                ? 'Please complete your bank details for refunds.'
+                : 'Please complete your bank details to start receiving payments.'}
+            </Text>
             <TouchableOpacity
               style={homeStyles.bankPromptButton}
-              onPress={() => navigation.navigate('Bank-details', {navigation})}>
-              <Text style={homeStyles.bankPromptButtonText}>
-                Add Bank Details
-              </Text>
+              onPress={() => navigation.navigate('Bank-details')}>
+              <Text style={homeStyles.bankPromptButtonText}>Add Bank Details</Text>
             </TouchableOpacity>
           </View>
         )}
 
         <Modal
           visible={portModal}
-          transparent={true}
+          transparent
           animationType="fade"
           onRequestClose={() => setPortModal(false)}>
           <View style={homeStyles.modalOverlay}>
@@ -285,29 +234,24 @@ const Home = () => {
                 onPress={() => setPortModal(false)}>
                 <Ionicons name="close" size={24} color="#666" />
               </TouchableOpacity>
-
               <View style={homeStyles.portfolioContainer}>
                 <MaterialIcons
                   name="featured-play-list"
                   size={40}
-                  color="#4A6572"
+                  color="#4267B2"
                   style={homeStyles.portfolioIcon}
                 />
-                <Text style={homeStyles.portfolioTitle}>
-                  Create Your Portfolio
-                </Text>
+                <Text style={homeStyles.portfolioTitle}>Create Your Portfolio</Text>
                 <Text style={homeStyles.portfolioDescription}>
-                  Showcase your expertise and credentials to attract more
-                  clients.
+                  Showcase your expertise and credentials to attract more clients.
                 </Text>
                 <TouchableOpacity
                   style={homeStyles.portfolioButton}
                   onPress={() => {
+                    setPortModal(false);
                     navigation.navigate('Portfolio');
                   }}>
-                  <Text style={homeStyles.portfolioButtonText}>
-                    Get Started
-                  </Text>
+                  <Text style={homeStyles.portfolioButtonText}>Get Started</Text>
                 </TouchableOpacity>
               </View>
             </View>

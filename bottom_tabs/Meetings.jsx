@@ -45,12 +45,11 @@ const Meetings = () => {
   };
   const handleReviewSubmit = () => {
     setShowReviewModal(false);
-    // Navigate to review screen or open review form
   };
 
   function isMeetingProperlyDone(meetingDetails, analytics) {
     const {startTime, endTime} = meetingDetails;
-
+    console.log(meetingDetails , analytics)
     const {
       userEnterTime,
       expertEnterTime,
@@ -119,17 +118,7 @@ const Meetings = () => {
     return true;
   }
 
-  const removeMeeting = async id => {
-    try {
-      const response = await axios.delete(
-        `http://10.0.2.2:3000/meet/delete-meeting/${id}`,
-      );
-      console.log('Meeting removed');
-      return;
-    } catch (err) {
-      console.error('Meeting validation failed', err);
-    }
-  };
+  
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [expertDone, setExpertDone] = useState(false);
@@ -137,7 +126,7 @@ const Meetings = () => {
   const checkIfMeetingDone = async () => {
     try {
       const res = await axios.get(
-        `http://10.0.2.2:3000/meet/user-meetingEnded/${userId}`,
+        `https://expertgo-v1.onrender.com/meet/user-meetingEnded/${userId}`,
         {
           validateStatus: function (status) {
             return (status >= 200 && status < 300) || status === 404;
@@ -149,7 +138,7 @@ const Meetings = () => {
         console.log('Meeting not found');
         return;
       }
-
+     console.log(res);
       if (res.data.success) {
         const analytics = res.data.data;
         const meetingDetails = res.data.meetingdetails;
@@ -157,9 +146,9 @@ const Meetings = () => {
         const isValid = isMeetingProperlyDone(meetingDetails, analytics);
         if (isValid) {
           let id = meetingDetails._id;
-          await axios.get(`http://10.0.2.2:3000/meet/meeting-done/${id}`);
+          await axios.get(`https://expertgo-v1.onrender.com/meet/meeting-done/${id}`);
           setExpertDone(true);
-          removeMeeting(meetingDetails._id);
+          setShowReviewModal(true);
         }
 
         console.log(isValid);
@@ -171,7 +160,7 @@ const Meetings = () => {
   const checkIfMeetingDoneExpert = async () => {
     try {
       const res = await axios.get(
-        `http://10.0.2.2:3000/meet/expert-meetingEnded/${userId}`,
+        `https://expertgo-v1.onrender.com/meet/expert-meetingEnded/${userId}`,
         {
           validateStatus: function (status) {
             return (status >= 200 && status < 300) || status === 404;
@@ -192,7 +181,7 @@ const Meetings = () => {
         if (isValid) {
           setExpertDone(true);
         }
-        console.log(isValid);
+        console.log("valid",isValid);
       }
     } catch (err) {
       console.error('Meeting validation failed', err);
@@ -225,8 +214,8 @@ const Meetings = () => {
     try {
       const endpoint =
         userRole === 'expert'
-          ? `http://10.0.2.2:3000/meet/expert-meetings/${userId}`
-          : `http://10.0.2.2:3000/meet/user-meetings/${userId}`;
+          ? `https://expertgo-v1.onrender.com/meet/expert-meetings/${userId}`
+          : `https://expertgo-v1.onrender.com/meet/user-meetings/${userId}`;
 
       const response = await axios.get(endpoint);
       setMeetings(response.data.data);
@@ -269,7 +258,7 @@ const Meetings = () => {
             onPress: async () => {
               try {
                 const response = await axios.get(
-                  `http://10.0.2.2:3000/noti/get-user-fcm/${userEmail}`,
+                  `https://expertgo-v1.onrender.com/noti/get-user-fcm/${userEmail}`,
                 );
                 const fcmToken = response.data.fcm;
 
@@ -280,11 +269,11 @@ const Meetings = () => {
                 };
                 console.log(meetingId);
                 await axios.post(
-                  'http://10.0.2.2:3000/noti/send-notification',
+                  'https://expertgo-v1.onrender.com/noti/send-notification',
                   notificationData,
                 );
                 await axios.delete(
-                  `http://10.0.2.2:3000/meet/delete-meeting/${meetingId}/${userId}`,
+                  `https://expertgo-v1.onrender.com/meet/delete-meeting/${meetingId}/${userId}`,
                 );
 
                 setMeetings(
@@ -319,7 +308,7 @@ const Meetings = () => {
 
     try {
       const response = await axios.get(
-        `http://10.0.2.2:3000/noti/get-user-fcm/${selectedExpertEmail}`,
+        `https://expertgo-v1.onrender.com/noti/get-user-fcm/${selectedExpertEmail}`,
       );
       const fcmToken = response.data.fcm;
 
@@ -330,11 +319,11 @@ const Meetings = () => {
       };
 
       await axios.post(
-        'http://10.0.2.2:3000/noti/send-notification',
+        'https://expertgo-v1.onrender.com/noti/send-notification',
         notificationData,
       );
       await axios.patch(
-        `http://10.0.2.2:3000/meetings/change-time/${selectedMeetingId}`,
+        `https://expertgo-v1.onrender.com/meetings/change-time/${selectedMeetingId}`,
         {time: newTime},
       );
 
@@ -374,7 +363,7 @@ const Meetings = () => {
   const handleRefund = async transactionId => {
     console.log('i called', transactionId);
     const response = await axios.get(
-      `http://10.0.2.2:3000/meet/refund/${transactionId}`,
+      `https://expertgo-v1.onrender.com/meet/refund/${transactionId}`,
     );
     if (response) {
       setIsRefundProcessed(true);
@@ -446,21 +435,29 @@ const Meetings = () => {
   };
 
   const openBrowser = async (expertId, userId) => {
-    console.log(userId, expertId);
-
+    console.log('dd',userId, expertId);
+console.log(userRole)
     try {
       const response = await axios.get(
-        `http://10.0.2.2:3000/meet/get-room-id/${userId}/${expertId}`,
+        `https://expertgo-v1.onrender.com/meet/get-room-id/${userId}/${expertId}`,
       );
       const roomId = response.data.roomId;
-
+      console.log(userRole)
       if (!roomId) {
         Alert.alert('Error', 'No Room ID found');
         return;
       }
-
-      const url = `https://zego-cloud-gudq.vercel.app/?roomID=${roomId}&id=${userId}&role=${userRole}`;
-
+      let url ="";
+      if(userRole === 'user'){ 
+          url = `https://expertgo-meeting.vercel.app/?roomID=${roomId}&id=${userId}&role=${userRole}`;
+      }
+      else{
+        let userId = expertId;
+            url = `https://expertgo-meeting.vercel.app/?roomID=${roomId}&id=${userId}&role=${userRole}`;
+      }
+      console.log('id', userId);
+   
+     
       const supported = await Linking.canOpenURL(url);
       if (supported) {
         Linking.openURL(url);
@@ -589,7 +586,13 @@ const Meetings = () => {
                     !isActive ? styles.disabledButton : null,
                     isExpired ? styles.expiredCallButton : null,
                   ]}
-                  onPress={() => openBrowser(item.expertId, item.userId)}
+                  onPress={() =>{
+                    openBrowser(item.expertId, item.userId)
+                    console.log('yes;',item.expertId, item.userId);
+
+                  } 
+                    
+                  }
                   disabled={!isActive && !isExpired}>
                   <MaterialIcons
                     name={isExpired ? 'error-outline' : 'video-call'}
@@ -620,12 +623,13 @@ const Meetings = () => {
                 <TouchableOpacity
                   style={[
                     styles.callButton,
-                    !isActive && !isExpired ? styles.disabledButton : null,
-                    isExpired ? styles.expiredCallButton : null,
+                    !isActive && !isExpired && styles.disabledButton,
+                    isExpired && styles.expiredCallButton,
                   ]}
                   onPress={() => {
                     if (isActive) {
                       openBrowser(item.expertId, item.userId);
+                      console.log(item.expertId, item.userId);
                     } else if (isExpired) {
                       handleRefund(item.transactionId);
                     }
@@ -668,14 +672,14 @@ const Meetings = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.header}>Meetings</Text>
-        <TouchableOpacity
+      {/* <View style={styles.headerContainer}> */}
+        {/* <Text style={styles.header}>Meetings</Text> */}
+        {/* <TouchableOpacity
           style={styles.refreshIconButton}
           onPress={handleRefresh}>
           <MaterialIcons name="refresh" size={24} color="#4F6C92" />
-        </TouchableOpacity>
-      </View>
+        </TouchableOpacity> */}
+      {/* </View> */}
 
       <FlatList
         data={meetings}
@@ -722,13 +726,12 @@ const Meetings = () => {
           </View>
         </View>
       </Modal>
-      {/* <MeetingReviewModal/> */}
-      {/* 
+      
 <MeetingReviewModal 
   visible={showReviewModal} 
   onClose={() => setShowReviewModal(false)} 
-  onSubmitReview={handleReviewSubmit} 
-/> */}
+  onSubmitReview={handleReviewSubmit}
+/>
 
       {/* Modal for changing meeting time */}
       <Modal visible={delayModal} transparent animationType="slide">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet,Modal,View,Text,TextInput,TouchableOpacity } from 'react-native';
+import { StyleSheet,Modal,View,Text,TextInput,TouchableOpacity,ActivityIndicator } from 'react-native';
 
 const StarRating = ({ rating, setRating }) => {
   const renderStar = (position) => {
@@ -40,7 +40,7 @@ const MeetingReviewModal = ({ visible, onClose, userId, expertId, meetingId }) =
     setErrorMessage('');
     
     try {
-      const response = await fetch('http://10.0.2.2:3000/ratings/reviews', {
+      const response = await fetch('https://expertgo-v1.onrender.com/ratings/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,6 +58,12 @@ const MeetingReviewModal = ({ visible, onClose, userId, expertId, meetingId }) =
       if (!response.ok) {
         throw new Error('Failed to submit review');
       }
+
+      let id =meetingId;
+      const res = await axios.delete(
+        `https://expertgo-v1.onrender.com/meet/delete-meeting/${id}`,
+      );
+      console.log('Meeting removed');
 
       // Review submitted successfully
       onClose();

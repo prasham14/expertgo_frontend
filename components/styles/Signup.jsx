@@ -32,9 +32,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
       },
-      android: {
-        elevation: 3,
-      },
+     
     }),
   },
   topBannerText: {
@@ -50,20 +48,21 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   logoContainer: {
-    marginTop: 100,
+    marginTop: 50,
     width: "100%",
     alignItems: "center",
   },
   logo: {
     width: 120,
     height: 120,
-    borderRadius: 60,
+    borderRadius: 40,
+    border : "black"
   },
   taglineContainer: {
     width: "100%",
     marginVertical: 10,
     alignItems: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
   },
   taglineText: {
     fontSize: 16,
@@ -73,10 +72,11 @@ const styles = StyleSheet.create({
   formContainer: {
     width: "100%",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 15,
+    marginTop : 20
   },
   title: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#4A4A4A",
     marginBottom: 15,
@@ -84,10 +84,10 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "90%",
-    padding: 14,
+    padding: 10,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#b0bec5", // Soft gray border
+    borderColor: "#b0bec5", 
     marginBottom: 15,
     backgroundColor: "#ffffff",
     color: "#333",
@@ -99,14 +99,12 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         shadowOffset: { width: 0, height: 2 },
       },
-      android: {
-        elevation: 2,
-      },
+    
     }),
   },
   passinput : {
     flex: 1, // Makes input take full width
-    paddingVertical: 14,
+    paddingVertical: 10,
     fontSize: 16,
     color: "#333",
   },
@@ -127,13 +125,10 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
       },
-      android: {
-        elevation: 2,
-      },
     }),
   },
   eyeIcon: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 3,
   },
   buttonContainer: {
     width: "100%",
@@ -154,9 +149,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
         shadowRadius: 5,
       },
-      android: {
-        elevation: 4,
-      },
+    
     }),
   },
   googleButton: {
@@ -173,9 +166,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
         shadowRadius: 5,
       },
-      android: {
-        elevation: 4,
-      },
     }),
   },
   googleButtonText: {
@@ -191,7 +181,7 @@ const styles = StyleSheet.create({
   orContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    marginVertical: 2,
     width: "90%",
     alignSelf: "center",
   },

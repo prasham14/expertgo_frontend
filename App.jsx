@@ -13,9 +13,6 @@ import { requestPermissionAndroid, setupNotificationListeners } from "./MainTabs
 
 import { MainTabs } from "./MainTabs/Main";
 
-//  Screens
-import SignUp from "./screens/SignUp";
-import Login from "./screens/Login";
 import Profile from "./screens/Profile";
 import Notifications from "./screens/Notifications";
 import Search from "./screens/Search";
@@ -51,11 +48,11 @@ const App = () => {
         if (userId) {
           setInitialRoute("MainTabs");
         } else {
-          setInitialRoute("Signup");
+          setInitialRoute("Google");
         }
       } catch (error) {
         console.error("Error checking login status", error);
-        setInitialRoute("Signup");
+        setInitialRoute("Google");
       } finally {
         setLoading(false);
       }
@@ -78,11 +75,10 @@ const App = () => {
         {/* <TailwindProvider> */}
         <NavigationContainer>
           <Stack.Navigator initialRouteName={initialRoute}>
-            <Stack.Screen name="Signup" component={SignUp} options={{ headerShown: false }} />
-            <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+      
             <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
             <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-            <Stack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
+            <Stack.Screen name="Notifications" component={Notifications} />
             <Stack.Screen name="Search" component={Search} options={{ headerShown: false }} />
             <Stack.Screen name="ChangePassword" component={ChangePassword} options={{ headerShown: false }} />
             <Stack.Screen name="TnC" component={TandC} options={{ headerShown: false }} />
@@ -98,7 +94,7 @@ const App = () => {
             <Stack.Screen name="BankTerms" component={BankTerms}/>
 
             <Stack.Screen name="Meet" component={CreateMeetingScreen} />
-            <Stack.Screen name="Google" component={GoogleSignupScreen} />
+            <Stack.Screen name="Google" component={GoogleSignupScreen} options={{ headerShown: false }} />
 
           </Stack.Navigator>
         </NavigationContainer>

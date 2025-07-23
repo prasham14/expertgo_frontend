@@ -1,68 +1,85 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { 
   View, 
   Text, 
   TextInput, 
   TouchableOpacity, 
-  ScrollView, 
+  ScrollView,
   KeyboardAvoidingView, 
   Platform,
-  Alert
+  Alert,
+  StyleSheet,
+  Dimensions
 } from 'react-native';
 import axios from 'axios';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { UserContext } from '../context/Context';
 import styles from '../components/styles/Portfolio';
-import styles1 from '../components/styles/EditPortfolio';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const { width } = Dimensions.get('window');
+
+const steps = ['Bio', 'Experience', 'Skills', 'Availability'];
+
 const Portfolio = ({ route, navigation }) => {
   const { userId } = useContext(UserContext);
-  
+
+  const [bio, setBio] = useState('');
+  const [experience, setExperience] = useState('Fresher');
+  const [categories, setCategories] = useState(['']);
+  const [skills, setSkills] = useState(['']);
+  const [portfolioUrl, setPortfolioUrl] = useState('');
+  const [voiceCallCharge, setVoiceCallCharge] = useState('');
+  const [currentPost, setCurrentPost] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [timeFormat1, setTimeFormat1] = useState('PM');
   const [timeFormat2, setTimeFormat2] = useState('PM');
-  const [categories, setCategories] = useState(['']);
-  const [voiceCallCharge, setVoiceCallCharge] = useState('');
-  const [videoCallCharge, setVideoCallCharge] = useState('');
-  const [bio, setBio] = useState('');
-  const [currentPost, setCurrentPost] = useState('');
-  const [experience, setExperience] = useState('Fresher');
-  const [portfolioUrl, setPortfolioUrl] = useState('');
-  const [skills, setSkills] = useState(['']);
   const [loading, setLoading] = useState(false);
-  
+
   const experienceOptions = ['Fresher', '1-2 Years', '3-5 Years', '5+ Years', '10+ Years'];
 
-  const addCategory = () => {
-    setCategories([...categories, '']);
+  // Step tracking
+  const [currentStep, setCurrentStep] = useState(0);
+  const scrollRef = useRef(null);
+  const sectionOffsets = useRef([]);
+
+  const handleScroll = (e) => {
+    const offsetY = e.nativeEvent.contentOffset.y;
+    const thresholds = sectionOffsets.current;
+    if (thresholds.length === 4) {
+      for (let i = 0; i < thresholds.length; i++) {
+        if (offsetY < thresholds[i]) {
+          setCurrentStep(i);
+          break;
+        }
+        if (i === thresholds.length - 1) setCurrentStep(3);
+      }
+    }
   };
 
-  const removeCategory = (index) => {
+  const addCategory = () => setCategories([...categories, '']);
+  const removeCategory = index => {
     if (categories.length > 1) {
       const newCategories = [...categories];
       newCategories.splice(index, 1);
       setCategories(newCategories);
     }
   };
-
   const updateCategory = (text, index) => {
     const newCategories = [...categories];
     newCategories[index] = text;
     setCategories(newCategories);
   };
 
-  const addSkill = () => {
-    setSkills([...skills, '']);
-  };
-
-  const removeSkill = (index) => {
+  const addSkill = () => setSkills([...skills, '']);
+  const removeSkill = index => {
     if (skills.length > 1) {
       const newSkills = [...skills];
       newSkills.splice(index, 1);
       setSkills(newSkills);
     }
   };
-
   const updateSkill = (text, index) => {
     const newSkills = [...skills];
     newSkills[index] = text;
@@ -70,334 +87,273 @@ const Portfolio = ({ route, navigation }) => {
   };
 
   const validateForm = () => {
-    if (!bio.trim()) {
-      Alert.alert('Validation Error', 'Please provide a bio');
-      return false;
-    }
-    
-    if (!currentPost.trim()) {
-      Alert.alert('Validation Error', 'Please provide your current position');
-      return false;
-    }
-    
-    // Check if any category is empty
-    if (categories.some(cat => !cat.trim())) {
-      Alert.alert('Validation Error', 'Please fill in all categories or remove empty ones');
-      return false;
-    }
-    
-    // Check if voice call charge is valid
-    if (!voiceCallCharge.trim() || isNaN(parseFloat(voiceCallCharge))) {
-      Alert.alert('Validation Error', 'Please provide a valid voice call charge');
-      return false;
-    }
-    
-    // Check if any skill is empty
-    if (skills.some(skill => !skill.trim())) {
-      Alert.alert('Validation Error', 'Please fill in all skills or remove empty ones');
-      return false;
-    }
-    
-    // Validate time inputs
-    if (!startTime.trim() || !endTime.trim()) {
-      Alert.alert('Validation Error', 'Please provide both start and end times');
-      return false;
-    }
-    
-    if (startTime > 12 || startTime < 1 || endTime > 12 || endTime < 1) {
-      Alert.alert('Validation Error', 'Please provide valid timings (1-12)');
-      return false;
-    }
-    
+    if (!bio.trim()) return Alert.alert('Validation Error', 'Please provide a bio');
+    if (!currentPost.trim()) return Alert.alert('Validation Error', 'Please provide your current position');
+    if (categories.some(cat => !cat.trim())) return Alert.alert('Validation Error', 'Fill all categories or remove empty ones');
+    if (!voiceCallCharge.trim() || isNaN(parseFloat(voiceCallCharge))) return Alert.alert('Validation Error', 'Provide a valid voice call charge');
+    if (skills.some(skill => !skill.trim())) return Alert.alert('Validation Error', 'Fill all skills or remove empty ones');
+    if (!startTime.trim() || !endTime.trim()) return Alert.alert('Validation Error', 'Provide both start and end times');
+    if (startTime > 12 || startTime < 1 || endTime > 12 || endTime < 1) return Alert.alert('Validation Error', 'Timings must be between 1 and 12');
     return true;
   };
 
   const submitForm = async () => {
     if (!validateForm()) return;
-    
+
     try {
       setLoading(true);
-      
-      // Filter out any empty categories or skills
-      const filteredCategories = categories.filter(cat => cat.trim() !== '');
-      const filteredSkills = skills.filter(skill => skill.trim() !== '');
-      
-      // Create the request payload
       const payload = {
         bio,
-        charges: [voiceCallCharge, videoCallCharge],
-        category: filteredCategories,
+        charges: [voiceCallCharge],
+        category: categories.filter(c => c.trim()),
         currentPost,
         experience,
         url: portfolioUrl,
-        skills: filteredSkills,
-        availSlots: startTime + ' ' + timeFormat1 + '-' + endTime + ' ' + timeFormat2
+        skills: skills.filter(s => s.trim()),
+        availSlots: `${startTime} ${timeFormat1} - ${endTime} ${timeFormat2}`,
       };
-      
-      // Send the request to create the expert profile
-      const response = await axios.post(
-        `http://10.0.2.2:3000/expert/create/${userId}`,
-        payload
-      );
-      
-      if (response.data.success) {
-        Alert.alert(
-          'Success', 
-          'Your expert profile has been created successfully!',
-          [{ text: 'OK', onPress: () => navigation.navigate('Portfolio', { userRole: 'expert' }) }]
-        );
-        navigation.replace("MainTabs")
+
+      const res = await axios.post(`https://expertgo-v1.onrender.com/expert/create/${userId}`, payload);
+
+      if (res.data.success) {
+        Alert.alert('Success', 'Expert profile created!', [
+          { text: 'OK', onPress: () => navigation.replace('MainTabs') },
+        ]);
+
+await AsyncStorage.setItem('PortfolioData', JSON.stringify(payload));
       } else {
-        throw new Error(response.data.message || 'Failed to create expert profile');
+        throw new Error(res.data.message || 'Failed to create expert profile');
       }
     } catch (error) {
-      console.error('Error creating expert profile:', error);
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Failed to create expert profile. Please try again later.'
-      );
+      console.error(error);
+      Alert.alert('Error', error.message || 'Something went wrong');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Create Expert Profile</Text>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+      {/* Step Indicator */}
+      <View style={local.stepContainer}>
+        {steps.map((step, index) => (
+          <View key={index} style={local.stepBox}>
+            <Text style={[local.stepText, currentStep === index && local.activeStep]}>{step}</Text>
+            {index < steps.length - 1 && <View style={local.stepDivider} />}
+          </View>
+        ))}
+      </View>
+
+      {/* Scrollable Form */}
+      <ScrollView
+        ref={scrollRef}
+        style={styles.scrollContainer}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Bio */}
+        <View
+          onLayout={e => (sectionOffsets.current[0] = e.nativeEvent.layout.y + 50)}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>Bio (Professional Summary)</Text>
+          <TextInput
+            style={styles.bioInput}
+            value={bio}
+            onChangeText={setBio}
+            placeholderTextColor="#666"
+            multiline
+          />
         </View>
-        
-        <View style={styles.formContainer}>
-          {/* Bio Section */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Professional Bio*</Text>
-            <TextInput
-              style={styles.textArea}
-              placeholder="Write a brief professional bio"
-              value={bio}
-              onChangeText={setBio}
-              multiline
-              numberOfLines={4}
-              placeholderTextColor="#aaa"
-            />
-          </View>
 
-          {/* Available Timings */}
-          <View style={styles1.fieldContainer}>
-            <Text style={styles1.label}>Available Timings:</Text>
-            <View style={styles1.timingContainer}>
-              <TextInput
-                style={styles1.timeInput}
-                placeholder="Start"
-                keyboardType="numeric"
-                maxLength={2}
-                value={startTime}
-                onChangeText={setStartTime}
-                placeholderTextColor="#aaa"
-              />
-              <View style={styles1.amPmSelector}>
-                <TouchableOpacity
+        {/* Experience */}
+        <View
+          onLayout={e => (sectionOffsets.current[1] = e.nativeEvent.layout.y + 50)}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>Experience</Text>
+          <View style={styles.experienceContainer}>
+            {experienceOptions.map(option => (
+              <TouchableOpacity
+                key={option}
+                onPress={() => setExperience(option)}
+                style={[styles.experienceButton, experience === option && styles.experienceButtonSelected]}
+              >
+                <Text
                   style={[
-                    styles1.amPmOption,
-                    timeFormat1 === 'AM' && styles1.selectedAmPm
+                    styles.experienceButtonText,
+                    experience === option && styles.experienceButtonTextSelected,
                   ]}
-                  onPress={() => setTimeFormat1('AM')}
                 >
-                  <Text style={timeFormat1 === 'AM' ? styles1.selectedAmPmText : styles1.amPmText}>AM</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles1.amPmOption,
-                    timeFormat1 === 'PM' && styles1.selectedAmPm
-                  ]}
-                  onPress={() => setTimeFormat1('PM')}
-                >
-                  <Text style={timeFormat1 === 'PM' ? styles1.selectedAmPmText : styles1.amPmText}>PM</Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles1.timeSeparator}>-</Text>
-              <TextInput
-                style={styles1.timeInput}
-                placeholder="End"
-                keyboardType="numeric"
-                maxLength={2}
-                value={endTime}
-                onChangeText={setEndTime}
-                placeholderTextColor="#aaa"
-              />
-              <View style={styles1.amPmSelector}>
-                <TouchableOpacity
-                  style={[
-                    styles1.amPmOption,
-                    timeFormat2 === 'AM' && styles1.selectedAmPm
-                  ]}
-                  onPress={() => setTimeFormat2('AM')}
-                >
-                  <Text style={timeFormat2 === 'AM' ? styles1.selectedAmPmText : styles1.amPmText}>AM</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles1.amPmOption,
-                    timeFormat2 === 'PM' && styles1.selectedAmPm
-                  ]}
-                  onPress={() => setTimeFormat2('PM')}
-                >
-                  <Text style={timeFormat2 === 'PM' ? styles1.selectedAmPmText : styles1.amPmText}>PM</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          {/* Current Position */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Current Position*</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Senior Developer at ABC Inc."
-              value={currentPost}
-              onChangeText={setCurrentPost}
-              placeholderTextColor="#aaa"
-            />
-          </View>
-
-          {/* Experience */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Experience Level</Text>
-            <View style={styles.experienceContainer}>
-              {experienceOptions.map((option) => (
-                <TouchableOpacity
-                  key={option}
-                  style={[
-                    styles.experienceButton,
-                    experience === option && styles.experienceButtonSelected
-                  ]}
-                  onPress={() => setExperience(option)}
-                >
-                  <Text
-                    style={[
-                      styles.experienceButtonText,
-                      experience === option && styles.experienceButtonTextSelected
-                    ]}
-                  >
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Categories */}
-          <View style={styles.fieldContainer}>
-            <View style={styles.labelContainer}>
-              <Text style={styles.label}>Categories*</Text>
-              <TouchableOpacity onPress={addCategory} style={styles.addButton}>
-                <Ionicons name="add-circle" size={24} color="#4CAF50" />
-                <Text style={styles.addButtonText}>Add Category</Text>
+                  {option}
+                </Text>
               </TouchableOpacity>
-            </View>
-            
-            {categories.map((category, index) => (
-              <View key={index} style={styles.dynamicInputContainer}>
-                <TextInput
-                  style={styles.dynamicInput}
-                  placeholder={`Category ${index + 1}`}
-                  value={category}
-                  onChangeText={(text) => updateCategory(text, index)}
-                  placeholderTextColor="#aaa"
-                />
-                {categories.length > 1 && (
-                  <TouchableOpacity onPress={() => removeCategory(index)} style={styles.removeButton}>
-                    <Ionicons name="remove-circle" size={24} color="#F44336" />
-                  </TouchableOpacity>
-                )}
-              </View>
             ))}
           </View>
+        </View>
 
-          {/* Charges */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Charge for 10 minute call</Text>
-            <View style={styles.chargesContainer}>
-              <View style={styles.chargeInputContainer}>
-                <Text style={styles.chargeLabel}>Per 10 minutes</Text>
-                <TextInput
-                  style={styles.chargeInput}
-                  placeholder="Amount"
-                  value={voiceCallCharge}
-                  onChangeText={setVoiceCallCharge}
-                  keyboardType="numeric"
-                  placeholderTextColor="#aaa"
-                />
-              </View>
+        {/* Skills & Categories */}
+        <View
+          onLayout={e => (sectionOffsets.current[2] = e.nativeEvent.layout.y + 50)}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>Expertised Fields</Text>
+          {categories.map((cat, i) => (
+            <View key={i} style={styles.inputContainer}>
+              <TextInput
+                style={styles.roundInput}
+                value={cat}
+                onChangeText={text => updateCategory(text, i)}
+                placeholderTextColor="#666"
+              />
+              {i === categories.length - 1 && (
+                <TouchableOpacity onPress={addCategory} style={styles.addButton}>
+                  <Ionicons name="add-circle" size={24} color="#fff" />
+                </TouchableOpacity>
+              )}
             </View>
-          </View>
+          ))}
 
-          {/* Portfolio URL */}
-          <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Portfolio URL (Optional)</Text>
+          <Text style={styles.sectionTitle}>Skills</Text>
+          {skills.map((skill, i) => (
+            <View key={i} style={styles.inputContainer}>
+              <TextInput
+                style={styles.roundInput}
+                value={skill}
+                onChangeText={text => updateSkill(text, i)}
+                placeholderTextColor="#666"
+              />
+              {i === skills.length - 1 && (
+                <TouchableOpacity onPress={addSkill} style={styles.addButton}>
+                  <Ionicons name="add-circle" size={24} color="#fff" />
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+        </View>
+
+        {/* Availability */}
+        <View
+          onLayout={e => (sectionOffsets.current[3] = e.nativeEvent.layout.y + 50)}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>Current Position*</Text>
+          <TextInput
+            style={styles.input}
+            value={currentPost}
+            onChangeText={setCurrentPost}
+            placeholder="e.g. Senior Developer"
+            placeholderTextColor="#aaa"
+          />
+
+          <Text style={styles.sectionTitle}>Portfolio URL</Text>
+          <TextInput
+            style={styles.roundInput}
+            value={portfolioUrl}
+            onChangeText={setPortfolioUrl}
+            placeholderTextColor="#666"
+          />
+
+          <Text style={styles.sectionTitle}>Charge for 10 mins call</Text>
+          <TextInput
+            style={styles.roundInput}
+            value={voiceCallCharge}
+            onChangeText={setVoiceCallCharge}
+            keyboardType="numeric"
+            placeholderTextColor="#666"
+          />
+
+          <Text style={styles.sectionTitle}>Availability</Text>
+          <View style={styles.timingContainer}>
             <TextInput
-              style={styles.input}
-              placeholder="e.g. https://yourportfolio.com"
-              value={portfolioUrl}
-              onChangeText={setPortfolioUrl}
-              placeholderTextColor="#aaa"
+              style={styles.timeInput}
+              value={startTime}
+              onChangeText={setStartTime}
+              maxLength={2}
+              keyboardType="numeric"
+              placeholderTextColor="#666"
             />
-          </View>
-
-          {/* Skills */}
-          <View style={styles.fieldContainer}>
-            <View style={styles.labelContainer}>
-              <Text style={styles.label}>Skills*</Text>
-              <TouchableOpacity onPress={addSkill} style={styles.addButton}>
-                <Ionicons name="add-circle" size={24} color="#4CAF50" />
-                <Text style={styles.addButtonText}>Add Skill</Text>
+            <View style={styles.amPmContainer}>
+              <TouchableOpacity
+                style={[styles.amPmButton, timeFormat1 === 'AM' && styles.amPmButtonSelected]}
+                onPress={() => setTimeFormat1('AM')}
+              >
+                <Text style={styles.amPmText}>AM</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.amPmButton, timeFormat1 === 'PM' && styles.amPmButtonSelected]}
+                onPress={() => setTimeFormat1('PM')}
+              >
+                <Text style={styles.amPmText}>PM</Text>
               </TouchableOpacity>
             </View>
-            
-            {skills.map((skill, index) => (
-              <View key={index} style={styles.dynamicInputContainer}>
-                <TextInput
-                  style={styles.dynamicInput}
-                  placeholder={`Skill ${index + 1}`}
-                  value={skill}
-                  onChangeText={(text) => updateSkill(text, index)}
-                  placeholderTextColor="#aaa"
-                />
-                {skills.length > 1 && (
-                  <TouchableOpacity onPress={() => removeSkill(index)} style={styles.removeButton}>
-                    <Ionicons name="remove-circle" size={24} color="#F44336" />
-                  </TouchableOpacity>
-                )}
-              </View>
-            ))}
-          </View>
 
-          {/* Submit Button */}
-          <TouchableOpacity
-            style={styles.submitButton}
-            onPress={submitForm}
-            disabled={loading}
-          >
-            <Text style={styles.submitButtonText}>
-              {loading ? 'Submitting...' : 'Create Expert Profile'}
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => navigation.goBack()}
-            disabled={loading}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
+            <Text style={styles.timeSeparator}>--</Text>
+
+            <TextInput
+              style={styles.timeInput}
+              value={endTime}
+              onChangeText={setEndTime}
+              maxLength={2}
+              keyboardType="numeric"
+              placeholderTextColor="#666"
+            />
+            <View style={styles.amPmContainer}>
+              <TouchableOpacity
+                style={[styles.amPmButton, timeFormat2 === 'AM' && styles.amPmButtonSelected]}
+                onPress={() => setTimeFormat2('AM')}
+              >
+                <Text style={styles.amPmText}>AM</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.amPmButton, timeFormat2 === 'PM' && styles.amPmButtonSelected]}
+                onPress={() => setTimeFormat2('PM')}
+              >
+                <Text style={styles.amPmText}>PM</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
+
+        {/* Submit */}
+        <TouchableOpacity style={styles.submitButton} onPress={submitForm} disabled={loading}>
+          <Text style={styles.submitButtonText}>{loading ? 'Submitting...' : 'Create Profile'}</Text>
+        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
+
+const local = StyleSheet.create({
+  stepContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    marginBottom: 10,
+    backgroundColor: '#fff',
+  },
+  stepBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stepText: {
+    fontSize: 12,
+    color: '#999',
+    fontWeight: '600',
+  },
+  activeStep: {
+    color: '#007AFF',
+  },
+  stepDivider: {
+    width: 14,
+    height: 2,
+    backgroundColor: '#ccc',
+    marginHorizontal: 6,
+    marginTop: 2,
+  },
+});
 
 export default Portfolio;

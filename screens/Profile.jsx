@@ -14,6 +14,7 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useDispatch, useSelector} from 'react-redux';
@@ -41,13 +42,13 @@ const Profile = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const route = useRoute();
-
+  const name =  AsyncStorage.getItem('name');
+    const email =  AsyncStorage.getItem('email');
   // Extract route params
   const {userId, userRole} = route.params;
   const {clearUserData} = useContext(UserContext);
-const { setUserEmail } = useContext(UserContext);
-
-  // Local UI state
+  const {setUserEmail} = useContext(UserContext);
+ 
   const [editUserNameModalVisible, setEditUserNameModalVisible] =
     useState(false);
   const [usernameInput, setUsernameInput] = useState('');
@@ -144,7 +145,8 @@ const { setUserEmail } = useContext(UserContext);
         );
       })
       .catch(err => {
-        Alert.alert('Error', 'Could not update availability.');
+        Alert.alert('Error', 'Please Create a Portfolio first');
+        navigation.navigate('Portfolio');
       });
   };
 
@@ -170,27 +172,29 @@ const { setUserEmail } = useContext(UserContext);
       });
   };
 
-const verifyOtpAndUpdateEmail = async () => {
-  if (!otp) {
-    Alert.alert('Error', 'Please enter the OTP');
-    return;
-  }
+  const verifyOtpAndUpdateEmail = async () => {
+    if (!otp) {
+      Alert.alert('Error', 'Please enter the OTP');
+      return;
+    }
 
-  try {
-    await dispatch(verifyOTP({ email: emailVerification.newEmail, otp })).unwrap();
+    try {
+      await dispatch(
+        verifyOTP({email: emailVerification.newEmail, otp}),
+      ).unwrap();
 
-    await dispatch(updateEmail({ userId, newEmail: emailVerification.newEmail })).unwrap();
+      await dispatch(
+        updateEmail({userId, newEmail: emailVerification.newEmail}),
+      ).unwrap();
 
-    setUserEmail(emailVerification.newEmail);
-    await AsyncStorage.setItem('email', emailVerification.newEmail);
-    resetEmailModal();
-    Alert.alert('Success', 'Email updated successfully!');
-  } catch (err) {
-    Alert.alert('Error', err?.message || 'Invalid OTP. Please try again.');
-  }
-};
-
-
+      setUserEmail(emailVerification.newEmail);
+      await AsyncStorage.setItem('email', emailVerification.newEmail);
+      resetEmailModal();
+      Alert.alert('Success', 'Email updated successfully!');
+    } catch (err) {
+      Alert.alert('Error', err?.message || 'Invalid OTP. Please try again.');
+    }
+  };
 
   const resetEmailModal = () => {
     setEditEmailModal(false);
@@ -203,7 +207,7 @@ const verifyOtpAndUpdateEmail = async () => {
     dispatch(becomeExpert(userId))
       .unwrap()
       .then(() => {
-        navigation.replace('Login');
+        navigation.replace('MainTabs');
       })
       .catch(err => {
         Alert.alert('Error', 'Could not update.');
@@ -213,7 +217,7 @@ const verifyOtpAndUpdateEmail = async () => {
   // Logout
   const handleLogout = async () => {
     await clearUserData();
-    navigation.navigate('Login');
+    navigation.replace('Google');
   };
 
   if (loading && !userData.name) {
@@ -224,67 +228,95 @@ const verifyOtpAndUpdateEmail = async () => {
     );
   }
 
-
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         {/* Profile Header */}
-        <Text style={styles.profileTitle}>Profile</Text>
+        <Text style={styles.profileTitle}>PROFILE</Text>
 
         {/* Main Profile Section */}
         {userData && (
           <View style={styles.profileMainSection}>
-            {/* Profile Image */}
-            <View style={styles.profileImageContainer}>
-              {imageUrl ? (
-                <Image source={{uri: imageUrl}} style={styles.profileImage} />
-              ) : (
-                <View style={styles.placeholderImage}>
-                  <Text style={styles.placeholderText}>
-                    {userData.name
-                      ? userData.name.charAt(0).toUpperCase()
-                      : '?'}
-                  </Text>
-                </View>
-              )}
-              <TouchableOpacity
-                style={styles.imageEditButton}
-                onPress={chooseImage}>
-                <Ionicons name="camera" size={16} color="#fff" />
-              </TouchableOpacity>
-            </View>
-
-            {/* User Info Section */}
-            <View style={styles.userInfoSection}>
-              {/* Name and Verification */}
-              <View style={styles.nameRow}>
-                <TouchableOpacity
-                  onPress={() => {
-                    setUsernameInput(userData.name || '');
-                    setEditUserNameModalVisible(true);
-                  }}
-                  style={styles.nameButton}>
-                  <Text style={styles.userName}>{userData.name || 'N/A'}</Text>
-                  <Ionicons name="create-outline" size={16} color="#666" />
-                </TouchableOpacity>
-
-                {isVerified && (
-                  <View style={styles.verificationBadge}>
-                    <MaterialIcons name="verified" size={26} color="#0096FF" />{' '}
+            {/* Profile Image + Info Section */}
+            <View style={styles.profileBox}>
+              {/* Profile Image */}
+              <View style={styles.profileImageContainer}>
+                {imageUrl ? (
+                  <Image source={{uri: imageUrl}} style={styles.profileImage} />
+                ) : (
+                  <View style={styles.placeholderImage}>
+                    <Text style={styles.placeholderText}>
+                      {userData.name
+                        ? userData.name.charAt(0).toUpperCase()
+                        : '?'}
+                    </Text>
                   </View>
                 )}
+                <TouchableOpacity
+                  style={styles.imageEditButton}
+                  onPress={chooseImage}>
+                  <Ionicons name="camera" size={16} color="#fff" />
+                </TouchableOpacity>
               </View>
 
-              {/* Email Section */}
-              <TouchableOpacity
-                style={styles.emailSection}
-                onPress={() => setEditEmailModal(true)}>
-                <Text style={styles.emailText}>{userData.email || 'N/A'}</Text>
-                <Ionicons name="create-outline" size={16} color="#666" />
-              </TouchableOpacity>
+              {/* User Info Section */}
+              <View style={styles.userInfoSection}>
+                <View style={styles.nameRow}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setUsernameInput(userData.name || '');
+                      setEditUserNameModalVisible(true);
+                    }}
+                    style={styles.nameButton}>
+                    <Text style={styles.userName}>
+                      {name || 'N/A'}
+                    </Text>
+                      {isVerified && (
+                    <View style={styles.verificationBadge}>
+                      <MaterialIcons
+                        name="verified"
+                        size={26}
+                        color="#0096FF"
+                      />
+                    </View>
+                  )}
+                    <Feather name="edit-2" size={16} color="#666" />
+                  </TouchableOpacity>
+
+                
+                </View>
+
+                <TouchableOpacity
+                  style={styles.emailSection}
+                  onPress={() => setEditEmailModal(true)}>
+                  <Text style={styles.emailText}>
+                    {email || 'N/A'}
+                  </Text>
+                  <Feather name="edit-2" size={16} color="#666" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Availability toggle inside profile box */}
+              {userRole === 'expert' && (
+                <TouchableOpacity
+                  style={[
+                    styles.availabilityToggleTopRight,
+                    {backgroundColor: isAvailable ? '#28A745' : '#DC3545'},
+                  ]}
+                  onPress={toggleAvailability}>
+                  <Ionicons
+                    name={isAvailable ? 'radio-button-on' : 'radio-button-off'}
+                    size={16}
+                    color="#FFFFFF"
+                  />
+                  <Text style={styles.availabilityToggleText}>
+                    {isAvailable ? 'Online' : 'Offline'}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
 
-            {/* Loading indicator for image upload */}
+            {/* Loading indicator */}
             {loading && (
               <View style={styles.uploadingContainer}>
                 <ActivityIndicator color="#4A80F0" size="small" />
@@ -294,14 +326,13 @@ const verifyOtpAndUpdateEmail = async () => {
           </View>
         )}
 
-        {/* Bio Section - Only for experts */}
-        {userRole === 'expert' && (
+        {userRole === 'expert' && bio && (
           <View style={styles.bioContainer}>
             <View style={styles.bioHeader}>
               <Text style={styles.bioTitle}>Bio</Text>
               {!isEditing && (
                 <TouchableOpacity onPress={handleEditBio}>
-                  <Ionicons name="create-outline" size={16} color="#666" />
+                  <Feather name="edit-2" size={16} color="#666" />
                 </TouchableOpacity>
               )}
             </View>
@@ -317,6 +348,7 @@ const verifyOtpAndUpdateEmail = async () => {
                   value={tempBio}
                   onChangeText={setTempBio}
                   placeholder="Write a short bio about yourself..."
+                  placeholderTextColor="#888"
                   multiline
                   autoFocus
                 />
@@ -334,34 +366,17 @@ const verifyOtpAndUpdateEmail = async () => {
             )}
           </View>
         )}
-        {userRole === 'expert' && (
-          <TouchableOpacity
-            style={[
-              styles.availabilityToggle,
-              {backgroundColor: isAvailable ? '#28A745' : '#DC3545'},
-            ]}
-            onPress={toggleAvailability}>
-            <Ionicons
-              name={isAvailable ? 'radio-button-on' : 'radio-button-off'}
-              size={16}
-              color="#FFFFFF"
-            />
-            <Text style={styles.availabilityToggleText}>
-              {isAvailable ? 'Online' : 'Offline'}
-            </Text>
-          </TouchableOpacity>
-        )}
 
         {/* Action Buttons */}
         <View style={styles.actionButtonsContainer}>
           {/* Become Expert Button - Only for regular users */}
-          {/* {userRole === 'user' && (
+          {userRole === 'user' && (
             <TouchableOpacity
               style={styles.actionButton}
               onPress={becomeAnExpert}>
               <Text style={styles.actionButtonText}>Become Expert</Text>
             </TouchableOpacity>
-          )} */}
+          )}
           {/* // Expert Profile Edit Button */}
           {userRole === 'expert' && (
             <TouchableOpacity
@@ -375,13 +390,20 @@ const verifyOtpAndUpdateEmail = async () => {
           {/* Get Verified Button */}
           {!isVerified && userRole === 'expert' && (
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionButtonText}>get Verified</Text>
+              <Text style={styles.actionButtonText}>Get Verified</Text>
             </TouchableOpacity>
           )}
 
-            <TouchableOpacity style={styles.actionButton} onPress={()=>navigation.navigate('Bank-details',{userId:userId,navigation:navigation})}>
-              <Text style={styles.actionButtonText}>Bank Details</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() =>
+              navigation.navigate('Bank-details', {
+                userId: userId,
+                navigation: navigation,
+              })
+            }>
+            <Text style={styles.actionButtonText}>Bank Details</Text>
+          </TouchableOpacity>
           {/* Settings Button */}
           <TouchableOpacity style={styles.actionButton}>
             <Text style={styles.actionButtonText}>Settings</Text>
@@ -464,15 +486,11 @@ const verifyOtpAndUpdateEmail = async () => {
               // Step 1: Enter new email and send OTP
               <>
                 <View style={styles.modalInputContainer}>
-                  <Ionicons
-                    name="mail-outline"
-                    size={20}
-                    color="#555"
-                    style={styles.inputIcon}
-                  />
+                 
                   <TextInput
                     style={styles.modalInput}
                     placeholder="Enter your new email"
+                    placeholderTextColor='#888'
                     value={emailVerification.newEmail}
                     onChangeText={text =>
                       dispatch(setEmailVerificationState({newEmail: text}))
@@ -495,17 +513,14 @@ const verifyOtpAndUpdateEmail = async () => {
               // Step 2: Enter OTP for verification
               <>
                 <View style={styles.otpContainer}>
-                  <Ionicons
-                    name="lock-closed-outline"
-                    size={28}
-                    color="#4A80F0"
-                  />
                   <Text style={styles.infoText}>
                     Enter the OTP sent to {emailVerification.newEmail}
                   </Text>
                   <TextInput
                     style={styles.otpInput}
                     placeholder="Enter OTP"
+                                        placeholderTextColor='#888'
+
                     keyboardType="numeric"
                     value={otp}
                     onChangeText={setOtp}

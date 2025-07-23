@@ -107,8 +107,8 @@ android {
         }
       release {
     signingConfig signingConfigs.release
-    minifyEnabled true // must be true if shrinkResources is true
-    shrinkResources true
+    minifyEnabled false // must be true if shrinkResources is true
+    shrinkResources false
     proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
 }
 

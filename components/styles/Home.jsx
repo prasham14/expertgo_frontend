@@ -72,10 +72,11 @@ const homeStyles = StyleSheet.create({
   howItWorksSection: {
     paddingHorizontal: 20,
     paddingVertical: 25,
-    backgroundColor: '#F7F9FC',
+    backgroundColor: '#F0F0F2',
     borderRadius: 20,
     marginHorizontal: 20,
     marginTop: 25,
+    marginBottom:30,
     border : ''
   },
   sectionTitle: {
@@ -247,7 +248,7 @@ const homeStyles = StyleSheet.create({
     lineHeight: 24,
   },
   portfolioButton: {
-    backgroundColor: '#83C5BE',
+    backgroundColor: '#4267B2',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 25,
@@ -260,7 +261,6 @@ const homeStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  // New styles for category cards inspired by the reference image
   categoriesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',

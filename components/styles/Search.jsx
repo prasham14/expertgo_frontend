@@ -1,4 +1,6 @@
 import { StyleSheet } from "react-native";
+import { Dimensions } from 'react-native';
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -68,7 +70,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: '#262626',
   },
-  
+  sectionHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 10,
+},
+
+scrollHintContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+scrollHintText: {
+  fontSize: 14,
+  color: '#000000',
+  marginLeft: 4,
+},
+
   // Categories List
   categoriesContainer: {
     paddingRight: 8,
@@ -107,7 +126,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   expertCard: {
-    backgroundColor: '#F7F9FC',
+    backgroundColor: '#F0F0F2',
     borderRadius: 12,
     marginVertical: 10,
     marginHorizontal: 15,
@@ -174,7 +193,7 @@ const styles = StyleSheet.create({
   
   expertCategory: {
     fontSize: 14,
-    color: '#666666',
+    color: 'green',
     marginBottom: 8,
   },
   
@@ -213,7 +232,7 @@ const styles = StyleSheet.create({
   },
   
   contactButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#4267B2',
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
@@ -231,20 +250,22 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     paddingBottom: 4,
   },
-  featuredExpertCard: {
-    width: 170,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    marginRight: 14,
-    
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-  },
+ featuredExpertCard: {
+  width: (width - 48) / 2,
+  backgroundColor: '#F0F0F2',
+  borderRadius: 12,
+  padding: 8,
+  marginBottom: 16,
+  margin:5,
+
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  borderWidth: 1,
+  borderColor: '#F0F0F0',
+},
+
   featuredExpertImageContainer: {
     alignItems: 'center',
     position: 'relative',

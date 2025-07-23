@@ -21,7 +21,7 @@ const MeetingsDetailScreen = ({ navigation }) => {
           throw new Error('Expert ID not found')
         }
 
-        const response = await axios.get(`http://10.0.2.2:3000/meet/upcoming-meetings/${expertId}`)
+        const response = await axios.get(`https://expertgo-v1.onrender.com/meet/upcoming-meetings/${expertId}`)
         
         if (response.data && response.data.data) {
           setMeetings(response.data.data)

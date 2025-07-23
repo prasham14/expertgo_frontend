@@ -4,7 +4,7 @@ const styles = {
   // Keep your existing styles and add/modify these:
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#ffffff',
     padding: 16,
   },
   header: {
@@ -14,7 +14,7 @@ const styles = {
     color: '#333',
   },
   notificationItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f0f0',
     borderRadius: 10,
     padding: 14,
     marginBottom: 12,
@@ -23,7 +23,6 @@ const styles = {
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
     position: 'relative',
   },
   removeIcon: {
@@ -67,6 +66,7 @@ const styles = {
     fontWeight: 'bold',
     color: '#2e7d32',
     marginTop: 2,
+    fontSize:20
   },
   emptyContainer: {
     flex: 1,

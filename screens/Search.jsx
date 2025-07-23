@@ -63,7 +63,7 @@ const [hasSearched, setHasSearched] = useState(false);
   const fetchExperts = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://10.0.2.2:3000/expert/getExperts');
+      const response = await axios.get('https://expertgo-v1.onrender.com/expert/getExperts');
       if (response.data.success) {
         setExperts(response.data.famousExperts);
       }
@@ -82,7 +82,7 @@ const [hasSearched, setHasSearched] = useState(false);
     setIsLoading(true);
     setHasSearched(true); // <-- Add this line
     const response = await axios.get(
-      `http://10.0.2.2:3000/expert/searchExperts?category=${searchQuery.trim()}`
+      `https://expertgo-v1.onrender.com/expert/searchExperts?category=${searchQuery.trim()}`
     );
     if (response.data.success) {
       setSearchedExperts(response.data.experts);
@@ -158,18 +158,20 @@ const [hasSearched, setHasSearched] = useState(false);
   
       <View style={styles.expertInfo}>
         <Text style={styles.expertName} numberOfLines={1}>{item.name || 'Expert'}</Text>
-        <Text style={styles.expertCategory}>{item.category || 'Category'}</Text>
+<Text style={styles.expertCategory}>
+  {item.category && item.category.length > 0 ? item.category.join(' || ') : 'Category'}
+</Text>
         
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={14} color="#FFD700" />
           <Text style={styles.expertRating}>{item.ratings || '0.0'}</Text>
           <View style={styles.dealsBadge}>
-            <Text style={styles.expertDeals}>{item.totalDeals || '0'} Deals</Text>
+            <Text style={styles.expertDeals}>{item.totalDeals || '0'} Calls Till now</Text>
           </View>
         </View>
         
         <Text style={styles.expertBio} numberOfLines={2}>
-          {item.bio || 'Expert bio information...'}
+          {item.bio}
         </Text>
       </View>
       
@@ -178,7 +180,7 @@ const [hasSearched, setHasSearched] = useState(false);
         onPress={() => navigateToPortfolio(item.userId?._id)}
         activeOpacity={0.8}
       >
-        <Text style={styles.contactButtonText}>Contact</Text>
+        <Text style={styles.contactButtonText}>Show More</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -201,9 +203,7 @@ const [hasSearched, setHasSearched] = useState(false);
     </TouchableOpacity>
   );
 
-  // Featured expert card renderer
   const renderFeaturedExpert = ({ item }) => {
-    // Don't call fetch within render - it causes too many rerenders
     return (
       <TouchableOpacity 
         style={styles.featuredExpertCard}
@@ -215,29 +215,26 @@ const [hasSearched, setHasSearched] = useState(false);
             source={{ uri: item.profileImage}} 
             style={styles.featuredExpertImage} 
           />
-          {item.isVerified ? (
-            <View style={styles.verifiedBadge}>
-              <Ionicons name="checkmark-circle" size={16} color="#FFF" />
-            </View>
-          ) : null}
+         
         </View>
         <Text style={styles.featuredExpertName} numberOfLines={1}>
           {item.name || item.email || 'Expert'}
         </Text>
         <Text style={styles.featuredExpertCategory} numberOfLines={1}>
-          {item.category || 'Professional Expert'}
+          {item.category[0] || 'Professional Expert'}
         </Text>
         <View style={styles.featuredExpertRating}>
-          <Ionicons name="star" size={14} color="#FFD700" />
+          
           <Text style={styles.featuredRatingText}>
             {item.ratings || '0.0'}
           </Text>
+          <Ionicons name="star" size={14} color="#FFD700" />
         </View>
-        <View style={styles.featuredExpertRating}>
+        {/* <View style={styles.featuredExpertRating}>
           <Text style={styles.featuredRatingText}>
             {item.isAvailable ? ('Available'):('Currently Unavailable') || '0.0'}
           </Text>
-        </View>
+        </View> */}
         <TouchableOpacity
           style={styles.visitButton}
           onPress={() => navigateToPortfolio(item.userId?._id)}
@@ -313,17 +310,24 @@ const [hasSearched, setHasSearched] = useState(false);
       keyboardShouldPersistTaps="handled"
     >
       {/* Categories Section */}
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Browse Categories</Text>
-        <FlatList
-          data={featuredCategories}
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          renderItem={renderCategoryCard}
-          contentContainerStyle={styles.categoriesContainer}
-        />
-      </View>
+ <View style={styles.sectionContainer}>
+  <View style={styles.sectionHeader}>
+    <Text style={styles.sectionTitle}>Browse Categories</Text>
+    <View style={styles.scrollHintContainer}>
+      <Ionicons name="arrow-forward-circle-outline" size={18} color="#888" />
+      <Text style={styles.scrollHintText}>Scroll</Text>
+    </View>
+  </View>
+
+  <FlatList
+    data={featuredCategories}
+    keyExtractor={(item) => item.id}
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    renderItem={renderCategoryCard}
+    contentContainerStyle={styles.categoriesContainer}
+  />
+</View>
 
       {/* Featured Experts Section */}
       <View style={styles.sectionContainer}>

@@ -22,7 +22,7 @@ const Notifications = ({route}) => {
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(
-        `http://10.0.2.2:3000/noti/get-Requests/${userId}`
+        `https://expertgo-v1.onrender.com/noti/get-Requests/${userId}`
       );
 
       if (response.status === 200) {
@@ -40,7 +40,7 @@ const Notifications = ({route}) => {
 
   const handleRemoveNotification = async (notiId) => {
     try {
-      await axios.delete(`http://10.0.2.2:3000/noti/remove-noti/${notiId}`);
+      await axios.delete(`https://expertgo-v1.onrender.com/noti/remove-noti/${notiId}`);
       
       setNotifications(prevNotifications => 
         prevNotifications.filter(notification => notification._id !== notiId)
@@ -89,7 +89,7 @@ const Notifications = ({route}) => {
 </View>
 
           {item.amount && (
-            <Text style={styles.amount}>💰 ₹{item.amount}</Text>
+            <Text style={styles.amount}> ₹{item.amount}</Text>
           )}
         </View>
       </View>
@@ -98,7 +98,6 @@ const Notifications = ({route}) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Notifications</Text>
       {notifications.length > 0 ? (
         <FlatList
           data={notifications}

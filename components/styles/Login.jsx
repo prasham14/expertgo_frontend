@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     width: "100%",
-    backgroundColor: "#1e3a5f", // Deep navy blue for a premium look
+    backgroundColor: "#1e3a5f", 
     paddingVertical: 20,
     paddingHorizontal: 15,
     borderBottomLeftRadius: 15,
@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
       },
       android: {
-        elevation: 3,
       },
     }),
   },
@@ -45,18 +44,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   logoContainer: {
-    marginTop: 100,
     width: "100%",
     alignItems: "center",
   },
   logo: {
     width: 120,
     height: 120,
-    borderRadius: 60,
+    borderRadius: 40,
+    border : "black",
+    marginBottom:30
   },
   input: {
     width: "90%",
-    padding: 14,
+    padding: 10,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#b0bec5", // Soft gray border
@@ -72,13 +72,13 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
       },
       android: {
-        elevation: 2,
+        
       },
     }),
   },
   passinput : {
-    flex: 1, // Makes input take full width
-    paddingVertical: 14,
+    flex: 1, 
+    paddingVertical: 10,
     fontSize: 16,
     color: "#333",
   },
@@ -100,15 +100,14 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
       },
       android: {
-        elevation: 2,
       },
     }),
   },
   eyeIcon: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 3,
   },
   forgotPassword: {
-    color: "#1565c0", // Vibrant blue for clickable links
+    color: "#1565c0",
     fontSize: 16,
     marginBottom: 20,
     fontWeight: "500",
@@ -116,7 +115,7 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: "#1e3a5f", // Matching the banner for consistency
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 10,
     width: "90%",
     alignItems: "center",
@@ -128,7 +127,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
       },
       android: {
-        elevation: 4,
       },
     }),
   },signupContainer: {
@@ -145,7 +143,7 @@ const styles = StyleSheet.create({
   signupText: {
     marginTop: 15,
     fontSize: 16,
-    color: "#607d8b", // Muted blue-gray for subtlety
+    color: "#607d8b",
     textAlign: "center",
   },
   signupLink: {
@@ -285,6 +283,45 @@ const styles = StyleSheet.create({
       fontSize: 16,
       color: "#fff",
       fontWeight: "600",
+  },
+    googleButton: {
+    backgroundColor: "#3498DB", // Cool alternative accent
+    paddingVertical: 14,
+    borderRadius: 10,
+    width: "90%",
+    alignItems: "center",
+    marginTop: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 3 },
+        shadowRadius: 5,
+      },
+    }),
+  },
+  googleButtonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+  }, orContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 2,
+    width: "90%",
+    alignSelf: "center",
+    marginTop : 10
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#B0B0B0",
+  },
+  orText: {
+    marginHorizontal: 10,
+    fontSize: 16,
+    color: "#4A4A4A",
+    fontWeight: "600",
   },
 });
 

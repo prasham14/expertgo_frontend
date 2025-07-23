@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useContext } from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import axios from 'axios';
-import { UserContext } from '../context/Context';
+import {UserContext} from '../context/Context';
 import Feather from 'react-native-vector-icons/Feather'; // Add this to top imports
 
 const BankDetailsScreen = ({navigation}) => {
@@ -22,15 +22,17 @@ const BankDetailsScreen = ({navigation}) => {
     branchName: '',
     upiId: '',
   });
-    const { userId } = useContext(UserContext);
-  
+  const {userId} = useContext(UserContext);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
   const fetchBankDetails = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`http://10.0.2.2:3000/bank/get-bank-details/${userId}`);
+      const response = await axios.get(
+        `https://expertgo-v1.onrender.com/bank/get-bank-details/${userId}`,
+      );
       if (response.data) {
         setBankData(response.data);
         setIsEditing(true);
@@ -43,23 +45,34 @@ const BankDetailsScreen = ({navigation}) => {
   };
 
   const handleSubmit = async () => {
-    if (!bankData.accountHolderName || !bankData.accountNumber || !bankData.ifscCode || !bankData.bankName) {
+    if (
+      !bankData.accountHolderName ||
+      !bankData.accountNumber ||
+      !bankData.ifscCode ||
+      !bankData.bankName
+    ) {
       return Alert.alert('Error', 'Please fill in all required fields');
     }
 
     try {
       setIsLoading(true);
       if (isEditing) {
-        await axios.put(`http://10.0.2.2:3000/bank/edit-bank-details/${userId}`, bankData);
+        await axios.put(
+          `https://expertgo-v1.onrender.com/bank/edit-bank-details/${userId}`,
+          bankData,
+        );
         Alert.alert('Success', 'Bank details updated');
         navigation.goBack();
       } else {
-         console.log("s",userId)
-        await axios.post('http://10.0.2.2:3000/bank/add-bank-details', {
-          userId,
-          ...bankData,
-        });
-       
+        console.log('s', userId);
+        await axios.post(
+          'https://expertgo-v1.onrender.com/bank/add-bank-details',
+          {
+            userId,
+            ...bankData,
+          },
+        );
+
         setIsEditing(true);
         Alert.alert('Success', 'Bank details saved');
         navigation.goBack();
@@ -74,7 +87,7 @@ const BankDetailsScreen = ({navigation}) => {
 
   useEffect(() => {
     fetchBankDetails();
-  }, []);
+  },[]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -83,53 +96,66 @@ const BankDetailsScreen = ({navigation}) => {
       <TextInput
         style={styles.input}
         placeholder="Account Holder Name"
+        placeholderTextColor="#888"
         value={bankData.accountHolderName}
-        onChangeText={(text) => setBankData({ ...bankData, accountHolderName: text })}
+        onChangeText={text =>
+          setBankData({...bankData, accountHolderName: text})
+        }
       />
       <TextInput
         style={styles.input}
         placeholder="Account Number"
+        placeholderTextColor="#888"
         keyboardType="numeric"
         value={bankData.accountNumber}
-        onChangeText={(text) => setBankData({ ...bankData, accountNumber: text })}
+        onChangeText={text => setBankData({...bankData, accountNumber: text})}
       />
       <TextInput
         style={styles.input}
         placeholder="IFSC Code"
+        placeholderTextColor="#888"
         autoCapitalize="characters"
         value={bankData.ifscCode}
-        onChangeText={(text) => setBankData({ ...bankData, ifscCode: text })}
+        onChangeText={text => setBankData({...bankData, ifscCode: text})}
       />
       <TextInput
         style={styles.input}
         placeholder="Bank Name"
+        placeholderTextColor="#888"
         value={bankData.bankName}
-        onChangeText={(text) => setBankData({ ...bankData, bankName: text })}
+        onChangeText={text => setBankData({...bankData, bankName: text})}
       />
       <TextInput
         style={styles.input}
         placeholder="Branch Name"
+        placeholderTextColor="#888"
         value={bankData.branchName}
-        onChangeText={(text) => setBankData({ ...bankData, branchName: text })}
+        onChangeText={text => setBankData({...bankData, branchName: text})}
       />
       <TextInput
         style={styles.input}
         placeholder="UPI ID (Optional)"
+        placeholderTextColor="#888"
         value={bankData.upiId}
-        onChangeText={(text) => setBankData({ ...bankData, upiId: text })}
+        onChangeText={text => setBankData({...bankData, upiId: text})}
       />
-<View style={styles.termsContainer}>
-  <Feather name="shield" size={18} color="#6B7280" />
-  <TouchableOpacity onPress={() => navigation.navigate('BankTerms')}>
-    <Text style={styles.termsText}>  Terms & Conditions</Text>
-  </TouchableOpacity>
-</View>
+      <View style={styles.termsContainer}>
+        <Feather name="shield" size={18} color="#6B7280" />
+        <TouchableOpacity onPress={() => navigation.navigate('BankTerms')}>
+          <Text style={styles.termsText}> Terms & Conditions</Text>
+        </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={isLoading}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleSubmit}
+        disabled={isLoading}>
         {isLoading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.buttonText}>{isEditing ? 'Update Details' : 'Save Details'}</Text>
+          <Text style={styles.buttonText}>
+            {isEditing ? 'Update Details' : 'Save Details'}
+          </Text>
         )}
       </TouchableOpacity>
     </ScrollView>
@@ -137,7 +163,6 @@ const BankDetailsScreen = ({navigation}) => {
 };
 
 export default BankDetailsScreen;
-
 
 const styles = StyleSheet.create({
   container: {
@@ -170,16 +195,16 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   termsContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginBottom: 12,
-},
-termsText: {
-  color: '#2563EB',
-  fontSize: 14,
-  textDecorationLine: 'underline',
-},
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  termsText: {
+    color: '#2563EB',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
 
   buttonText: {
     color: '#FFFFFF',

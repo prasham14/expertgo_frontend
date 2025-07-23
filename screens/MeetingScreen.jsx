@@ -291,7 +291,7 @@ const onDateChange = (event, selected) => {
     setLoading(true);
     try {
       const { data } = await axios.post(
-        'http://10.0.2.2:3000/pay/order',
+        'https://expertgo-v1.onrender.com/pay/order',
         { amount: calculatedAmount }
       );
 
@@ -319,7 +319,7 @@ const onDateChange = (event, selected) => {
 
             try {
               const verifyResponse = await axios.post(
-                'http://10.0.2.2:3000/pay/verify',
+                'https://expertgo-v1.onrender.com/pay/verify',
                 {
                   razorpay_order_id,
                   razorpay_payment_id,
@@ -364,7 +364,7 @@ const onDateChange = (event, selected) => {
     console.log('Params:',startTime.toISOString(), endTime.toISOString());
 
     try {
-      const response = await axios.get('http://10.0.2.2:3000/meet/check-availability', {
+      const response = await axios.get('https://expertgo-v1.onrender.com/meet/check-availability', {
         params: {
           googleId,
           title,
@@ -397,12 +397,12 @@ const onDateChange = (event, selected) => {
   
   // Create meeting after payment success
   const createMeeting = async (transactionId) => {
-    console.log("expertID" ,expertId)
+    console.log("expertID" ,expertId , roomId)
     setLoading(true);
-    console.log("create" , startTime);
+    console.log("create" , startTime.toISOString());
     console.log("transactionid",transactionId)
     try {
-      const response = await axios.post('http://10.0.2.2:3000/meet/create-meeting', {
+      const response = await axios.post('https://expertgo-v1.onrender.com/meet/create-meeting', {
         googleId,
         title,
         description,
@@ -411,16 +411,19 @@ const onDateChange = (event, selected) => {
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString()
       });
+      console.log(response)
+       if (!roomId) {
+     Alert.alert("roomId not found in meeting creation response");
+  }
       const id_room = await axios.post(
-        `http://10.0.2.2:3000/meet/save-room-id/${userId}/${expertId}`,
+        `https://expertgo-v1.onrender.com/meet/save-room-id/${userId}/${expertId}`,
         { roomId }
       );
-      
+      console.log(id_room)
       if (response.status === 201) {
-        // Try to send notification
         try {
           const notificationResponse = await axios.get(
-            `http://10.0.2.2:3000/noti/get-user-fcm/${expertEmail}`,
+            `https://expertgo-v1.onrender.com/noti/get-user-fcm/${expertEmail}`,
           );
           
           const fcmToken = notificationResponse.data.fcm;
@@ -432,10 +435,10 @@ const onDateChange = (event, selected) => {
           };
           
           await axios.post(
-            'http://10.0.2.2:3000/noti/send-notification',
+            'https://expertgo-v1.onrender.com/noti/send-notification',
             notificationData,
           );
-          await axios.post('http://10.0.2.2:3000/noti/save-request' , {
+          await axios.post('https://expertgo-v1.onrender.com/noti/save-request' , {
             startTime,
             endTime,
             title,
@@ -445,7 +448,6 @@ const onDateChange = (event, selected) => {
           })
         } catch (notificationError) {
           console.error('Failed to send notification:', notificationError);
-          // Continue even if notification fails
         }
         
         navigation.replace('MainTabs') 
@@ -453,6 +455,7 @@ const onDateChange = (event, selected) => {
     } catch (error) {
       console.error('Meeting creation failed:', error);
       const errorMessage = error.response?.data?.error || 'Failed to create meeting. Please try again.';
+      console.log(errorMessage)
       Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
@@ -461,7 +464,6 @@ const onDateChange = (event, selected) => {
 
   const handleFormSubmit = async () => {
     console.log("here" , startTime.toISOString()  , endTime.toISOString())
-    // Check if both start and end times are within expert's available hours
     if (!isWithinExpertHours(startTime) || !isWithinExpertHours(endTime)) {
       Alert.alert("Warning", `Expert only available between ${expertStartHour}${expertStartPeriod} - ${expertEndHour}${expertEndPeriod}`);
       return;
@@ -508,6 +510,8 @@ const onDateChange = (event, selected) => {
           value={title}
           onChangeText={setTitle}
           placeholder="Meeting Title"
+                      placeholderTextColor="#888"
+
         />
       </View>
       

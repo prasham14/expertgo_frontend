@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const BASE_URL = 'http://10.0.2.2:3000';
+const BASE_URL = 'https://expertgo-v1.onrender.com';
 
 // Async thunks for API calls
 export const fetchUserProfile = createAsyncThunk(

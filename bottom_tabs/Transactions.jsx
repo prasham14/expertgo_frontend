@@ -1,18 +1,26 @@
-import { StyleSheet, Text, View, FlatList, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
-import React, { useEffect, useState, useContext } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  SafeAreaView,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
+import React, {useEffect, useState, useContext} from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserContext } from '../context/Context';
+import {UserContext} from '../context/Context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-const Transactions = ({ navigation }) => {
+const Transactions = ({navigation}) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [activeFilter, setActiveFilter] = useState('Date');
-  const { userId } = useContext(UserContext);
+  const {userId} = useContext(UserContext);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -36,9 +44,11 @@ const Transactions = ({ navigation }) => {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://10.0.2.2:3000/pay/transactions/${userId}`);
-        console.warn("response", response);
-        
+        const response = await axios.get(
+          `https://expertgo-v1.onrender.com/pay/transactions/${userId}`,
+        );
+        console.warn('response', response);
+
         // Transform data to match the UI in the image
         const transformedData = (response.data.data || []).map(item => ({
           _id: item._id,
@@ -46,12 +56,11 @@ const Transactions = ({ navigation }) => {
           email: item.to.email,
           amount: `Rs.${item.amount.toLocaleString('id-ID')}`,
           date: new Date(item.date),
-          status : item.status
+          status: item.status,
         }));
-        
-        setTransactions(transformedData);
-                setLoading(false);
 
+        setTransactions(transformedData);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching transactions:', error);
       } finally {
@@ -64,37 +73,38 @@ const Transactions = ({ navigation }) => {
 
   const groupTransactions = (transactions, key) => {
     const grouped = {};
-  
+
     transactions.forEach(transaction => {
       let groupKey;
-  
+
       if (key === 'Date') {
         groupKey = transaction.date.toLocaleDateString('en-US', {
           weekday: 'long',
           day: 'numeric',
           month: 'short',
-          year: 'numeric'
+          year: 'numeric',
         });
       } else if (key === 'Name') {
         groupKey = transaction.name || 'Unknown Merchant';
       }
-  
+
       if (!grouped[groupKey]) {
         grouped[groupKey] = [];
       }
       grouped[groupKey].push(transaction);
     });
-  
+
     return Object.keys(grouped).map(groupKey => ({
       groupKey,
       transactions: grouped[groupKey],
-      isToday: activeFilter === 'Date' && 
-               new Date().toDateString() === new Date(grouped[groupKey][0].date).toDateString()
+      isToday:
+        activeFilter === 'Date' &&
+        new Date().toDateString() ===
+          new Date(grouped[groupKey][0].date).toDateString(),
     }));
   };
-  
+
   const groupedData = groupTransactions(transactions, activeFilter);
-  
 
   // // Convert to array for FlatList
   // const groupedData = Object.keys(groupedTransactions).map(date => ({
@@ -103,10 +113,15 @@ const Transactions = ({ navigation }) => {
   //   isToday: new Date().toDateString() === new Date(groupedTransactions[date][0].date).toDateString()
   // }));
 
-  const renderTransactionItem = ({ item }) => (
+  const renderTransactionItem = ({item}) => (
     <View style={styles.transactionItem}>
       <View style={styles.iconContainer}>
-          <Icon name="laptop" size={20} color="#6C5CE7" style={styles.categoryIcon} />
+        <Icon
+          name="laptop"
+          size={20}
+          color="#6C5CE7"
+          style={styles.categoryIcon}
+        />
       </View>
       <View style={styles.transactionDetails}>
         <Text style={styles.merchantName}>{item.name}</Text>
@@ -126,55 +141,57 @@ const Transactions = ({ navigation }) => {
     </View>
   );
 
-  const renderGroup = ({ item }) => (
+  const renderGroup = ({item}) => (
     <View style={styles.dateGroup}>
       <Text style={styles.dateHeader}>
         {item.isToday ? 'Today' : item.groupKey}
       </Text>
       {item.transactions.map(transaction => (
         <View key={transaction._id}>
-          {renderTransactionItem({ item: transaction })}
+          {renderTransactionItem({item: transaction})}
         </View>
       ))}
     </View>
   );
-  
-  if (loading) return (
-    <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-      <Text style={styles.loadingText}>Loading...</Text>
-    </View>
-  );
+
+  if (loading)
+    return (
+      <View
+        style={[
+          styles.container,
+          {justifyContent: 'center', alignItems: 'center'},
+        ]}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
 
   return (
-    <SafeAreaView 
+    <SafeAreaView
       style={[
-        styles.container, 
-        { paddingTop: insets.top > 0 ? 0 : StatusBar.currentHeight }
-      ]}
-    >
-      <View style={styles.header}>
+        styles.container,
+        {paddingTop: insets.top > 0 ? 0 : StatusBar.currentHeight},
+      ]}>
+      {/* <View style={styles.headerContainer}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Icon name="arrow-back-ios" size={20} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Transaction History</Text>
-        <View style={{ width: 24 }} />
-      </View>
+        <Text style={styles.header}>Transaction History</Text>
+        <View style={{width: 24}} />
+      </View> */}
 
       <View style={styles.filterContainer}>
         {['Date', 'Name'].map(filter => (
-          <TouchableOpacity 
+          <TouchableOpacity
             key={filter}
             style={[
               styles.filterButton,
-              activeFilter === filter && styles.activeFilterButton
+              activeFilter === filter && styles.activeFilterButton,
             ]}
-            onPress={() => setActiveFilter(filter)}
-          >
+            onPress={() => setActiveFilter(filter)}>
             <Text style={styles.filterText}>{filter}</Text>
-            {/* <Icon name="keyboard-arrow-down" size={18} color="#000" /> */}
           </TouchableOpacity>
         ))}
       </View>
@@ -186,13 +203,12 @@ const Transactions = ({ navigation }) => {
         </View>
       ) : (
         <FlatList
-        data={groupedData}
-        keyExtractor={(item) => item.groupKey}
-        renderItem={renderGroup}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
-      
+          data={groupedData}
+          keyExtractor={item => item.groupKey}
+          renderItem={renderGroup}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
+        />
       )}
     </SafeAreaView>
   );
@@ -205,23 +221,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  header: {
+  headerContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingTop: 20,
+    position: 'relative',
   },
-  backButton: {
-    padding: 4,
+
+  header: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1E293B',
+    letterSpacing: 0.5,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000000',
-  },
+
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

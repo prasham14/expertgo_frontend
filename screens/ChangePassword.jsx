@@ -18,7 +18,7 @@ const ChangePassword = ({ navigation, route}) => {
         }
 
         try {
-            const response = await axios.patch(`http://10.0.2.2:3000/user/changepassword/${email}`, {
+            const response = await axios.patch(`https://expertgo-v1.onrender.com/user/changepassword/${email}`, {
                 newPassword
             });
             Alert.alert("Success", response.data.message || "Password changed successfully!");

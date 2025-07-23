@@ -40,7 +40,7 @@ const ChatScreen = ({ route, navigation }) => {
         setUserEmail(email);
         
         // Initialize socket connection
-        const socketInstance = io('http://10.0.2.2:3000');
+        const socketInstance = io('https://expertgo-v1.onrender.com');
         
         socketInstance.on('connect', () => {
           console.log('Socket connected in chat screen');
@@ -50,7 +50,7 @@ const ChatScreen = ({ route, navigation }) => {
         setSocket(socketInstance);
         
         // Fetch previous messages
-        const response = await axios.get(`http://10.0.2.2:3000/chat/get-messages/${conversationId}`);
+        const response = await axios.get(`https://expertgo-v1.onrender.com/chat/get-messages/${conversationId}`);
         
         if (response.data.success) {
           setMessages(response.data.messages);
@@ -158,7 +158,7 @@ const ChatScreen = ({ route, navigation }) => {
 
   const markMessagesAsRead = async (messageIds) => {
     try {
-      await axios.post('http://10.0.2.2:3000/chat/mark-read', { messageIds });
+      await axios.post('https://expertgo-v1.onrender.com/chat/mark-read', { messageIds });
       
       // Notify the sender that messages were read
       if (socket) {
@@ -188,7 +188,7 @@ const ChatScreen = ({ route, navigation }) => {
       setMessageText('');
       
       // Send message to server
-      const response = await axios.post('http://10.0.2.2:3000/chat/send', messageData);
+      const response = await axios.post('https://expertgo-v1.onrender.com/chat/send', messageData);
       
       if (response.data.success) {
         // Add server-generated message ID

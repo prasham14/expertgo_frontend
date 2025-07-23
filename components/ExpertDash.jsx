@@ -20,7 +20,7 @@ const navigation = useNavigation();
         }
 
         // Fetch upcoming meetings using your API
-        const response = await axios.get(`http://10.0.2.2:3000/meet/upcoming-meetings/${expertId}`)
+        const response = await axios.get(`https://expertgo-v1.onrender.com/meet/upcoming-meetings/${expertId}`)
         console.log("meetings : " , response)
         if (response.data && response.data.upcomingCount !== undefined) {
           setUpcomingCalls(response.data.upcomingCount)
