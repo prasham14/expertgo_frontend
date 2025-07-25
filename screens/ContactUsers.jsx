@@ -1,4 +1,3 @@
-// 3. Create a Contacts/Users Screen for starting new chats
 import React, { useState, useEffect } from 'react';
 import {
   View,

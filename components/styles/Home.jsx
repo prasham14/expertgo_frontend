@@ -5,7 +5,7 @@ const { width } = Dimensions.get('window');
 const homeStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FB',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     backgroundColor: '#FFFFFF',
@@ -18,7 +18,6 @@ const homeStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 5,
   },
   headerControls: {
     flexDirection: 'row',
@@ -128,15 +127,11 @@ const homeStyles = StyleSheet.create({
   },
   testimonialCard: {
     width: width * 0.75,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F0F0F2',
     borderRadius: 20,
     padding: 20,
     marginRight: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+
   },
   testimonialHeader: {
     flexDirection: 'row',
@@ -155,7 +150,7 @@ const homeStyles = StyleSheet.create({
   testimonialInitial: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#F0F0F2',
   },
   testimonialName: {
     fontSize: 16,
@@ -270,7 +265,7 @@ const homeStyles = StyleSheet.create({
   },
   categoryCard: {
     width: '48%',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F0F0F2',
     borderRadius: 20,
     padding: 20,
     marginBottom: 15,
@@ -278,7 +273,8 @@ const homeStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
-    elevation: 2,
+    position: 'relative',
+    minHeight: 120,
   },
   categoryDark: {
     backgroundColor: '#333333',
@@ -301,93 +297,125 @@ const homeStyles = StyleSheet.create({
     color: '#CCCCCC',
   },
   categoryButton: {
-    backgroundColor: '#83C5BE',
+    backgroundColor: '#4267b2',
     borderRadius: 20,
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'flex-end',
+    position: 'absolute',
+    bottom: 15,
+    right: 15,
   },
   welcomeSection: {
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingTop: 25,
+    paddingBottom: 15,
+    backgroundColor: '#F0F0F2',
+    marginHorizontal: 20,
+    marginTop: 20,
+
   },
   welcomeText: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: '#333333',
-    marginBottom: 5,
+    marginBottom: 8,
+    letterSpacing: 0.5,
   },
   welcomeSubtext: {
     fontSize: 16,
     color: '#666666',
+    lineHeight: 22,
+    fontWeight: '400',
   },
   specialSection: {
-    marginTop: 20,
+    marginTop: 30,
     paddingHorizontal: 20,
   },
   specialHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 20,
+    paddingHorizontal: 5,
   },
   specialTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
     color: '#333333',
+    letterSpacing: 0.3,
   },
   seeAllText: {
-    fontSize: 14,
-    color: '#83C5BE',
-    fontWeight: '500',
+    fontSize: 15,
+    color: '#4267b2',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
   expertCard: {
     backgroundColor: '#E8F8F7',
     borderRadius: 20,
-    padding: 20,
+    padding: 25,
     marginRight: 15,
     width: width * 0.8,
     marginBottom: 5,
+    borderWidth: 1,
+    borderColor: '#D1FAE5',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+   
   },
   expertName: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '800',
     color: '#333333',
-    marginBottom: 5,
+    marginBottom: 6,
+    letterSpacing: 0.3,
   },
   expertSpeciality: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#666666',
-    marginBottom: 10,
+    marginBottom: 15,
+    fontWeight: '500',
   },
   expertMeta: {
     flexDirection: 'row',
-    marginBottom: 15,
+    marginBottom: 20,
+    paddingTop: 5,
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
   },
   metaText: {
-    fontSize: 12,
-    color: '#666666',
-    marginLeft: 5,
+    fontSize: 16,
+    color: '#333333',
+    marginLeft: 6,
+    fontWeight: '600',
   },
   bookButton: {
-    backgroundColor: '#83C5BE',
+    backgroundColor: '#10B981',
     borderRadius: 25,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
+    paddingVertical: 14,
+    paddingHorizontal: 30,
     alignSelf: 'flex-start',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+
   },
   bookButtonText: {
     color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
+    fontWeight: '700',
+    fontSize: 15,
+    letterSpacing: 0.5,
   },
   tabBar: {
     flexDirection: 'row',
@@ -398,7 +426,6 @@ const homeStyles = StyleSheet.create({
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
-    elevation: 10,
     paddingVertical: 10,
   },
   tabItem: {
@@ -422,38 +449,353 @@ const homeStyles = StyleSheet.create({
     fontWeight: '500',
   },
   bankPromptContainer: {
-  backgroundColor: '#FFF7ED',
-  borderColor: '#FDBA74',
-  borderWidth: 1,
-  borderRadius: 10,
-  padding: 16,
-  marginHorizontal: 16,
-  marginBottom: 20,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
+    backgroundColor: '#FFF7ED',
+    borderColor: '#FDBA74',
+    borderWidth: 1,
+    borderRadius: 15,
+    padding: 20,
+    marginHorizontal: 20,
+    marginVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#F97316',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+  },
 
-bankPromptText: {
-  color: '#92400E',
-  fontSize: 15,
-  marginBottom: 10,
-  textAlign: 'center',
-  fontWeight: '500',
-},
+  bankPromptText: {
+    color: '#92400E',
+    fontSize: 16,
+    marginBottom: 15,
+    textAlign: 'center',
+    fontWeight: '600',
+    lineHeight: 22,
+  },
 
-bankPromptButton: {
-  backgroundColor: '#F97316',
-  paddingVertical: 10,
-  paddingHorizontal: 24,
-  borderRadius: 8,
-},
+  bankPromptButton: {
+    backgroundColor: '#F97316',
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+    borderRadius: 25,
+    shadowColor: '#F97316',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
 
-bankPromptButtonText: {
-  color: '#FFFFFF',
-  fontWeight: '600',
-  fontSize: 14,
-},
+  bankPromptButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 15,
+    letterSpacing: 0.5,
+  },
 
+  // Enhanced category styles
+  categoriesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 0,
+    marginTop: 10,
+  },
+
+  // Enhanced testimonial styles with better spacing and colors
+  testimonialSection: {
+    paddingVertical: 30,
+    marginHorizontal: 20,
+    marginTop: 10,
+  },
+
+  testimonialCard: {
+    width: width * 0.75,
+    backgroundColor: '#F0F0F2',
+    borderRadius: 25,
+    padding: 25,
+    marginRight: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    borderWidth: 1,
+    borderColor: '#F0F0F2',
+  },
+
+  testimonialHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+
+  testimonialAvatar: {
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
+    backgroundColor: '#4267b2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    shadowColor: '#4267b2',
+    shadowOffset: { width: 0, height: 2 },
+  },
+
+  testimonialInitial: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+
+  testimonialName: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#333333',
+    letterSpacing: 0.3,
+  },
+
+  testimonialText: {
+    fontSize: 15,
+    color: '#666666',
+    lineHeight: 24,
+    marginBottom: 15,
+    fontStyle: 'italic',
+    fontWeight: '400',
+  },
+
+  testimonialRating: {
+    flexDirection: 'row',
+    marginTop: 8,
+    justifyContent: 'flex-start',
+  },
+
+  // Enhanced support section
+  supportSection: {
+    background: '#F0F0F2',
+    backgroundColor: '#F0F0F2',
+    borderRadius: 25,
+    padding: 30,
+    marginHorizontal: 20,
+    marginVertical: 30,
+    shadowColor: '#4A6572',
+
+  },
+
+  supportTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#000000',
+    marginBottom: 8,
+    letterSpacing: 0.5,
+  },
+
+  supportText: {
+    fontSize: 16,
+    color: '#000000',
+    opacity: 0.9,
+    marginBottom: 20,
+    lineHeight: 24,
+    fontWeight: '400',
+  },
+
+  supportButton: {
+    backgroundColor: '#4267b2',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 30,
+    alignSelf: 'flex-start',
+   
+  },
+
+  supportButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 16,
+    marginLeft: 8,
+    letterSpacing: 0.5,
+  },
+
+  // Enhanced how it works section
+  howItWorksSection: {
+    paddingHorizontal: 25,
+    paddingVertical: 30,
+    backgroundColor: '#F0F0F2',
+    borderRadius: 25,
+    marginHorizontal: 20,
+    marginTop: 25,
+    marginBottom: 30,
+    shadowColor: '#000',
+ 
+    borderWidth: 1,
+    borderColor: '#F0F0F2',
+  },
+
+  stepsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+
+  stepCard: {
+    width: '30%',
+    alignItems: 'center',
+    paddingVertical: 15,
+  },
+
+  stepNumber: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#4267b2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+    shadowColor: '#4267b2',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+  },
+
+  stepNumberText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+
+  stepTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333333',
+    marginBottom: 8,
+    textAlign: 'center',
+    letterSpacing: 0.3,
+  },
+
+  stepDescription: {
+    fontSize: 13,
+    color: '#666666',
+    textAlign: 'center',
+    lineHeight: 18,
+    fontWeight: '400',
+  },
+
+  welcomeSection: {
+    paddingHorizontal: 25,
+    paddingVertical: 30,
+    backgroundColor: '#F0F0F2',
+    marginHorizontal: 20,
+    marginTop: 20,
+    borderRadius: 25,
+    shadowColor: '#000',
+
+    borderWidth: 1,
+    borderColor: '#E8F8F7',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+
+  welcomeText: {
+    fontSize: 30,
+    fontWeight: '900',
+    color: '#333333',
+    marginBottom: 10,
+    letterSpacing: 0.8,
+    textAlign: 'left',
+  },
+
+  welcomeSubtext: {
+    fontSize: 17,
+    color: '#666666',
+    lineHeight: 26,
+    fontWeight: '500',
+    textAlign: 'left',
+  },
+
+  // Enhanced modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalContent: {
+    width: width * 0.9,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 30,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 15,
+  },
+
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 1,
+    backgroundColor: '#F2F2F7',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  portfolioContainer: {
+    alignItems: 'center',
+    paddingVertical: 25,
+    paddingHorizontal: 10,
+  },
+
+  portfolioIcon: {
+    marginBottom: 20,
+  },
+
+  portfolioTitle: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#333333',
+    marginBottom: 15,
+    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+
+  portfolioDescription: {
+    fontSize: 17,
+    color: '#666666',
+    textAlign: 'center',
+    marginBottom: 25,
+    lineHeight: 26,
+    fontWeight: '400',
+  },
+
+  portfolioButton: {
+    backgroundColor: '#4267B2',
+    paddingVertical: 18,
+    paddingHorizontal: 35,
+    borderRadius: 30,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 15,
+    shadowColor: '#4267B2',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+  },
+
+  portfolioButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
 });
 
 export default homeStyles;

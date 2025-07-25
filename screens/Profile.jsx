@@ -1,4 +1,3 @@
-// Profile.js (Restructured to match UI design)
 import React, {useEffect, useState, useContext} from 'react';
 import {
   Text,
@@ -42,13 +41,12 @@ const Profile = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const route = useRoute();
-  const name =  AsyncStorage.getItem('name');
-    const email =  AsyncStorage.getItem('email');
+  const name = AsyncStorage.getItem('name');
+  const email = AsyncStorage.getItem('email');
   // Extract route params
   const {userId, userRole} = route.params;
   const {clearUserData} = useContext(UserContext);
   const {setUserEmail} = useContext(UserContext);
- 
   const [editUserNameModalVisible, setEditUserNameModalVisible] =
     useState(false);
   const [usernameInput, setUsernameInput] = useState('');
@@ -62,6 +60,9 @@ const Profile = () => {
 
   // Destructure expert data
   const {bio, isAvailable, isVerified} = expertData;
+  const [deleteEmailOtpModal, setDeleteEmailOtpModal] = useState(false);
+  const [deleteOtp, setDeleteOtp] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -206,9 +207,7 @@ const Profile = () => {
   const becomeAnExpert = () => {
     dispatch(becomeExpert(userId))
       .unwrap()
-      .then(() => {
-        navigation.replace('MainTabs');
-      })
+      .then(() => navigation.replace('MainTabs'))
       .catch(err => {
         Alert.alert('Error', 'Could not update.');
       });
@@ -216,7 +215,7 @@ const Profile = () => {
 
   // Logout
   const handleLogout = async () => {
-    await clearUserData();
+    await AsyncStorage.multiRemove(['userId', 'email', 'userRole']);
     navigation.replace('Google');
   };
 
@@ -227,12 +226,65 @@ const Profile = () => {
       </View>
     );
   }
+  const handleDeleteUserAccount = async () => {
+    try {
+      const email = await AsyncStorage.getItem('email');
+      console.log('called');
+      if (!email) {
+        Alert.alert('Error', 'Email not found in local storage.');
+        return;
+      }
+
+      setOtpLoading(true);
+
+      await axios.get(`https://expertgo-v1.onrender.com/user/verify/${email}`);
+
+      setOtpLoading(false);
+      setDeleteEmailOtpModal(true);
+      Alert.alert('Succcess', 'Your account has been deleted.');
+    } catch (err) {
+      setOtpLoading(false);
+      console.error('OTP send error:', err);
+      Alert.alert('Error', 'Failed to send OTP. Try again later.');
+    }
+  };
+  const verifyAndDeleteUserAccount = async () => {
+    try {
+      const storedEmail = await AsyncStorage.getItem('email');
+      if (!storedEmail || !deleteOtp) {
+        Alert.alert('Error', 'Email or OTP missing');
+        return;
+      }
+
+      const response = await axios.post(
+        `https://expertgo-v1.onrender.com/user/verify-otp`,
+        {
+          email: storedEmail,
+          otp: deleteOtp,
+          userId: userId,
+        },
+      );
+
+      if (response.data.success) {
+        await AsyncStorage.clear();
+        setDeleteEmailOtpModal(false);
+        navigation.replace('Google');
+      } else {
+        Alert.alert('Error', response.data.message || 'Verification failed');
+      }
+    } catch (err) {
+      console.error('Verification error:', err);
+      Alert.alert(
+        'Error',
+        err.response?.data?.message || 'Invalid OTP or internal error.',
+      );
+    }
+  };
 
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
         {/* Profile Header */}
-        <Text style={styles.profileTitle}>PROFILE</Text>
 
         {/* Main Profile Section */}
         {userData && (
@@ -268,31 +320,24 @@ const Profile = () => {
                       setEditUserNameModalVisible(true);
                     }}
                     style={styles.nameButton}>
-                    <Text style={styles.userName}>
-                      {name || 'N/A'}
-                    </Text>
-                      {isVerified && (
-                    <View style={styles.verificationBadge}>
-                      <MaterialIcons
-                        name="verified"
-                        size={26}
-                        color="#0096FF"
-                      />
-                    </View>
-                  )}
+                    <Text style={styles.userName}>{name || 'N/A'}</Text>
+                    {isVerified && (
+                      <View style={styles.verificationBadge}>
+                        <MaterialIcons
+                          name="verified"
+                          size={26}
+                          color="#0096FF"
+                        />
+                      </View>
+                    )}
                     <Feather name="edit-2" size={16} color="#666" />
                   </TouchableOpacity>
-
-                
                 </View>
 
                 <TouchableOpacity
                   style={styles.emailSection}
                   onPress={() => setEditEmailModal(true)}>
-                  <Text style={styles.emailText}>
-                    {email || 'N/A'}
-                  </Text>
-                  <Feather name="edit-2" size={16} color="#666" />
+                  <Text style={styles.emailText}>{email || 'N/A'}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -319,7 +364,7 @@ const Profile = () => {
             {/* Loading indicator */}
             {loading && (
               <View style={styles.uploadingContainer}>
-                <ActivityIndicator color="#4A80F0" size="small" />
+                <ActivityIndicator color="#000000" size="small" />
                 <Text style={styles.uploadingText}>Uploading...</Text>
               </View>
             )}
@@ -331,16 +376,20 @@ const Profile = () => {
             <View style={styles.bioHeader}>
               <Text style={styles.bioTitle}>Bio</Text>
               {!isEditing && (
-                <TouchableOpacity onPress={handleEditBio}>
-                  <Feather name="edit-2" size={16} color="#666" />
-                </TouchableOpacity>
+                <TouchableOpacity onPress={handleEditBio}></TouchableOpacity>
               )}
             </View>
 
             {!isEditing ? (
-              <Text style={styles.bioText}>
-                {bio || 'Add your professional bio here...'}
-              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setTempBio(bio); // set temp when starting edit
+                  setIsEditing(true);
+                }}>
+                <Text style={styles.bioText}>
+                  {bio || 'Add your professional bio here...'}
+                </Text>
+              </TouchableOpacity>
             ) : (
               <View style={styles.bioEditContainer}>
                 <TextInput
@@ -374,6 +423,7 @@ const Profile = () => {
             <TouchableOpacity
               style={styles.actionButton}
               onPress={becomeAnExpert}>
+              <Ionicons name="star-outline" size={20} color="#000000" />
               <Text style={styles.actionButtonText}>Become Expert</Text>
             </TouchableOpacity>
           )}
@@ -382,17 +432,19 @@ const Profile = () => {
             <TouchableOpacity
               style={styles.actionButton}
               onPress={() => navigation.navigate('EditPortfolio')}>
+              <Ionicons name="person-outline" size={20} color="#000000" />
               <Text style={styles.actionButtonText}>
                 Edit My Expert Profile
               </Text>
             </TouchableOpacity>
           )}
           {/* Get Verified Button */}
-          {!isVerified && userRole === 'expert' && (
+          {/* {!isVerified && userRole === 'expert' && (
             <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="shield-checkmark-outline" size={20} color="#000000" />
               <Text style={styles.actionButtonText}>Get Verified</Text>
             </TouchableOpacity>
-          )}
+          )} */}
 
           <TouchableOpacity
             style={styles.actionButton}
@@ -402,16 +454,31 @@ const Profile = () => {
                 navigation: navigation,
               })
             }>
+            <Ionicons name="card-outline" size={20} color="#000000" />
             <Text style={styles.actionButtonText}>Bank Details</Text>
           </TouchableOpacity>
-          {/* Settings Button */}
-          <TouchableOpacity style={styles.actionButton}>
-            <Text style={styles.actionButtonText}>Settings</Text>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => {
+              Alert.alert(
+                'Verify Deletion',
+                'An OTP will be sent to your registered email. Do you want to continue?',
+                [
+                  {text: 'Cancel', style: 'cancel'},
+                  {text: 'Send OTP', onPress: handleDeleteUserAccount},
+                ],
+              );
+            }}>
+            <MaterialIcons name="delete" size={20} color="#000000" />
+            <Text style={styles.actionButtonText}>Delete My Account</Text>
           </TouchableOpacity>
 
           {/* Logout Button */}
           <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
-            <Text style={styles.actionButtonText}>Logout</Text>
+            <Ionicons name="log-out-outline" size={20} color="#DC3545" />
+            <Text style={[styles.actionButtonText, {color: '#DC3545'}]}>
+              Logout
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -455,6 +522,7 @@ const Profile = () => {
             <TouchableOpacity
               style={styles.modalPrimaryButton}
               onPress={handleEditUserName}>
+              <Ionicons name="checkmark" size={18} color="#FFF" />
               <Text style={styles.modalButtonText}>Save Changes</Text>
             </TouchableOpacity>
 
@@ -486,11 +554,10 @@ const Profile = () => {
               // Step 1: Enter new email and send OTP
               <>
                 <View style={styles.modalInputContainer}>
-                 
                   <TextInput
                     style={styles.modalInput}
                     placeholder="Enter your new email"
-                    placeholderTextColor='#888'
+                    placeholderTextColor="#888"
                     value={emailVerification.newEmail}
                     onChangeText={text =>
                       dispatch(setEmailVerificationState({newEmail: text}))
@@ -519,8 +586,7 @@ const Profile = () => {
                   <TextInput
                     style={styles.otpInput}
                     placeholder="Enter OTP"
-                                        placeholderTextColor='#888'
-
+                    placeholderTextColor="#888"
                     keyboardType="numeric"
                     value={otp}
                     onChangeText={setOtp}
@@ -544,7 +610,7 @@ const Profile = () => {
                   style={styles.textButton}
                   onPress={handleSendOTP}
                   disabled={emailVerification.loading}>
-                  <Ionicons name="refresh-outline" size={16} color="#4A80F0" />
+                  <Ionicons name="refresh-outline" size={16} color="#000000" />
                   <Text style={styles.linkText}>Resend OTP</Text>
                 </TouchableOpacity>
               </>
@@ -560,6 +626,54 @@ const Profile = () => {
             <TouchableOpacity
               style={styles.modalSecondaryButton}
               onPress={resetEmailModal}>
+              <Text style={styles.modalSecondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent
+        visible={deleteEmailOtpModal}
+        onRequestClose={() => setDeleteEmailOtpModal(false)}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Confirm Deletion</Text>
+              <TouchableOpacity onPress={() => setDeleteEmailOtpModal(false)}>
+                <Ionicons name="close" size={24} color="#555" />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.infoText}>
+              Enter the OTP sent to your registered email to permanently delete
+              your account.
+            </Text>
+
+            <TextInput
+              style={styles.otpInput}
+              placeholder="Enter OTP"
+              placeholderTextColor="#888"
+              keyboardType="number-pad"
+              value={deleteOtp}
+              onChangeText={text => {
+                // Only allow numeric input
+                const numericText = text.replace(/[^0-9]/g, '');
+                setDeleteOtp(numericText);
+              }}
+              maxLength={4}
+            />
+
+            <TouchableOpacity
+              style={styles.modalPrimaryButton}
+              onPress={verifyAndDeleteUserAccount}>
+              <Ionicons name="trash" size={18} color="#FFF" />
+              <Text style={styles.modalButtonText}>Delete My Account</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.modalSecondaryButton}
+              onPress={() => setDeleteEmailOtpModal(false)}>
               <Text style={styles.modalSecondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>

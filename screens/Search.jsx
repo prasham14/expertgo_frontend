@@ -230,15 +230,10 @@ const [hasSearched, setHasSearched] = useState(false);
           </Text>
           <Ionicons name="star" size={14} color="#FFD700" />
         </View>
-        {/* <View style={styles.featuredExpertRating}>
-          <Text style={styles.featuredRatingText}>
-            {item.isAvailable ? ('Available'):('Currently Unavailable') || '0.0'}
-          </Text>
-        </View> */}
         <TouchableOpacity
           style={styles.visitButton}
           onPress={() => navigateToPortfolio(item.userId?._id)}
-          activeOpacity={0.8}
+          activeOpacity={0.8} 
         >
           <Text style={styles.visitButtonText}>Visit Profile</Text>
         </TouchableOpacity>

@@ -1,4 +1,5 @@
 // store/slices/profileSlice.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -161,6 +162,7 @@ export const becomeExpert = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await axios.patch(`${BASE_URL}/profile/becomeExpert/${userId}`);
+      await AsyncStorage.setItem('userRole','expert');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

@@ -2,30 +2,34 @@ import {
   Text,
   View,
   FlatList,
+  Modal,
   TouchableOpacity,
+  TextInput,
   Alert,
   Linking,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNavigation} from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import styles from '../components/styles/Meetings';
-import MeetingReviewModal from '../components/MeetingReview';
 import {UserContext} from '../context/Context';
-const Meetings = () => {
+
+const ExpertMeetings = () => {
   const {userRole, userId} = useContext(UserContext);
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState(null);
-  const[currReviewMeeting,setCurrReviewMeeting] = useState(null);
+  const [delayModal, setDelayModal] = useState(false);
+  const [newTime, setNewTime] = useState('');
+  const [selectedMeetingId, setSelectedMeetingId] = useState(null);
+  const [selectedExpertEmail, setSelectedExpertEmail] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [cancelModal, setCancelModal] = useState(false);
   const [isRefundProcessed, setIsRefundProcessed] = useState(false);
-
-  const handleReviewSubmit = () => {
-    setShowReviewModal(false);
-  };
+  const navigation = useNavigation();
 
   function isMeetingProperlyDone(meetingDetails, analytics) {
     const {startTime, endTime} = meetingDetails;
@@ -43,11 +47,12 @@ const Meetings = () => {
     if (!userEnterTime || !expertEnterTime || !userEndTime || !expertEndTime) {
       return false;
     }
+    console.log('yes');
 
     if (totalMembers.length < 2) {
       return false;
     }
-
+    console.log('yes');
     const MINIMUM_DURATION_MINUTES = 1;
     if (
       durationInMinutesUser < MINIMUM_DURATION_MINUTES ||
@@ -55,7 +60,7 @@ const Meetings = () => {
     ) {
       return false;
     }
-
+    console.log('yes');
     const userStart = new Date(userEnterTime).getTime();
     const userEnd = new Date(userEndTime).getTime();
     const expertStart = new Date(expertEnterTime).getTime();
@@ -63,65 +68,62 @@ const Meetings = () => {
 
     const overlapStart = Math.max(userStart, expertStart);
     const overlapEnd = Math.min(userEnd, expertEnd);
-    const overlapDuration = (overlapEnd - overlapStart) / 60000; 
+    const overlapDuration = (overlapEnd - overlapStart) / 60000; // in minutes
 
     if (overlapDuration < MINIMUM_DURATION_MINUTES) {
       return false;
     }
-
+    console.log('yes');
+    console.log(userEnterTime, expertEnterTime);
+    // 5. Check how close actual duration was to scheduled duration
     const scheduledDuration = (new Date(endTime) - new Date(startTime)) / 60000;
-
-    const maxAllowedDiff = 3; 
+    console.log(scheduledDuration);
+    const maxAllowedDiff = 3;
     const averageActualDuration =
       (durationInMinutesUser + durationInMinutesExpert) / 2;
 
+    console.log(averageActualDuration);
     if (Math.abs(scheduledDuration - averageActualDuration) > maxAllowedDiff) {
       return false;
     }
-
+    console.log('yes');
     return true;
   }
 
-  const [showReviewModal, setShowReviewModal] = useState(false);
   const [expertDone, setExpertDone] = useState(false);
-  const [completedMeetingId, setCompletedMeetingId] = useState('');
-  const checkIfMeetingDone = async () => {
+
+  const checkIfMeetingDoneExpert = async () => {
     try {
       const res = await axios.get(
-        `https://expertgo-v1.onrender.com/meet/user-meetingEnded/${userId}`,
+        `https://expertgo-v1.onrender.com/meet/expert-meetingEnded/${userId}`,
         {
           validateStatus: function (status) {
             return (status >= 200 && status < 300) || status === 404;
           },
         },
       );
+
       if (res.status === 404) {
         console.log('Meeting not found');
         return;
       }
-      console.log(res);
+
       if (res.data.success) {
         const analytics = res.data.data;
         const meetingDetails = res.data.meetingdetails;
-        setCompletedMeetingId(meetingDetails._id);
+        console.log('det', meetingDetails);
+        id(meetingDetails)
         const isValid = isMeetingProperlyDone(meetingDetails, analytics);
         if (isValid) {
-          let id = meetingDetails._id;
-          await axios.get(
-            `https://expertgo-v1.onrender.com/meet/meeting-done-user/${id}`,
-          );
-          await axios.get(
-            `https://expertgo-v1.onrender.com/meet/meeting-done/${id}`,
-          );
+          setExpertDone(true);
         }
-
-        console.log(isValid);
+        console.log('valid', isValid);
       }
     } catch (err) {
       console.error('Meeting validation failed', err);
     }
   };
- 
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -146,10 +148,8 @@ const Meetings = () => {
 
     setLoading(true);
     try {
-      const endpoint = `https://expertgo-v1.onrender.com/meet/user-meetings/${userId}`;
-
+      const endpoint = `https://expertgo-v1.onrender.com/meet/expert-meetings/${userId}`
       const response = await axios.get(endpoint);
-      console.log(response)
       setMeetings(response.data.data);
     } catch (error) {
       console.error('Error fetching meetings:', error);
@@ -161,32 +161,128 @@ const Meetings = () => {
   };
 
   useEffect(() => {
-    checkIfMeetingDone();
+   checkIfMeetingDoneExpert();
   }, []);
 
   const handleRefresh = () => {
     setRefreshing(true);
     fetchMeetings();
-    checkIfMeetingDone();
+     checkIfMeetingDoneExpert();
+  };
+
+  const handleCancelMeeting = async (meetingId, userEmail) => {
+    try {
+      console.log('id :', meetingId, userEmail, userId);
+      // Get confirmation from user
+      Alert.alert(
+        'Cancel Meeting',
+        'Are you sure you want to cancel this meeting?',
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes, Cancel',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                const response = await axios.get(
+                  `https://expertgo-v1.onrender.com/noti/get-user-fcm/${userEmail}`,
+                );
+                const fcmToken = response.data.fcm;
+
+                const notificationData = {
+                  token: fcmToken,
+                  title: 'Sorry! The Expert cancelled the meeting',
+                  body: 'The meeting has been cancelled by the Expert.',
+                };
+                console.log(meetingId);
+                await axios.post(
+                  'https://expertgo-v1.onrender.com/noti/send-notification',
+                  notificationData,
+                );
+                await axios.delete(
+                  `https://expertgo-v1.onrender.com/meet/delete-meeting/${meetingId}/${userId}`,
+                );
+
+                setMeetings(
+                  meetings.filter(meeting => meeting._id !== meetingId),
+                );
+                Alert.alert('Success', 'Meeting canceled successfully.');
+              } catch (error) {
+                console.error('Error canceling meeting:', error);
+                Alert.alert('Error', 'Failed to cancel the meeting.');
+              }
+            },
+          },
+        ],
+      );
+    } catch (error) {
+      console.error('Error in cancelMeeting:', error);
+      Alert.alert('Error', 'Failed to process your request.');
+    }
+  };
+
+
+  const handleTimeChange = async () => {
+    if (!newTime) {
+      Alert.alert('Error', 'Please enter a new time.');
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `https://expertgo-v1.onrender.com/noti/get-user-fcm/${selectedExpertEmail}`,
+      );
+      const fcmToken = response.data.fcm;
+
+      const notificationData = {
+        token: fcmToken,
+        title: 'User wants to change the timing',
+        body: `The meeting has been delayed to ${newTime}.`,
+      };
+
+      await axios.post(
+        'https://expertgo-v1.onrender.com/noti/send-notification',
+        notificationData,
+      );
+      await axios.patch(
+        `https://expertgo-v1.onrender.com/meetings/change-time/${selectedMeetingId}`,
+        {time: newTime},
+      );
+
+      // Update the meeting in the local state
+      setMeetings(
+        meetings.map(meeting =>
+          meeting._id === selectedMeetingId
+            ? {...meeting, preferredTime: newTime}
+            : meeting,
+        ),
+      );
+
+      Alert.alert('Success', 'Meeting time updated.');
+      setDelayModal(false);
+      setNewTime('');
+    } catch (error) {
+      console.error('Error changing meeting time:', error);
+      Alert.alert('Error', 'Failed to update meeting time.');
+    }
+  };
+  const handleTnC = () => {
+    setCancelModal(false);
+    navigation.navigate('CancelTnC');
   };
 
   const isMeetingActive = meetingTime => {
     const meetingDate = new Date(meetingTime);
     const now = new Date();
+
     const diffInMinutes = Math.abs(meetingDate - now) / (1000 * 60);
+
     return diffInMinutes <= 720;
   };
 
-  const handleRefund = async transactionId => {
-    console.log('i called', transactionId);
-    const response = await axios.get(
-      `https://expertgo-v1.onrender.com/meet/refund/${transactionId}`,
-    );
-    if (response) {
-      setIsRefundProcessed(true);
-    }
-    console.log(response);
-  };
   const isMeetingExpired = meetingTime => {
     const meetingDate = new Date(meetingTime);
     const now = new Date();
@@ -244,6 +340,7 @@ const Meetings = () => {
     );
   }
 
+
   const openBrowser = async (expertId, userId) => {
     console.log('dd', userId, expertId);
     console.log(userRole);
@@ -280,11 +377,13 @@ const Meetings = () => {
 
   const renderMeetingCard = ({item}) => {
     console.log(item.userId, item.expertId);
-    
-    console.log("here",item);
+
     const isActive = isMeetingActive(item.startTime);
     const isExpired = isMeetingExpired(item.endTime);
     const timeRemaining = getTimeRemaining(item.startTime);
+    const isCompleted = item.status === 'completed';
+    console.log('meet', isCompleted);
+    console.log('status', item.status);
     return (
       <View
         style={[
@@ -329,15 +428,12 @@ const Meetings = () => {
 
         <View style={styles.meetingDetails}>
           <View style={styles.detailRow}>
-            <MaterialCommunityIcons
-              name="account-tie"
-              size={20}
-              color="#4F6C92"
-            />
+            <MaterialCommunityIcons name="account" size={20} color="#4F6C92" />
             <Text style={styles.meetingDetailText}>
-              Expert: {item.expertDetails.email}
+              {item.userDetails.name}
             </Text>
           </View>
+
           <View style={styles.detailRow}>
             <MaterialCommunityIcons
               name="clock-outline"
@@ -355,55 +451,28 @@ const Meetings = () => {
         </View>
 
         <View style={styles.buttonRow}>
-          {item.status === 'refund' ? (
-            <TouchableOpacity
-              style={[styles.callButton]}
-              onPress={() => {
-                Alert.alert('Your Refund is processed');
-              }}>
-              {' '}
-              <MaterialIcons name={'money'} size={18} color="#FFF" />
-              <Text style={styles.buttonText}>{' Refund Processed.....'}</Text>
-            </TouchableOpacity>
-          ) : (
-             item.status === 'completed' ? ( <TouchableOpacity
-              style={[
-                styles.callButton,
-                !isActive && !isExpired && styles.disabledButton,
-                isExpired && styles.expiredCallButton,
-              ]}
-              onPress={() =>{ setShowReviewModal(true)
-                setCurrReviewMeeting(item)
-              }
-              }
-              >
-              {isActive && item.status === 'completed' && <Text style={styles.buttonText}>Give Review</Text>}
-              {isExpired && (
-                <Text style={styles.buttonText}>Request Refund</Text>
-              )}
-            </TouchableOpacity>):( <TouchableOpacity
-              style={[
-                styles.callButton,
-                !isActive && !isExpired && styles.disabledButton,
-                isExpired && styles.expiredCallButton,
-              ]}
-              onPress={() => {
-                if (isActive) {
-                  openBrowser(item.expertDetails.expertId._id, item.userId);
-                  console.log(item.expertId, item.userId);
-                } else if (isExpired) {
-                  handleRefund(item.transactionId);
-                }
-              }}
-              disabled={!isActive && !isExpired}>
-              {isActive && item.status !== 'completed' && <Text style={styles.buttonText}>Join Call</Text>}
-              {isExpired && (
-                <Text style={styles.buttonText}>Request Refund</Text>
-              )}
-            </TouchableOpacity>)
-            
-           
-          )}
+          <>
+            {isActive && (
+              <TouchableOpacity
+                style={[
+                  styles.callButton,
+                  !isActive ? styles.disabledButton : null,
+                  isExpired ? styles.expiredCallButton : null,
+                ]}
+                onPress={() => {
+                  openBrowser(item.expertId, item.userDetails.userId._id);
+                  console.log('yes;', item.expertId, item.userId);
+                }}
+                disabled={!isActive && !isExpired}>
+                <MaterialIcons
+                  name={isExpired ? 'error-outline' : 'video-call'}
+                  size={18}
+                  color="#FFF"
+                />
+                {isActive && <Text style={styles.buttonText}>Join Call</Text>}
+              </TouchableOpacity>
+            )}
+          </>
         </View>
       </View>
     );
@@ -424,7 +493,8 @@ const Meetings = () => {
       <FlatList
         data={meetings.filter(
           meeting =>
-            meeting.status !== 'completed-on-user'
+            meeting.status !== 'completed' &&
+            meeting.status !== 'completed-on-user',
         )}
         keyExtractor={item => item._id}
         contentContainerStyle={styles.listContainer}
@@ -434,14 +504,89 @@ const Meetings = () => {
         onRefresh={handleRefresh}
       />
 
-      <MeetingReviewModal
-        visible={showReviewModal}
-        onClose={() => setShowReviewModal(false)}
-        onSubmitReview={handleReviewSubmit}
-        meetingDetails={currReviewMeeting}
-      />
+      <Modal visible={cancelModal} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <MaterialCommunityIcons
+                name="clock-edit"
+                size={28}
+                color="#3A6EA5"
+              />
+              <Text style={styles.modalTitle}>
+                Are you sure ? Read T&C before cancelling Meeting
+              </Text>
+            </View>
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                onPress={() => handleCancelMeeting(item._id)}
+                style={styles.modalUpdateButton}>
+                <MaterialIcons name="check" size={18} color="#FFF" />
+                <Text style={styles.modalButtonText}>Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleTnC}
+                style={styles.modalCancelButton}>
+                <Text style={styles.modalButtonText}>T&C</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setCancelModal(false)}
+                style={styles.modalCancelButton}>
+                <MaterialIcons name="close" size={18} color="#FFF" />
+                <Text style={styles.modalButtonText}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal for changing meeting time */}
+      <Modal visible={delayModal} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <MaterialCommunityIcons
+                name="clock-edit"
+                size={28}
+                color="#3A6EA5"
+              />
+              <Text style={styles.modalTitle}>Reschedule Meeting</Text>
+            </View>
+
+            <View style={styles.modalInputContainer}>
+              <Text style={styles.modalLabel}>New Meeting Time</Text>
+              <TextInput
+                placeholder="YYYY-MM-DDThh:mm:ss (e.g., 2023-03-15T14:30:00)"
+                style={styles.modalInput}
+                value={newTime}
+                onChangeText={setNewTime}
+                placeholderTextColor="#999"
+              />
+              <Text style={styles.modalHelpText}>
+                Enter the new date and time in ISO format
+              </Text>
+            </View>
+
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                onPress={() => setDelayModal(false)}
+                style={styles.modalCancelButton}>
+                <MaterialIcons name="close" size={18} color="#FFF" />
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleTimeChange}
+                style={styles.modalUpdateButton}>
+                <MaterialIcons name="check" size={18} color="#FFF" />
+                <Text style={styles.modalButtonText}>Update Time</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
-export default Meetings;
+export default ExpertMeetings;

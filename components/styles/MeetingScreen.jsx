@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#fff',
     },
     createButton: {
-      backgroundColor: '#007bff',
+      backgroundColor: '#4267b2',
       borderRadius: 8,
       padding: 16,
       alignItems: 'center',
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
       borderColor: '#ddd',
     },
     payButton: {
-      backgroundColor: '#007bff',
+      backgroundColor: '#4267b2',
     },
     cancelButtonText: {
       color: '#212529',

@@ -5,7 +5,7 @@ const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F9FB',
+    backgroundColor: '#ffffff',
   },
   scrollContainer: {
     paddingHorizontal: 16,
@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
+    marginTop:10,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     marginLeft: 8,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#4267b2',
     borderRadius: 16,
     padding: 4,
   },
@@ -76,8 +77,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f4f4',
   },
   experienceButtonSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#4267b2',
+    borderColor: '#4267b2',
   },
   experienceButtonText: {
     color: '#333',
@@ -120,15 +121,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#eaeaea',
   },
   amPmButtonSelected: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#4267b2',
   },
   amPmText: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: '500',
   },
   submitButton: {
     marginTop: 10,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#4267b2',
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',

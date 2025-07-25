@@ -89,7 +89,7 @@ const Portfolio = ({ route, navigation }) => {
   const validateForm = () => {
     if (!bio.trim()) return Alert.alert('Validation Error', 'Please provide a bio');
     if (!currentPost.trim()) return Alert.alert('Validation Error', 'Please provide your current position');
-    if (categories.some(cat => !cat.trim())) return Alert.alert('Validation Error', 'Fill all categories or remove empty ones');
+    // if (categories.some(cat => !cat.trim())) return Alert.alert('Validation Error', 'Fill all categories or remove empty ones');
     if (!voiceCallCharge.trim() || isNaN(parseFloat(voiceCallCharge))) return Alert.alert('Validation Error', 'Provide a valid voice call charge');
     if (skills.some(skill => !skill.trim())) return Alert.alert('Validation Error', 'Fill all skills or remove empty ones');
     if (!startTime.trim() || !endTime.trim()) return Alert.alert('Validation Error', 'Provide both start and end times');
@@ -117,7 +117,7 @@ const Portfolio = ({ route, navigation }) => {
 
       if (res.data.success) {
         Alert.alert('Success', 'Expert profile created!', [
-          { text: 'OK', onPress: () => navigation.replace('MainTabs') },
+          { text: 'OK', onPress: () => {navigation.goBack()}},
         ]);
 
 await AsyncStorage.setItem('PortfolioData', JSON.stringify(payload));
@@ -134,15 +134,7 @@ await AsyncStorage.setItem('PortfolioData', JSON.stringify(payload));
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      {/* Step Indicator */}
-      <View style={local.stepContainer}>
-        {steps.map((step, index) => (
-          <View key={index} style={local.stepBox}>
-            <Text style={[local.stepText, currentStep === index && local.activeStep]}>{step}</Text>
-            {index < steps.length - 1 && <View style={local.stepDivider} />}
-          </View>
-        ))}
-      </View>
+      
 
       {/* Scrollable Form */}
       <ScrollView
@@ -244,7 +236,7 @@ await AsyncStorage.setItem('PortfolioData', JSON.stringify(payload));
             style={styles.input}
             value={currentPost}
             onChangeText={setCurrentPost}
-            placeholder="e.g. Senior Developer"
+            placeholder="e.g. Senior Developer, Lawyer at XYZ, Doctor in XYZ"
             placeholderTextColor="#aaa"
           />
 
@@ -262,10 +254,11 @@ await AsyncStorage.setItem('PortfolioData', JSON.stringify(payload));
             value={voiceCallCharge}
             onChangeText={setVoiceCallCharge}
             keyboardType="numeric"
+            placeholder='Enter a valid amount in INR'
             placeholderTextColor="#666"
           />
 
-          <Text style={styles.sectionTitle}>Availability</Text>
+          <Text style={styles.sectionTitle}>Enter time slots of your Availability</Text>
           <View style={styles.timingContainer}>
             <TextInput
               style={styles.timeInput}

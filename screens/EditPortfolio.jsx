@@ -152,11 +152,7 @@ const fetchExpertProfile = async () => {
       Alert.alert('Validation Error', 'Please provide a valid voice call charge');
       return false;
     }
-    
-    if (!videoCallCharge.trim() || isNaN(parseFloat(videoCallCharge))) {
-      Alert.alert('Validation Error', 'Please provide a valid video call charge');
-      return false;
-    }
+
     
     if (skills.some(skill => !skill.trim())) {
       Alert.alert('Validation Error', 'Please fill in all skills or remove empty ones');
@@ -237,12 +233,12 @@ const fetchExpertProfile = async () => {
         <View style={styles.formContainer}>
           {/* Name Section */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.label}>Full Name</Text>
+            <Text style={styles.label}>Bio</Text>
             <TextInput
               style={styles.input}
-              placeholder="Your display name"
-              value={name}
-              onChangeText={setName}
+              placeholder="Tell something about yourself"
+              value={bio}
+              onChangeText={setBio}
               placeholderTextColor="#aaa"
             />
           </View>

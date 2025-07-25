@@ -3,428 +3,402 @@ import {StyleSheet, Dimensions} from 'react-native';
 
 const {width, height} = Dimensions.get('window');
 
-const styles = StyleSheet.create({
-  // Main container styles
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-
-  scrollView: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-
-  // Profile title
-  profileTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 30,
-    marginTop: 20,
-  },
-
-  // Main profile section
-  profileMainSection: {
-    backgroundColor: '#F0F0F2',
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
+  const styles = StyleSheet.create({
+    scrollView: {
+      flex: 1,
+      backgroundColor: '#ffffff',
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    // elevation: 3,
-  },
-
-  // Profile image container
-  profileImageContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-    position: 'relative',
-  },
-
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#f0f0f0',
-  },
-
-  placeholderImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  placeholderText: {
-    fontSize: 32,
-    fontWeight: '600',
-    color: '#666',
-  },
-
-  imageEditButton: {
-    position: 'absolute',
-    bottom: -5,
-    right: width / 2 - 60,
-    backgroundColor: '#4A80F0',
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-
-  // User info section
-  userInfoSection: {
-    alignItems: 'center',
-  },
-
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    justifyContent: 'center',
-  },
-
-  nameButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-
-  userName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginRight: 8,
-  },
-
-  verificationBadge: {
-          marginRight: 16,
-    verificationBadge: {
-      marginRight: 16,
-      backgroundColor: '#E0F7FA',
+    container: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 40,
+      paddingBottom: 30,
+    },
+    profileTitle: {
+      fontSize: 28,
+      fontWeight: '800',
+      color: '#1A1A1A',
+      textAlign: 'center',
+      marginBottom: 30,
+      letterSpacing: 0.5,
+    },
+    profileMainSection: {
+      marginBottom: 25,
+    },
+    profileBox: {
+      backgroundColor: '#F0F0F2',
+      borderRadius: 20,
+      padding: 25,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+ 
+      position: 'relative',
+    },
+    profileImageContainer: {
+      alignSelf: 'center',
+      marginBottom: 20,
+      position: 'relative',
+    },
+    profileImage: {
+      width: 100,
+      height: 100,
       borderRadius: 50,
-      padding: 4,
+      borderWidth: 4,
+      borderColor: '#333333',
     },
-  },
-
-  verifiedText: {
-    fontSize: 14,
-    color: '#4A80F0',
-    fontWeight: '500',
-  },
-
-  emailSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-
-  emailText: {
-    fontSize: 16,
-    color: '#666',
-    marginRight: 8,
-  },
-
-  // Bio section
-  bioContainer: {
-    backgroundColor: '#F0F0F2',
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
+    placeholderImage: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      backgroundColor: '#E3F2FD',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 4,
+      borderColor: '#4A80F0',
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-
-  bioHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-
-  bioTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-
-  bioText: {
-    fontSize: 16,
-    color: '#666',
-    lineHeight: 22,
-  },
-
-  bioEditContainer: {
-    marginTop: 10,
-  },
-
-  bioInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 15,
-    fontSize: 16,
-    minHeight: 100,
-    textAlignVertical: 'top',
-    backgroundColor: '#f9f9f9',
-  },
-
-  bioActionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 15,
-  },
-
-  saveButton: {
-    backgroundColor: '#4A80F0',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginRight: 10,
-  },
-
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-
-  cancelButton: {
-    backgroundColor: '#ccc',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-
-  cancelButtonText: {
-    color: '#333',
-    fontWeight: '600',
-  },
-
-  // Action buttons container
-  actionButtonsContainer: {
-    marginTop: 10,
-    marginBottom: 20,
-  },
-
-  actionButton: {
-    backgroundColor: '#F0F0F2',
-    borderRadius: 15,
-    padding: 14,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
+    placeholderText: {
+      fontSize: 36,
+      fontWeight: '600',
+      color: '#4A80F0',
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
+    imageEditButton: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      backgroundColor: '#4A80F0',
+      borderRadius: 18,
+      width: 36,
+      height: 36,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 3,
+      borderColor: '#FFFFFF',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+    
+    },
+    userInfoSection: {
+      alignItems: 'center',
+    },
+    nameRow: {
+      marginBottom: 2,
+    },
+    nameButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#F0F0F2',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 12,
+    },
+    userName: {
+      fontSize: 22,
+      fontWeight: '700',
+      color: '#1A1A1A',
+      marginRight: 10,
+    },
+    verificationBadge: {
+      marginRight: 8,
+    },
+    emailSection: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#F0F0F2',
+      paddingHorizontal: 10,
+      paddingVertical: 12,
+    },
+    emailText: {
+      fontSize: 18,
+      color: '#666',
+      marginRight: 10,
+    },
+    availabilityToggleTopRight: {
+      position: 'absolute',
+      top: 20,
+      right: 20,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
 
-  actionButtonText: {
-    fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
-    fontWeight: '500',
-  },
+    },
+    availabilityToggleText: {
+      color: '#FFFFFF',
+      fontSize: 14,
+      fontWeight: '600',
+      marginLeft: 6,
+    },
+    uploadingContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 15,
+      padding: 12,
+      backgroundColor: '#E3F2FD',
+      borderRadius: 10,
+    },
+    uploadingText: {
+      marginLeft: 10,
+      fontSize: 14,
+      color: '#4A80F0',
+      fontWeight: '500',
+    },
+    bioContainer: {
+      backgroundColor: '#F0F0F2',
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 25,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+ 
+    },
+    bioHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 15,
+    },
+    bioTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#1A1A1A',
+    },
+    bioText: {
+      fontSize: 15,
+      color: '#555',
+      lineHeight: 22,
+    },
+    bioEditContainer: {
+      marginTop: 10,
+    },
+    bioInput: {
+      borderWidth: 1,
+      borderColor: '#DDD',
+      borderRadius: 12,
+      padding: 15,
+      fontSize: 15,
+      color: '#333',
+      minHeight: 100,
+      textAlignVertical: 'top',
+      backgroundColor: '#FAFAFA',
+    },
+    bioActionButtons: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      marginTop: 15,
+    },
+    saveButton: {
+      backgroundColor: '#28A745',
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 8,
+      marginRight: 10,
+    },
+    saveButtonText: {
+      color: '#FFFFFF',
+      fontWeight: '600',
+    },
+    cancelButton: {
+      backgroundColor: '#6C757D',
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 8,
+    },
+    cancelButtonText: {
+      color: '#FFFFFF',
+      fontWeight: '600',
+    },
+    actionButtonsContainer: {
+      marginTop: 10,
+    },
+    actionButton: {
+      backgroundColor: '#F0F0F2',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 20,
+      borderRadius: 14,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: '#E9ECEF',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
 
-  // Loading states
+    },
+    actionButtonText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#000000',
+      marginLeft: 8,
+    },
+    // Modal Styles
+    modalBackground: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContainer: {
+      backgroundColor: '#FFFFFF',
+      borderRadius: 20,
+      padding: 25,
+      width: '90%',
+      maxWidth: 400,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 10,
+      },
+     
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 25,
+      paddingBottom: 15,
+      borderBottomWidth: 1,
+      borderBottomColor: '#E9ECEF',
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: '#1A1A1A',
+    },
+    modalInputContainer: {
+      marginBottom: 20,
+    },
+    modalInput: {
+      borderWidth: 1,
+      borderColor: '#DDD',
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      fontSize: 16,
+      color: '#333',
+      backgroundColor: '#FAFAFA',
+    },
+    modalPrimaryButton: {
+      backgroundColor: '#4267b2',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 14,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+      marginBottom: 12,
+      shadowColor: '#4A80F0',
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      
+    },
+    modalButtonText: {
+      color: '#FFFFFF',
+      fontSize: 16,
+      fontWeight: '600',
+      marginLeft: 8,
+    },
+    modalSecondaryButton: {
+      backgroundColor: 'transparent',
+      borderWidth: 1,
+      borderColor: '#DDD',
+      paddingVertical: 14,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    modalSecondaryButtonText: {
+      color: '#666',
+      fontSize: 16,
+      fontWeight: '500',
+    },
+    otpContainer: {
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    infoText: {
+      fontSize: 14,
+      color: '#666',
+      textAlign: 'center',
+      marginBottom: 15,
+      lineHeight: 20,
+    },
+    otpInput: {
+      borderWidth: 2,
+      borderColor: '#4A80F0',
+      borderRadius: 12,
+      paddingHorizontal: 20,
+      paddingVertical: 14,
+      fontSize: 18,
+      fontWeight: '600',
+      textAlign: 'center',
+      color: '#333',
+      backgroundColor: '#F8F9FA',
+      letterSpacing: 8,
+      width: 120,
+    },
+    textButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 10,
+      marginBottom: 10,
+    },
+    linkText: {
+      color: '#4A80F0',
+      fontSize: 14,
+      fontWeight: '500',
+      marginLeft: 6,
+    },
+    errorContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#FFEBEE',
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      borderRadius: 8,
+      marginBottom: 15,
+      borderLeftWidth: 4,
+      borderLeftColor: '#DC3545',
+    },
+    errorText: {
+      color: '#DC3545',
+      fontSize: 14,
+      marginLeft: 8,
+      flex: 1,
+    },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F8F9FB',
   },
-
   loadingText: {
     fontSize: 16,
-    color: '#666',
-    marginTop: 10,
+    color: '#4F6C92',
+    marginTop: 16,
   },
-
-  uploadingContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-
-  uploadingText: {
-    fontSize: 14,
-    color: '#4A80F0',
-    marginLeft: 8,
-  },
-
-  // Modal styles
-  modalBackground: {
-  flex: 1,
-  backgroundColor: 'rgba(0,0,0,0.5)',
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-modalContainer: {
-  width: '85%',
-  backgroundColor: '#fff',
-  borderRadius: 12,
-  padding: 20,
-  elevation: 5,
-},
-modalHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 10,
-},
-modalTitle: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: '#333',
-},
-modalInput: {
-  borderWidth: 1,
-  borderColor: '#ccc',
-  borderRadius: 8,
-  padding: 10,
-  marginVertical: 10,
-},
-modalPrimaryButton: {
-  backgroundColor: '#4A80F0',
-  borderRadius: 8,
-  paddingVertical: 12,
-  alignItems: 'center',
-  marginTop: 10,
-},
-modalButtonText: {
-  color: '#fff',
-  fontWeight: 'bold',
-},
-modalSecondaryButton: {
-  marginTop: 8,
-  paddingVertical: 10,
-  alignItems: 'center',
-},
-modalSecondaryButtonText: {
-  color: '#4A80F0',
-},
-
-
-  // modalSecondaryButton: {
-  //   backgroundColor: '#f0f0f0',
-  //   borderRadius: 10,
-  //   padding: 15,
-  //   alignItems: 'center',
-  //   marginTop: 10,
-  // },
-
-  // modalSecondaryButtonText: {
-  //   color: '#333',
-  //   fontSize: 16,
-  //   fontWeight: '500',
-  // },
-
-  // OTP specific styles
-  otpContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-
-  infoText: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginVertical: 15,
-  },
-
-  otpInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 15,
-    fontSize: 18,
-    textAlign: 'center',
-    width: 120,
-    backgroundColor: '#f9f9f9',
-  },
-
-  textButton: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-
-  linkText: {
-    color: '#4A80F0',
-    fontSize: 14,
-    fontWeight: '500',
-    marginLeft: 5,
-  },
-
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffebee',
-    padding: 10,
-    borderRadius: 8,
-    marginVertical: 10,
-  },
-
-  errorText: {
-    color: '#d32f2f',
-    fontSize: 14,
-    marginLeft: 8,
-  },
-  availabilityToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 2,
-    paddingVertical: 12,
-    borderRadius: 20,
-    marginTop: 10,
-    alignSelf: 'flex-start',
-    backgroundColor: '#ccc',
-  },
-// 
-availabilityToggleTopRight: {
-  position: 'absolute',
-  top: 0,
-  right: 0,
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingHorizontal: 10,
-  paddingVertical: 4,
-  borderRadius: 20,
-  zIndex: 10,
-},
-
-
-  availabilityToggleText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginLeft: 8,
-  },
-});
+  });
 
 export default styles;

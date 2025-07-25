@@ -4,7 +4,6 @@ import {
   Text,
   ActivityIndicator,
   Alert,
-  StyleSheet,
   Linking,
   Image,
   TouchableOpacity,
@@ -12,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import axios from 'axios';
-import styles from '../components/styles/ShowPortfolio';
+import enhancedStyles from '../components/styles/ShowPortfolio';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {UserContext} from '../context/Context';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -34,7 +33,9 @@ const PortfolioScreen = ({route, navigation}) => {
       const response = await axios.get(
         `https://expertgo-v1.onrender.com/meet/check-already-meet/${expertId}/${userId}`,
       );
-      if (response.data.alreadyScheduled) {
+      const status = response.data.status;
+
+      if (response.data.alreadyScheduled && status != 'completed') {
         setAlreadyMeet(true);
         setStartTime(response.data.time);
       }
@@ -87,22 +88,28 @@ const PortfolioScreen = ({route, navigation}) => {
 
   if (loading) {
     return (
-      <ActivityIndicator size="large" color="#007bff" style={styles.loader} />
+      <View style={enhancedStyles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4267b2" />
+        <Text style={enhancedStyles.loadingText}>Loading profile...</Text>
+      </View>
     );
   }
 
   const renderRatingStars = rating => {
     return (
-      <View style={styles.ratingContainer}>
-        {[...Array(5)].map((_, index) => (
-          <Ionicons
-            key={index}
-            name={index < rating ? 'star' : 'star-outline'}
-            size={20}
-            color="#FFD700"
-          />
-        ))}
-        <Text style={styles.ratingText}>({rating}/5)</Text>
+      <View style={enhancedStyles.ratingContainer}>
+        <View style={enhancedStyles.starsContainer}>
+          {[...Array(5)].map((_, index) => (
+            <Ionicons
+              key={index}
+              name={index < rating ? 'star' : 'star-outline'}
+              size={18}
+              color="#FFD700"
+              style={enhancedStyles.starIcon}
+            />
+          ))}
+        </View>
+        <Text style={enhancedStyles.ratingText}>({rating}/5)</Text>
       </View>
     );
   };
@@ -127,27 +134,34 @@ const PortfolioScreen = ({route, navigation}) => {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={enhancedStyles.safeArea}>
+      <ScrollView style={enhancedStyles.container} showsVerticalScrollIndicator={false}>
+        {/* Enhanced Header with Gradient Background */}
+        <View style={enhancedStyles.headerBackground}>
+          <View style={enhancedStyles.headerOverlay} />
+        </View>
+
         {/* Profile Photo Section */}
-        <View style={styles.profileHeader}>
-          <View style={styles.profilePhotoContainer}>
-            <Image
-              source={{uri: imageUrl || 'https://via.placeholder.com/150'}}
-              style={styles.profilePhoto}
-            />
-            {expert?.isVerified && (
-              <View style={styles.verifiedBadge}>
-                    <MaterialIcons name="verified" size={26} color="#0096FF" />{' '}
-              </View>
-            )}
+        <View style={enhancedStyles.profileHeader}>
+          <View style={enhancedStyles.profilePhotoContainer}>
+            <View style={enhancedStyles.profilePhotoWrapper}>
+              <Image
+                source={{uri: imageUrl || 'https://via.placeholder.com/150'}}
+                style={enhancedStyles.profilePhoto}
+              />
+              {expert?.isVerified && (
+                <View style={enhancedStyles.verifiedBadge}>
+                  <MaterialIcons name="verified" size={28} color="#0096FF" />
+                </View>
+              )}
+            </View>
           </View>
 
           {/* Personal Information */}
-          <View style={styles.personalInfoContainer}>
-            <Text style={styles.name}>{expert?.name || 'Expert Profile'}</Text>
-            <Text style={styles.currentPost}>
-              {expert?.currentPost || 'Professional'}
+          <View style={enhancedStyles.personalInfoContainer}>
+            <Text style={enhancedStyles.name}>{expert?.name || 'Expert Profile'}</Text>
+            <Text style={enhancedStyles.currentPost}>
+             Currently working at {expert?.currentPost || 'Professional'}
             </Text>
             {/* <Text style={styles.currentPost}>
               {expert?.isAvailable ? ("Available"):("Not Available")}
@@ -155,83 +169,131 @@ const PortfolioScreen = ({route, navigation}) => {
             {renderRatingStars(expert?.ratings || 0)}
 
             {expert.url && (
-              <TouchableOpacity onPress={() => handleOpenURL(expert.url)}>
-                <Text style={[styles.currentPost, styles.linkText]}>See {expert.name}'s work</Text>
+              <TouchableOpacity 
+                style={enhancedStyles.workLinkButton}
+                onPress={() => handleOpenURL(expert.url)}
+              >
+                <Ionicons name="link-outline" size={16} color="#4267b2" />
+                <Text style={enhancedStyles.workLinkText}>See {expert.name}'s work</Text>
               </TouchableOpacity>
             )}
           </View>
         </View>
 
         {/* Portfolio Details */}
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Professional Overview</Text>
-
-          <View style={styles.detailRow}>
-            <Ionicons name="mail-outline" size={20} color="#007bff" />
-            <Text style={styles.detailText}>{expert?.email || 'N/A'}</Text>
+        <View style={enhancedStyles.sectionCard}>
+          <View style={enhancedStyles.sectionHeader}>
+            <Ionicons name="briefcase" size={24} color="#4267b2" />
+            <Text style={enhancedStyles.sectionTitle}>Professional Overview</Text>
           </View>
 
-          <View style={styles.detailRow}>
-            <Ionicons name="briefcase-outline" size={20} color="#007bff" />
-            <Text style={styles.detailText}>
-              Experience: {expert?.experience || 'N/A'}
-            </Text>
+          <View style={enhancedStyles.detailsGrid}>
+            <View style={enhancedStyles.detailRow}>
+              <View style={enhancedStyles.iconContainer}>
+                <Ionicons name="mail-outline" size={18} color="#4267b2" />
+              </View>
+              <View style={enhancedStyles.detailContent}>
+                <Text style={enhancedStyles.detailLabel}>Email</Text>
+                <Text style={enhancedStyles.detailText}>{expert?.email || 'N/A'}</Text>
+              </View>
+            </View>
+
+            <View style={enhancedStyles.detailRow}>
+              <View style={enhancedStyles.iconContainer}>
+                <Ionicons name="time-outline" size={18} color="#4267b2" />
+              </View>
+              <View style={enhancedStyles.detailContent}>
+                <Text style={enhancedStyles.detailLabel}>Experience</Text>
+                <Text style={enhancedStyles.detailText}>
+                  {expert?.experience || 'N/A'}
+                </Text>
+              </View>
+            </View>
           </View>
 
-          <View style={styles.skillsContainer}>
-            <Text style={styles.sectionSubtitle}>Skills</Text>
-            <Text style={styles.skillsText}>
-              {expert?.skills?.join(', ') || 'No skills listed'}
-            </Text>
+          <View style={enhancedStyles.skillsContainer}>
+            <View style={enhancedStyles.skillsHeader}>
+              <Ionicons name="code-slash" size={20} color="#4267b2" />
+              <Text style={enhancedStyles.sectionSubtitle}>Skills & Expertise</Text>
+            </View>
+            <View style={enhancedStyles.skillsWrapper}>
+              {expert?.skills?.length > 0 ? (
+                expert.skills.map((skill, index) => (
+                  <View key={index} style={enhancedStyles.skillChip}>
+                    <Text style={enhancedStyles.skillText}>{skill}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={enhancedStyles.noSkillsText}>No skills listed</Text>
+              )}
+            </View>
           </View>
         </View>
 
         {/* Expert Details */}
-        <View style={styles.sectionCard}>
+        <View style={enhancedStyles.sectionCard}>
           {expert?.bio && (
-            <View style={styles.bioContainer}>
-              <Text style={styles.bioText}>"{expert.bio}"</Text>
+            <View style={enhancedStyles.bioContainer}>
+              <View style={enhancedStyles.sectionHeader}>
+                <Ionicons name="person-outline" size={24} color="#4267b2" />
+                <Text style={enhancedStyles.sectionTitle}>About</Text>
+              </View>
+              <View style={enhancedStyles.bioWrapper}>
+                <Text style={enhancedStyles.bioText}>"{expert.bio}"</Text>
+              </View>
             </View>
           )}
 
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Ionicons name="call" size={20} color="#007bff" />
-              <Text style={styles.statLabel}>
-                Total Calls: {expert?.totalDeals || 0}
-              </Text>
+          <View style={enhancedStyles.statsAndChargesContainer}>
+            <View style={enhancedStyles.statsContainer}>
+              <View style={enhancedStyles.statItem}>
+                <View style={enhancedStyles.statIconContainer}>
+                  <Ionicons name="call" size={24} color="#28a745" />
+                </View>
+                <View style={enhancedStyles.statContent}>
+                  <Text style={enhancedStyles.statNumber}>{expert?.totalDeals || 0}</Text>
+                  <Text style={enhancedStyles.statLabel}>Total Calls</Text>
+                </View>
+              </View>
             </View>
-          </View>
 
-          {/* Charges Section */}
-          <View style={styles.chargesContainer}>
-            <Text style={styles.sectionSubtitle}>
-              Charges : ₹{expert?.charges?.[0] || 'N/A'}/10 min
-            </Text>
+            {/* Charges Section */}
+            <View style={enhancedStyles.chargesContainer}>
+              <View style={enhancedStyles.chargesHeader}>
+                <Ionicons name="card" size={20} color="#28a745" />
+                <Text style={enhancedStyles.chargesLabel}>Session Rate</Text>
+              </View>
+              <Text style={enhancedStyles.chargesAmount}>
+                ₹{expert?.charges?.[0] || 'N/A'}
+              </Text>
+              <Text style={enhancedStyles.chargesDuration}>per 10 minutes</Text>
+            </View>
           </View>
         </View>
 
         {sameUser ? (
-          <View style={styles.buttonContainer}>
+          <View style={enhancedStyles.buttonContainer}>
             <TouchableOpacity
-              style={styles.scheduleButton}
+              style={[enhancedStyles.scheduleButton, enhancedStyles.editButton]}
               onPress={() => navigation.navigate('EditPortfolio')}>
               <Ionicons name="pencil" size={24} color="#fff" />
-              <Text style={styles.scheduleButtonText}>Edit Portfolio</Text>
+              <Text style={enhancedStyles.scheduleButtonText}>Edit Portfolio</Text>
             </TouchableOpacity>
           </View>
         ) : alreadyMeet ? (
-          <View style={styles.buttonContainer}>
-            <View style={styles.scheduleButton}>
-              <Text style={styles.scheduleButtonText}>
-                Already scheduled a meeting at {formattedTime}
-              </Text>
+          <View style={enhancedStyles.buttonContainer}>
+            <View style={[enhancedStyles.scheduleButton, enhancedStyles.scheduledButton]}>
+              <Ionicons name="checkmark-circle" size={24} color="#28a745" />
+              <View style={enhancedStyles.scheduledTextContainer}>
+                <Text style={enhancedStyles.scheduledTitle}>Meeting Scheduled</Text>
+                <Text style={enhancedStyles.scheduledTime}>{formattedTime}</Text>
+              </View>
             </View>
           </View>
         ) : (
-          <View style={styles.buttonContainer}>
+          <View style={enhancedStyles.buttonContainer}>
             <TouchableOpacity
-              style={styles.scheduleButton}
+              style={enhancedStyles.scheduleButton}
               onPress={() =>
                 navigation.navigate('Meet', {
                   expertId: expert.userId._id,
@@ -244,7 +306,7 @@ const PortfolioScreen = ({route, navigation}) => {
                 })
               }>
               <Ionicons name="videocam" size={24} color="#fff" />
-              <Text style={styles.scheduleButtonText}>Schedule a Call Now!</Text>
+              <Text style={enhancedStyles.scheduleButtonText}>Schedule a Call Now!</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -252,5 +314,7 @@ const PortfolioScreen = ({route, navigation}) => {
     </SafeAreaView>
   );
 };
+
+
 
 export default PortfolioScreen;

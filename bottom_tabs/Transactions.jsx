@@ -49,15 +49,16 @@ const Transactions = ({navigation}) => {
         );
         console.warn('response', response);
 
-        // Transform data to match the UI in the image
-        const transformedData = (response.data.data || []).map(item => ({
-          _id: item._id,
-          name: item.to.name || 'Unknown Merchant',
-          email: item.to.email,
-          amount: `Rs.${item.amount.toLocaleString('id-ID')}`,
-          date: new Date(item.date),
-          status: item.status,
-        }));
+        const transformedData = (response.data.data || [])
+          .map(item => ({
+            _id: item._id,
+            name: item.to.name || 'Unknown Merchant',
+            email: item.to.email,
+            amount: `₹ ${item.amount.toLocaleString('id-ID')}`,
+            date: new Date(item.date),
+            status: item.status,
+          }))
+          .sort((a, b) => b.date - a.date); // Sort by latest first
 
         setTransactions(transformedData);
         setLoading(false);
@@ -171,16 +172,15 @@ const Transactions = ({navigation}) => {
         styles.container,
         {paddingTop: insets.top > 0 ? 0 : StatusBar.currentHeight},
       ]}>
-      {/* <View style={styles.headerContainer}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name="arrow-back-ios" size={20} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.header}>Transaction History</Text>
-        <View style={{width: 24}} />
-      </View> */}
+      <View style={styles.customHeader}>
+        <Icon
+          name="receipt-long"
+          size={24}
+          color="#4F46E5"
+          style={styles.headerIcon}
+        />
+        <Text style={styles.customHeaderText}>Transaction History</Text>
+      </View>
 
       <View style={styles.filterContainer}>
         {['Date', 'Name'].map(filter => (
@@ -282,10 +282,10 @@ const styles = StyleSheet.create({
   },
   transactionItem: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
+    backgroundColor: '#F0F0F2',
+    padding: 14,
     marginBottom: 8,
-    borderRadius: 8,
+    borderRadius: 20,
   },
   iconContainer: {
     width: 40,
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   merchantName: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
     color: '#000000',
     marginBottom: 2,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   locationText: {
-    fontSize: 12,
+    fontSize: 16,
     color: '#64748B',
     marginLeft: 2,
   },
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   amount: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: '#000000',
     alignSelf: 'center',
@@ -352,5 +352,23 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: '#64748B',
-  },
+  },customHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  margin: 16,
+  paddingVertical: 12,
+  backgroundColor: '#F0F0F2',
+  borderRadius: 16,
+
+},
+customHeaderText: {
+  fontSize: 20,
+  fontWeight: '600',
+  color: '#1E293B',
+},
+headerIcon: {
+  marginRight: 8,
+}
+
 });

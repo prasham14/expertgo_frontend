@@ -21,6 +21,7 @@ const Notifications = ({route}) => {
   
   const fetchNotifications = async () => {
     try {
+      console.log(userId)
       const response = await axios.get(
         `https://expertgo-v1.onrender.com/noti/get-Requests/${userId}`
       );

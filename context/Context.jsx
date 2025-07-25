@@ -7,6 +7,7 @@ export const UserProvider = ({ children }) => {
   const [userEmail, setUserEmail] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -25,6 +26,8 @@ export const UserProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error fetching user data from storage:', error);
+      }finally {
+        setLoading(false);
       }
     };
     

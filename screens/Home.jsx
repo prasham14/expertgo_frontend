@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, {useState, useEffect, useContext, useCallback} from 'react';
 import {
   View,
   Text,
@@ -11,14 +11,12 @@ import {
   Alert,
   Modal,
 } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import homeStyles from '../components/styles/Home';
-import Recomendations from '../components/Recomendations';
-import { UserContext } from '../context/Context';
-import ExpertDash from '../components/ExpertDash';
+import {UserContext} from '../context/Context';
 
 const Home = () => {
   const [experts, setExperts] = useState([]);
@@ -26,11 +24,11 @@ const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   const [portModal, setPortModal] = useState(false);
-  const { userId, userEmail, userRole } = useContext(UserContext);
+  const {userId, userEmail, userRole} = useContext(UserContext);
   const [bankDetails, setBankDetails] = useState(false);
   const [bankDetailsFetched, setBankDetailsFetched] = useState(false);
-  const [showContent, setShowContent] = useState(false); // New state
-
+  const [showContent, setShowContent] = useState(false); 
+  console.log('role home', userRole);
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (userRole) setShowContent(true);
@@ -104,12 +102,48 @@ const Home = () => {
       };
 
       fetchBankDetails();
-    }, [userId])
+    }, [userId]),
   );
 
   const handleNavigate = () => {
-    navigation.navigate('Search', { openKeyboard: true });
+    navigation.navigate('Search', {openKeyboard: true});
   };
+
+  // Sample data for enhanced UI components
+  const featuredCategories = [
+    {
+      id: 1,
+      title: 'Business',
+      icon: 'briefcase-outline',
+      experts: '150+',
+    },
+    {
+      id: 2,
+      title: 'Health',
+      icon: 'medical-outline',
+      experts: '200+',
+    },
+    {id: 3, title: 'Technology', icon: 'code-slash-outline', experts: '180+'},
+    {id: 4, title: 'Education', icon: 'school-outline', experts: '120+'},
+  ];
+
+  const howItWorksSteps = [
+    {
+      step: 1,
+      title: 'Search',
+      description: 'Find experts in your field of interest',
+    },
+    {
+      step: 2,
+      title: 'Connect',
+      description: 'Book a session with your preferred expert',
+    },
+    {
+      step: 3,
+      title: 'Learn',
+      description: 'Get personalized guidance and advice',
+    },
+  ];
 
   if (!showContent) {
     return (
@@ -121,6 +155,7 @@ const Home = () => {
   }
 
   return (
+    
     <View style={homeStyles.container}>
       <StatusBar backgroundColor="#4A6572" barStyle="light-content" />
 
@@ -149,13 +184,23 @@ const Home = () => {
                     userRole,
                   })
                 }>
-                <Ionicons name="notifications-outline" size={24} color="#4A6572" />
+                <Ionicons
+                  name="notifications-outline"
+                  size={24}
+                  color="#4A6572"
+                />
               </TouchableOpacity>
             )}
             <TouchableOpacity
               style={homeStyles.iconButton}
-              onPress={() => navigation.navigate('Profile', { userRole, userId })}>
-              <Ionicons name="person-circle-outline" size={24} color="#4A6572" />
+              onPress={() =>
+                navigation.navigate('Profile', {userRole, userId})
+              }>
+              <Ionicons
+                name="person-circle-outline"
+                size={24}
+                color="#4A6572"
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -170,41 +215,23 @@ const Home = () => {
             colors={['#4A6572']}
           />
         }>
+        {/* Welcome Section */}
+        <View style={homeStyles.welcomeSection}>
+          <Text style={homeStyles.welcomeText}>Welcome to ExpertGo!</Text>
+          <Text style={homeStyles.welcomeSubtext}>
+            {userRole === 'expert'
+              ? 'Ready to share your expertise with the world?'
+              : 'Connect with top experts and unlock your potential.'}
+          </Text>
+        </View>
+
         {loading ? (
           <View style={homeStyles.loadingContainer}>
             <ActivityIndicator size="large" color="#4A6572" />
             {/* <Text style={homeStyles.loadingText}>Loading experts...</Text> */}
           </View>
         ) : (
-          <>
-            {userRole === 'expert' ? <Recomendations /> : null}
-            {userRole === 'user' && (
-              <View style={homeStyles.howItWorksSection}>
-                <Text style={homeStyles.sectionTitle}>How ExpertGo Works</Text>
-                <View style={homeStyles.stepsContainer}>
-                  {[1, 2, 3].map((num, index) => (
-                    <View key={index} style={homeStyles.stepCard}>
-                      <View style={homeStyles.stepNumber}>
-                        <Text style={homeStyles.stepNumberText}>{num}</Text>
-                      </View>
-                      <Text style={homeStyles.stepTitle}>
-                        {['Browse Experts', 'Schedule a Call', 'Get Expert Advice'][index]}
-                      </Text>
-                      <Text style={homeStyles.stepDescription}>
-                        {
-                          [
-                            'Find professionals in your area of interest',
-                            'Book a time that works for both of you',
-                            'Connect and receive valuable insights',
-                          ][index]
-                        }
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
-          </>
+          <></>
         )}
 
         {bankDetailsFetched && !bankDetails && (
@@ -217,7 +244,176 @@ const Home = () => {
             <TouchableOpacity
               style={homeStyles.bankPromptButton}
               onPress={() => navigation.navigate('Bank-details')}>
-              <Text style={homeStyles.bankPromptButtonText}>Add Bank Details</Text>
+              <Text style={homeStyles.bankPromptButtonText}>
+                Add Bank Details
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Featured Categories Section */}
+        <View style={homeStyles.specialSection}>
+          <View style={homeStyles.specialHeader}>
+            <Text style={homeStyles.specialTitle}>Explore Popular Categories</Text>
+            <TouchableOpacity onPress={handleNavigate}>
+              <Text style={homeStyles.seeAllText}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={homeStyles.categoriesContainer}>
+            {featuredCategories.map((category, index) => (
+              <TouchableOpacity
+                key={category.id}
+                style={[
+                  homeStyles.categoryCard,
+                  index % 2 === 1 && homeStyles.categoryDark,
+                ]}
+                onPress={handleNavigate}>
+                <Text
+                  style={[
+                    homeStyles.categoryTitle,
+                    index % 2 === 1 && homeStyles.categoryTitleDark,
+                  ]}>
+                  {category.title}
+                </Text>
+                <Text
+                  style={[
+                    homeStyles.categoryDescription,
+                    index % 2 === 1 && homeStyles.categoryDescriptionDark,
+                  ]}>
+                  {category.experts} experts
+                </Text>
+                <View style={homeStyles.categoryButton}>
+                  <Ionicons name={category.icon} size={20} color="#FFFFFF" />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* How It Works Section */}
+        {userRole === 'user' && (
+          <View style={homeStyles.howItWorksSection}>
+            <Text style={homeStyles.sectionTitle}>How ExpertGo Works</Text>
+            <View style={homeStyles.stepsContainer}>
+              {howItWorksSteps.map(step => (
+                <View key={step.step} style={homeStyles.stepCard}>
+                  <View style={homeStyles.stepNumber}>
+                    <Text style={homeStyles.stepNumberText}>{step.step}</Text>
+                  </View>
+                  <Text style={homeStyles.stepTitle}>{step.title}</Text>
+                  <Text style={homeStyles.stepDescription}>
+                    {step.description}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Top Experts Section */}
+        {experts.length > 0 && (
+          <View style={homeStyles.specialSection}>
+            <View style={homeStyles.specialHeader}>
+              <Text style={homeStyles.specialTitle}>Verfied Experts</Text>
+              <TouchableOpacity onPress={handleNavigate}>
+                <Text style={homeStyles.seeAllText}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+data={experts.filter(item => item.isAvailable).slice(0, 5)}
+              keyExtractor={item =>
+                item.id?.toString() || Math.random().toString()
+              }
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={homeStyles.expertCard}
+                  onPress={() =>
+                    navigation.navigate('PortfolioScreen', {
+                      expertId: item.userId?._id,
+                      email: userEmail,
+                    })
+                  }>
+                  <Text style={homeStyles.expertName}>
+                    {item.name || 'Expert'}
+                  </Text>
+                  <Text style={homeStyles.expertSpeciality}>
+                    {item.category[0] || 'Professional'}
+                  </Text>
+                  <View style={homeStyles.expertMeta}>
+                    <View style={homeStyles.metaItem}>
+                      <Ionicons name="star" size={12} color="#FFB800" />
+                      <Text style={homeStyles.metaText}>{item.ratings}</Text>
+                    </View>
+                    <View style={homeStyles.metaItem}>
+                      <Ionicons name="call" size={12} color="#666666" />
+                      <Text style={homeStyles.metaText}>₹ {item.charges} </Text>
+                    </View>
+                    <View style={homeStyles.metaItem}>
+                      <Ionicons name="people" size={12} color="#666666" />
+                      <Text style={homeStyles.metaText}>{item.totalDeals}+</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={homeStyles.bookButton}
+                    onPress={() =>
+                    navigation.navigate('PortfolioScreen', {
+                      expertId: item.userId?._id,
+                      email: userEmail,
+                    })
+                    }>
+                    <Text style={homeStyles.bookButtonText}>Book Session</Text>
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        )}
+
+        {/* Testimonials Section
+        <View style={homeStyles.testimonialSection}>
+          <Text style={homeStyles.sectionTitle}>What Our Users Say</Text>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={testimonials}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({item}) => (
+              <View style={homeStyles.testimonialCard}>
+                <View style={homeStyles.testimonialHeader}>
+                  <View style={homeStyles.testimonialAvatar}>
+                    <Text style={homeStyles.testimonialInitial}>
+                      {item.name.charAt(0)}
+                    </Text>
+                  </View>
+                  <Text style={homeStyles.testimonialName}>{item.name}</Text>
+                </View>
+                <Text style={homeStyles.testimonialText}>{item.text}</Text>
+                <View style={homeStyles.testimonialRating}>
+                  {[...Array(item.rating)].map((_, i) => (
+                    <Ionicons key={i} name="star" size={16} color="#FFB800" />
+                  ))}
+                </View>
+              </View>
+            )}
+          />
+        </View> */}
+
+        {/* Support Section */}
+        {userRole === 'expert' && (
+          <View style={homeStyles.supportSection}>
+            <Text style={homeStyles.supportTitle}>
+              Need Help Getting Started?
+            </Text>
+            <Text style={homeStyles.supportText}>
+              Our support team is here to help you make the most of ExpertGo
+            </Text>
+            <TouchableOpacity
+              style={homeStyles.supportButton}
+              onPress={() =>Alert.alert("Our Team Will Contact you soon , Thankyou for your patience!")}>
+              <Ionicons name="headset" size={16} color="#FFFFFF" />
+              <Text style={homeStyles.supportButtonText}>Contact Support</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -241,9 +437,12 @@ const Home = () => {
                   color="#4267B2"
                   style={homeStyles.portfolioIcon}
                 />
-                <Text style={homeStyles.portfolioTitle}>Create Your Portfolio</Text>
+                <Text style={homeStyles.portfolioTitle}>
+                  Create Your Portfolio
+                </Text>
                 <Text style={homeStyles.portfolioDescription}>
-                  Showcase your expertise and credentials to attract more clients.
+                  Showcase your expertise and credentials to attract more
+                  clients.
                 </Text>
                 <TouchableOpacity
                   style={homeStyles.portfolioButton}
@@ -251,7 +450,9 @@ const Home = () => {
                     setPortModal(false);
                     navigation.navigate('Portfolio');
                   }}>
-                  <Text style={homeStyles.portfolioButtonText}>Get Started</Text>
+                  <Text style={homeStyles.portfolioButtonText}>
+                    Get Started
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>

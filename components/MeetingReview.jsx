@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet,Modal,View,Text,TextInput,TouchableOpacity,ActivityIndicator } from 'react-native';
-
+import axios from 'axios';
 const StarRating = ({ rating, setRating }) => {
   const renderStar = (position) => {
     const filled = position <= rating;
@@ -24,12 +24,16 @@ const StarRating = ({ rating, setRating }) => {
   );
 };
 
-const MeetingReviewModal = ({ visible, onClose, userId, expertId, meetingId }) => {
+const MeetingReviewModal = ({ visible, onClose, meetingDetails }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const userId = meetingDetails?.userId;
+  const expertId = meetingDetails?.expertDetails.expertId._id;
+  const meetingId = meetingDetails?._id; 
 
+  console.log("from",meetingDetails)
   const handleSubmitReview = async () => {
     if (rating === 0) {
       setErrorMessage('Please select a rating');
@@ -65,7 +69,6 @@ const MeetingReviewModal = ({ visible, onClose, userId, expertId, meetingId }) =
       );
       console.log('Meeting removed');
 
-      // Review submitted successfully
       onClose();
     } catch (error) {
       console.error('Error submitting review:', error);

@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#f9f9f9',
+      backgroundColor: '#ffffff',
     },
     loadingContainer: {
       flex: 1,
@@ -71,15 +71,15 @@ const styles = StyleSheet.create({
       paddingHorizontal: 12,
       borderRadius: 20,
       borderWidth: 1,
-      borderColor: '#007BFF',
+      borderColor: '#4267b2',
       margin: 4,
       backgroundColor: 'white',
     },
     experienceButtonSelected: {
-      backgroundColor: '#007BFF',
+      backgroundColor: '#4267b2',
     },
     experienceButtonText: {
-      color: '#007BFF',
+      color: '#4267b2',
       fontSize: 14,
     },
     experienceButtonTextSelected: {
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
       color: '#333',
     },
     submitButton: {
-      backgroundColor: '#007BFF',
+      backgroundColor: '#4267b2',
       borderRadius: 8,
       padding: 16,
       alignItems: 'center',
@@ -193,8 +193,7 @@ const styles = StyleSheet.create({
       borderColor: '#ccc',
     },
     selectedAmPm: {
-      backgroundColor: '#007BFF',
-      borderColor: '#007BFF',
+      backgroundColor: '#4267b2',
     },
     amPmText: {
       color: '#333',

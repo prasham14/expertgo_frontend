@@ -80,7 +80,7 @@ const navigation = useNavigation();
               <Text style={styles.statLabel}>Missed Meetings</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>Rs.{earnings}</Text>
+              <Text style={styles.statValue}>₹{earnings}</Text>
               <Text style={styles.statLabel}>Earnings</Text>
             </View>
           </>

@@ -9,41 +9,36 @@ const TandC = () => {
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={styles.sectionTitle}>1. Introduction</Text>
         <Text style={styles.text}>
-          Welcome to Expertgo! By using our app, you agree to the following terms and conditions.
-          Please read them carefully.
+          Welcome to Expertgo. By accessing or using our application, you agree to comply with these Terms & Conditions. Please read them carefully before proceeding.
         </Text>
 
         <Text style={styles.sectionTitle}>2. User Responsibilities</Text>
         <Text style={styles.text}>
-          You must use this app responsibly and comply with all applicable laws. Any misuse of the 
-          platform, including fraudulent activities, is strictly prohibited.
+          Users are expected to engage with the platform in a lawful and respectful manner. Any misuse, including fraudulent or harmful activities, is strictly prohibited and may result in account suspension or legal action.
         </Text>
 
         <Text style={styles.sectionTitle}>3. Account Security</Text>
         <Text style={styles.text}>
-          Users are responsible for maintaining the security of their accounts. Do not share 
-          your password with anyone.
+          You are solely responsible for maintaining the confidentiality of your account credentials. Please ensure your login information is secure and never shared with others.
         </Text>
 
         <Text style={styles.sectionTitle}>4. Content Ownership</Text>
         <Text style={styles.text}>
-          All content provided on this platform is either owned by us or licensed for use. 
-          Unauthorized copying, distribution, or modification is not allowed.
+          All content available on this platform is either owned by Expertgo or licensed for use. Reproduction, distribution, or modification without prior written consent is strictly prohibited.
         </Text>
 
-        <Text style={styles.sectionTitle}>5. Limitation of Liability</Text>
+        <Text style={styles.sectionTitle}>5. Access to Google Calendar & Google Meet</Text>
         <Text style={styles.text}>
-          We are not responsible for any direct or indirect damages resulting from the use of this app.
+          To enable seamless scheduling and meeting creation, the app may request access to your Google Calendar and Google Meet services. By granting access, you consent to the app generating meeting links on your behalf.
         </Text>
 
-        <Text style={styles.sectionTitle}>6. Changes to Terms</Text>
+        <Text style={styles.sectionTitle}>6. Modifications to Terms</Text>
         <Text style={styles.text}>
-          We reserve the right to modify these terms at any time. Continued use of the app means 
-          acceptance of the updated terms.
+          Expertgo reserves the right to update or revise these Terms & Conditions at any time. Continued use of the app following such changes constitutes acceptance of the updated terms.
         </Text>
 
         <Text style={styles.footerText}>
-          If you have any questions, contact us at support@expertgo.com
+          For questions or support, please contact us at jprasham3@gmail.com
         </Text>
       </ScrollView>
     </View>

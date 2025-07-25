@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#4267b2',
     padding: 16,
     borderRadius: 10,
     alignItems: 'center',
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   termsText: {
-    color: '#2563EB',
+    color: '#4267b2',
     fontSize: 14,
     textDecorationLine: 'underline',
   },
