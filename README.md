@@ -3,13 +3,9 @@ install link - https://drive.google.com/file/d/1SJo_tgXdpYpNoOYqixaYe8RMCTuxMk1I
 
 
 #  Expert-Go - Expert Help On Call
+It is a MERN and React Native-based application that connects users with experts for paid audio/video consultations. Users can book sessions with experts, join live calls (via Google Meet or Zego cloud video calls), and leave reviews. Experts can monetize their skills by offering time-based support.
 
-**ProjectTK** is a MERN and React Native-based application that connects users with experts for paid audio/video consultations. Users can book sessions with experts, join live calls (via Google Meet or Zego cloud video calls), and leave reviews. Experts can monetize their skills by offering time-based support.
-
----
-
-##  Features
-
+#  Features
 ###  User Side
 -  Search for experts by name, skill, or category
 -  Book and schedule audio/video meetings
@@ -22,14 +18,10 @@ install link - https://drive.google.com/file/d/1SJo_tgXdpYpNoOYqixaYe8RMCTuxMk1I
 -  Get paid for providing real-time help
 -  Track meeting metrics and earnings
 
----
-
 ## Tech Stack
-
 ### Frontend
 - **React Native** – Cross-platform mobile app
 - **Axios** – For API communication
-- **WebRTC** – Direct peer-to-peer video calls
 - **Google Meet** – Optional fallback for meetings
 
 ### Backend
